@@ -1,0 +1,1416 @@
+{
+    "usesMarkdown": true,
+    "idReadable": "P-3866",
+    "updated": 1745850091758,
+    "numberInProject": 3866,
+    "widgets": [],
+    "mentionedIssues": [],
+    "mentionedUsers": [],
+    "mentionedArticles": [],
+    "resolved": null,
+    "summary": "ручка для бана адресов",
+    "votes": 0,
+    "reporter": {
+        "ringId": "969e717d-839c-4f6a-8546-5d66ff4823fd",
+        "online": true,
+        "profiles": {
+            "$type": "UserProfiles",
+            "general": {
+                "trackOnlineStatus": true,
+                "$type": "GeneralUserProfile"
+            }
+        },
+        "issueRelatedGroup": {
+            "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+            "$type": "UserGroup"
+        },
+        "email": "WitaliS@techjedi.co",
+        "banned": false,
+        "avatarUrl": "/hub/api/rest/avatar/969e717d-839c-4f6a-8546-5d66ff4823fd?s=48&etag==MjYtMTU1NA%3D%3D",
+        "login": "randomnerd",
+        "banBadge": null,
+        "fullName": "Vitaly A. Sorokin",
+        "name": "Vitaly A. Sorokin",
+        "isLocked": false,
+        "id": "1-85",
+        "$type": "User"
+    },
+    "isDraft": false,
+    "attachments": [
+        {
+            "issue": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "project": {
+                    "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                    "id": "0-7",
+                    "$type": "Project"
+                },
+                "id": "2-69239",
+                "$type": "Issue"
+            },
+            "imageDimensions": {
+                "width": 1548,
+                "height": 1402
+            },
+            "visibility": {
+                "$type": "UnlimitedVisibility"
+            },
+            "mimeType": "image/png",
+            "created": 1745581816862,
+            "author": {
+                "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                "fullName": "v.ivlev",
+                "id": "1-192",
+                "$type": "User"
+            },
+            "removed": false,
+            "comment": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "id": "4-52312",
+                "$type": "IssueComment"
+            },
+            "url": "/api/files/7-20805?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MDV8OTJMaXlyQVhadXJqd2FKZ25BY0lDM2RwcUlQT01a%0D%0AZVBoU0xYT2t4QkVwRQ0K%0D%0A&updated=1745580457274",
+            "name": "image.png",
+            "size": 235028,
+            "thumbnailURL": "/api/files/125-34771?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3MXwwSWoxMzFjQ3FVVzAwYjdOZDdVZ2MySjBrQ3By%0D%0AQ2stZG44Y1dZTm9keWxJDQo%0D%0A",
+            "id": "7-20805",
+            "$type": "IssueAttachment"
+        },
+        {
+            "issue": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "project": {
+                    "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                    "id": "0-7",
+                    "$type": "Project"
+                },
+                "id": "2-69239",
+                "$type": "Issue"
+            },
+            "imageDimensions": {
+                "width": 1318,
+                "height": 1506
+            },
+            "visibility": {
+                "$type": "UnlimitedVisibility"
+            },
+            "mimeType": "image/png",
+            "created": 1745581816862,
+            "author": {
+                "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                "fullName": "v.ivlev",
+                "id": "1-192",
+                "$type": "User"
+            },
+            "removed": false,
+            "comment": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "id": "4-52312",
+                "$type": "IssueComment"
+            },
+            "url": "/api/files/7-20806?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MDZ8UGVtU0xwWko5ck91MmFEUXB3WU05U3oycW5qN1lV%0D%0Ab1J6d0RNTEZYX3dUNA0K%0D%0A&updated=1745580580279",
+            "name": "image1.png",
+            "size": 251357,
+            "thumbnailURL": "/api/files/125-34772?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3MnxobWFpWmdhVV9MNmMwbmlsb08zelMxYkxIT3BQ%0D%0AUHg3QmFKY2psWHhGTzE0DQo%0D%0A",
+            "id": "7-20806",
+            "$type": "IssueAttachment"
+        },
+        {
+            "issue": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "project": {
+                    "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                    "id": "0-7",
+                    "$type": "Project"
+                },
+                "id": "2-69239",
+                "$type": "Issue"
+            },
+            "imageDimensions": {
+                "width": 1324,
+                "height": 842
+            },
+            "visibility": {
+                "$type": "UnlimitedVisibility"
+            },
+            "mimeType": "image/png",
+            "created": 1745581816862,
+            "author": {
+                "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                "fullName": "v.ivlev",
+                "id": "1-192",
+                "$type": "User"
+            },
+            "removed": false,
+            "comment": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "id": "4-52312",
+                "$type": "IssueComment"
+            },
+            "url": "/api/files/7-20807?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MDd8N2JaXzFzN3R1QnFBNXN5eFIwQ3Nsd0NyNWFjNm1o%0D%0AeFZJaW4zaGxIaUNtUQ0K%0D%0A&updated=1745580686047",
+            "name": "image2.png",
+            "size": 201340,
+            "thumbnailURL": "/api/files/125-34773?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3M3w3Ym1ySERodUFmS0phMDJpQ25MQzd1QXhLRjI0%0D%0AamJ2MU8zTWllb29mcjRjDQo%0D%0A",
+            "id": "7-20807",
+            "$type": "IssueAttachment"
+        },
+        {
+            "issue": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "project": {
+                    "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                    "id": "0-7",
+                    "$type": "Project"
+                },
+                "id": "2-69239",
+                "$type": "Issue"
+            },
+            "imageDimensions": {
+                "width": 1422,
+                "height": 1594
+            },
+            "visibility": {
+                "$type": "UnlimitedVisibility"
+            },
+            "mimeType": "image/png",
+            "created": 1745581816862,
+            "author": {
+                "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                "fullName": "v.ivlev",
+                "id": "1-192",
+                "$type": "User"
+            },
+            "removed": false,
+            "comment": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "id": "4-52312",
+                "$type": "IssueComment"
+            },
+            "url": "/api/files/7-20808?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MDh8WjA2dnlXTTFzUl9nc3JWQUYtRHFSR3VVN0lVa2Rl%0D%0ASGVFV3ZocExIbUprSQ0K%0D%0A&updated=1745580861561",
+            "name": "image3.png",
+            "size": 280645,
+            "thumbnailURL": "/api/files/125-34774?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3NHw4SEpUYzllNkh1VnRoOGdHUU9ERk54YVV4TDBC%0D%0ATUpQLWRXcndyclZsaEtBDQo%0D%0A",
+            "id": "7-20808",
+            "$type": "IssueAttachment"
+        },
+        {
+            "issue": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "project": {
+                    "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                    "id": "0-7",
+                    "$type": "Project"
+                },
+                "id": "2-69239",
+                "$type": "Issue"
+            },
+            "imageDimensions": {
+                "width": 1160,
+                "height": 1356
+            },
+            "visibility": {
+                "$type": "UnlimitedVisibility"
+            },
+            "mimeType": "image/png",
+            "created": 1745581816862,
+            "author": {
+                "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                "fullName": "v.ivlev",
+                "id": "1-192",
+                "$type": "User"
+            },
+            "removed": false,
+            "comment": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "id": "4-52312",
+                "$type": "IssueComment"
+            },
+            "url": "/api/files/7-20809?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MDl8VWlTbWtYXzQxUEpXMmpoOGtlbEdiWk9YNUoyREdk%0D%0ARHdRekhFT3hSbWRlSQ0K%0D%0A&updated=1745581131645",
+            "name": "image4.png",
+            "size": 206807,
+            "thumbnailURL": "/api/files/125-34775?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3NXxaaWtfSEU1c1NxZ0FSRVNUYWdGQVdVNmRheURW%0D%0AUGhjOU02bGd2dWlOLS1JDQo%0D%0A",
+            "id": "7-20809",
+            "$type": "IssueAttachment"
+        },
+        {
+            "issue": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "project": {
+                    "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                    "id": "0-7",
+                    "$type": "Project"
+                },
+                "id": "2-69239",
+                "$type": "Issue"
+            },
+            "imageDimensions": {
+                "width": 1334,
+                "height": 1418
+            },
+            "visibility": {
+                "$type": "UnlimitedVisibility"
+            },
+            "mimeType": "image/png",
+            "created": 1745581816862,
+            "author": {
+                "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                "fullName": "v.ivlev",
+                "id": "1-192",
+                "$type": "User"
+            },
+            "removed": false,
+            "comment": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "id": "4-52312",
+                "$type": "IssueComment"
+            },
+            "url": "/api/files/7-20810?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MTB8RGViSE0wS2FBWXRXZDdoZTVhRndKZndEMEZPanlE%0D%0AbWFkZjRpb0JNaWRPNA0K%0D%0A&updated=1745581152536",
+            "name": "image5.png",
+            "size": 232214,
+            "thumbnailURL": "/api/files/125-34776?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3NnxoVnFHMXl0WTZGOUpyVV9XRlMxUWdlbmdzNkEz%0D%0AQ1JiaEl5dHJBWFhLQ2RBDQo%0D%0A",
+            "id": "7-20810",
+            "$type": "IssueAttachment"
+        },
+        {
+            "issue": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "project": {
+                    "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                    "id": "0-7",
+                    "$type": "Project"
+                },
+                "id": "2-69239",
+                "$type": "Issue"
+            },
+            "imageDimensions": {
+                "width": 1188,
+                "height": 668
+            },
+            "visibility": {
+                "$type": "UnlimitedVisibility"
+            },
+            "mimeType": "image/png",
+            "created": 1745581816862,
+            "author": {
+                "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                "fullName": "v.ivlev",
+                "id": "1-192",
+                "$type": "User"
+            },
+            "removed": false,
+            "comment": {
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "id": "4-52312",
+                "$type": "IssueComment"
+            },
+            "url": "/api/files/7-20813?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MTN8SDluREV1YmdXVTJzODNLN3V0X2hoOEplV3owV2RR%0D%0AYkpnVmQ0eUc5d2h6cw0K%0D%0A&updated=1745581427749",
+            "name": "image7.png",
+            "size": 160700,
+            "thumbnailURL": "/api/files/125-34779?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3OXxCSXAwclh1Ul9MNlZOSy1PUExzNE54YXdnLW4y%0D%0AVU9UemFWSk1QWUotRTg0DQo%0D%0A",
+            "id": "7-20813",
+            "$type": "IssueAttachment"
+        }
+    ],
+    "comments": [
+        {
+            "attachments": [],
+            "id": "4-51787",
+            "$type": "IssueComment"
+        },
+        {
+            "attachments": [],
+            "id": "4-51788",
+            "$type": "IssueComment"
+        },
+        {
+            "attachments": [],
+            "id": "4-51789",
+            "$type": "IssueComment"
+        },
+        {
+            "attachments": [
+                {
+                    "issue": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "project": {
+                            "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                            "id": "0-7",
+                            "$type": "Project"
+                        },
+                        "id": "2-69239",
+                        "$type": "Issue"
+                    },
+                    "imageDimensions": {
+                        "width": 1548,
+                        "height": 1402
+                    },
+                    "visibility": {
+                        "$type": "UnlimitedVisibility"
+                    },
+                    "mimeType": "image/png",
+                    "created": 1745581816862,
+                    "author": {
+                        "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                        "fullName": "v.ivlev",
+                        "id": "1-192",
+                        "$type": "User"
+                    },
+                    "removed": false,
+                    "comment": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "id": "4-52312",
+                        "$type": "IssueComment"
+                    },
+                    "url": "/api/files/7-20805?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MDV8OTJMaXlyQVhadXJqd2FKZ25BY0lDM2RwcUlQT01a%0D%0AZVBoU0xYT2t4QkVwRQ0K%0D%0A&updated=1745580457274",
+                    "name": "image.png",
+                    "size": 235028,
+                    "thumbnailURL": "/api/files/125-34771?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3MXwwSWoxMzFjQ3FVVzAwYjdOZDdVZ2MySjBrQ3By%0D%0AQ2stZG44Y1dZTm9keWxJDQo%0D%0A",
+                    "id": "7-20805",
+                    "$type": "IssueAttachment"
+                },
+                {
+                    "issue": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "project": {
+                            "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                            "id": "0-7",
+                            "$type": "Project"
+                        },
+                        "id": "2-69239",
+                        "$type": "Issue"
+                    },
+                    "imageDimensions": {
+                        "width": 1318,
+                        "height": 1506
+                    },
+                    "visibility": {
+                        "$type": "UnlimitedVisibility"
+                    },
+                    "mimeType": "image/png",
+                    "created": 1745581816862,
+                    "author": {
+                        "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                        "fullName": "v.ivlev",
+                        "id": "1-192",
+                        "$type": "User"
+                    },
+                    "removed": false,
+                    "comment": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "id": "4-52312",
+                        "$type": "IssueComment"
+                    },
+                    "url": "/api/files/7-20806?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MDZ8UGVtU0xwWko5ck91MmFEUXB3WU05U3oycW5qN1lV%0D%0Ab1J6d0RNTEZYX3dUNA0K%0D%0A&updated=1745580580279",
+                    "name": "image1.png",
+                    "size": 251357,
+                    "thumbnailURL": "/api/files/125-34772?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3MnxobWFpWmdhVV9MNmMwbmlsb08zelMxYkxIT3BQ%0D%0AUHg3QmFKY2psWHhGTzE0DQo%0D%0A",
+                    "id": "7-20806",
+                    "$type": "IssueAttachment"
+                },
+                {
+                    "issue": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "project": {
+                            "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                            "id": "0-7",
+                            "$type": "Project"
+                        },
+                        "id": "2-69239",
+                        "$type": "Issue"
+                    },
+                    "imageDimensions": {
+                        "width": 1324,
+                        "height": 842
+                    },
+                    "visibility": {
+                        "$type": "UnlimitedVisibility"
+                    },
+                    "mimeType": "image/png",
+                    "created": 1745581816862,
+                    "author": {
+                        "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                        "fullName": "v.ivlev",
+                        "id": "1-192",
+                        "$type": "User"
+                    },
+                    "removed": false,
+                    "comment": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "id": "4-52312",
+                        "$type": "IssueComment"
+                    },
+                    "url": "/api/files/7-20807?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MDd8N2JaXzFzN3R1QnFBNXN5eFIwQ3Nsd0NyNWFjNm1o%0D%0AeFZJaW4zaGxIaUNtUQ0K%0D%0A&updated=1745580686047",
+                    "name": "image2.png",
+                    "size": 201340,
+                    "thumbnailURL": "/api/files/125-34773?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3M3w3Ym1ySERodUFmS0phMDJpQ25MQzd1QXhLRjI0%0D%0AamJ2MU8zTWllb29mcjRjDQo%0D%0A",
+                    "id": "7-20807",
+                    "$type": "IssueAttachment"
+                },
+                {
+                    "issue": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "project": {
+                            "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                            "id": "0-7",
+                            "$type": "Project"
+                        },
+                        "id": "2-69239",
+                        "$type": "Issue"
+                    },
+                    "imageDimensions": {
+                        "width": 1422,
+                        "height": 1594
+                    },
+                    "visibility": {
+                        "$type": "UnlimitedVisibility"
+                    },
+                    "mimeType": "image/png",
+                    "created": 1745581816862,
+                    "author": {
+                        "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                        "fullName": "v.ivlev",
+                        "id": "1-192",
+                        "$type": "User"
+                    },
+                    "removed": false,
+                    "comment": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "id": "4-52312",
+                        "$type": "IssueComment"
+                    },
+                    "url": "/api/files/7-20808?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MDh8WjA2dnlXTTFzUl9nc3JWQUYtRHFSR3VVN0lVa2Rl%0D%0ASGVFV3ZocExIbUprSQ0K%0D%0A&updated=1745580861561",
+                    "name": "image3.png",
+                    "size": 280645,
+                    "thumbnailURL": "/api/files/125-34774?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3NHw4SEpUYzllNkh1VnRoOGdHUU9ERk54YVV4TDBC%0D%0ATUpQLWRXcndyclZsaEtBDQo%0D%0A",
+                    "id": "7-20808",
+                    "$type": "IssueAttachment"
+                },
+                {
+                    "issue": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "project": {
+                            "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                            "id": "0-7",
+                            "$type": "Project"
+                        },
+                        "id": "2-69239",
+                        "$type": "Issue"
+                    },
+                    "imageDimensions": {
+                        "width": 1160,
+                        "height": 1356
+                    },
+                    "visibility": {
+                        "$type": "UnlimitedVisibility"
+                    },
+                    "mimeType": "image/png",
+                    "created": 1745581816862,
+                    "author": {
+                        "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                        "fullName": "v.ivlev",
+                        "id": "1-192",
+                        "$type": "User"
+                    },
+                    "removed": false,
+                    "comment": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "id": "4-52312",
+                        "$type": "IssueComment"
+                    },
+                    "url": "/api/files/7-20809?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MDl8VWlTbWtYXzQxUEpXMmpoOGtlbEdiWk9YNUoyREdk%0D%0ARHdRekhFT3hSbWRlSQ0K%0D%0A&updated=1745581131645",
+                    "name": "image4.png",
+                    "size": 206807,
+                    "thumbnailURL": "/api/files/125-34775?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3NXxaaWtfSEU1c1NxZ0FSRVNUYWdGQVdVNmRheURW%0D%0AUGhjOU02bGd2dWlOLS1JDQo%0D%0A",
+                    "id": "7-20809",
+                    "$type": "IssueAttachment"
+                },
+                {
+                    "issue": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "project": {
+                            "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                            "id": "0-7",
+                            "$type": "Project"
+                        },
+                        "id": "2-69239",
+                        "$type": "Issue"
+                    },
+                    "imageDimensions": {
+                        "width": 1334,
+                        "height": 1418
+                    },
+                    "visibility": {
+                        "$type": "UnlimitedVisibility"
+                    },
+                    "mimeType": "image/png",
+                    "created": 1745581816862,
+                    "author": {
+                        "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                        "fullName": "v.ivlev",
+                        "id": "1-192",
+                        "$type": "User"
+                    },
+                    "removed": false,
+                    "comment": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "id": "4-52312",
+                        "$type": "IssueComment"
+                    },
+                    "url": "/api/files/7-20810?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MTB8RGViSE0wS2FBWXRXZDdoZTVhRndKZndEMEZPanlE%0D%0AbWFkZjRpb0JNaWRPNA0K%0D%0A&updated=1745581152536",
+                    "name": "image5.png",
+                    "size": 232214,
+                    "thumbnailURL": "/api/files/125-34776?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3NnxoVnFHMXl0WTZGOUpyVV9XRlMxUWdlbmdzNkEz%0D%0AQ1JiaEl5dHJBWFhLQ2RBDQo%0D%0A",
+                    "id": "7-20810",
+                    "$type": "IssueAttachment"
+                },
+                {
+                    "issue": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "project": {
+                            "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                            "id": "0-7",
+                            "$type": "Project"
+                        },
+                        "id": "2-69239",
+                        "$type": "Issue"
+                    },
+                    "imageDimensions": {
+                        "width": 1188,
+                        "height": 668
+                    },
+                    "visibility": {
+                        "$type": "UnlimitedVisibility"
+                    },
+                    "mimeType": "image/png",
+                    "created": 1745581816862,
+                    "author": {
+                        "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                        "fullName": "v.ivlev",
+                        "id": "1-192",
+                        "$type": "User"
+                    },
+                    "removed": false,
+                    "comment": {
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "id": "4-52312",
+                        "$type": "IssueComment"
+                    },
+                    "url": "/api/files/7-20813?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA4MTN8SDluREV1YmdXVTJzODNLN3V0X2hoOEplV3owV2RR%0D%0AYkpnVmQ0eUc5d2h6cw0K%0D%0A&updated=1745581427749",
+                    "name": "image7.png",
+                    "size": 160700,
+                    "thumbnailURL": "/api/files/125-34779?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDc3OXxCSXAwclh1Ul9MNlZOSy1PUExzNE54YXdnLW4y%0D%0AVU9UemFWSk1QWUotRTg0DQo%0D%0A",
+                    "id": "7-20813",
+                    "$type": "IssueAttachment"
+                }
+            ],
+            "id": "4-52312",
+            "$type": "IssueComment"
+        }
+    ],
+    "voters": {
+        "hasVote": false,
+        "$type": "IssueVoters"
+    },
+    "hasEmail": false,
+    "applicableActions": [
+        {
+            "executing": false,
+            "userInputType": null,
+            "description": "Clone issue",
+            "name": "clone",
+            "id": "clone",
+            "$type": "EntityAction"
+        },
+        {
+            "executing": false,
+            "userInputType": null,
+            "description": "Clone issue as draft",
+            "name": "clone as draft",
+            "id": "clone as draft",
+            "$type": "EntityAction"
+        }
+    ],
+    "updater": {
+        "ringId": "0addc918-eb74-419d-9164-2cdac884a1d2",
+        "online": true,
+        "issueRelatedGroup": {
+            "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+            "$type": "UserGroup"
+        },
+        "banned": false,
+        "avatarUrl": "/hub/api/rest/avatar/0addc918-eb74-419d-9164-2cdac884a1d2?s=48&etag==MjYtMjA0Ng%3D%3D",
+        "login": "d.lopatin",
+        "banBadge": null,
+        "fullName": "d.lopatin",
+        "name": "d.lopatin",
+        "isLocked": false,
+        "id": "1-110",
+        "$type": "User"
+    },
+    "canUpdateVisibility": true,
+    "canAddPublicComment": true,
+    "externalIssue": null,
+    "hiddenAttachmentsCount": 0,
+    "visibility": {
+        "$type": "UnlimitedVisibility"
+    },
+    "created": 1744808345644,
+    "links": [
+        {
+            "direction": "BOTH",
+            "linkType": {
+                "directed": false,
+                "sourceToTarget": "relates to",
+                "targetToSource": "",
+                "localizedSourceToTarget": null,
+                "localizedTargetToSource": null,
+                "aggregation": false,
+                "localizedName": null,
+                "uid": 0,
+                "name": "Relates",
+                "$type": "IssueLinkType"
+            },
+            "issuesSize": 0,
+            "unresolvedIssuesSize": 0,
+            "trimmedIssues": [],
+            "id": "95-0",
+            "$type": "IssueLink"
+        },
+        {
+            "direction": "OUTWARD",
+            "linkType": {
+                "directed": true,
+                "sourceToTarget": "is required for",
+                "targetToSource": "depends on",
+                "localizedSourceToTarget": null,
+                "localizedTargetToSource": null,
+                "aggregation": false,
+                "localizedName": null,
+                "uid": 1,
+                "name": "Depend",
+                "$type": "IssueLinkType"
+            },
+            "issuesSize": 0,
+            "unresolvedIssuesSize": 0,
+            "trimmedIssues": [],
+            "id": "95-1s",
+            "$type": "IssueLink"
+        },
+        {
+            "direction": "INWARD",
+            "linkType": {
+                "directed": true,
+                "sourceToTarget": "is required for",
+                "targetToSource": "depends on",
+                "localizedSourceToTarget": null,
+                "localizedTargetToSource": null,
+                "aggregation": false,
+                "localizedName": null,
+                "uid": 1,
+                "name": "Depend",
+                "$type": "IssueLinkType"
+            },
+            "issuesSize": 0,
+            "unresolvedIssuesSize": 0,
+            "trimmedIssues": [],
+            "id": "95-1t",
+            "$type": "IssueLink"
+        },
+        {
+            "direction": "OUTWARD",
+            "linkType": {
+                "directed": true,
+                "sourceToTarget": "is duplicated by",
+                "targetToSource": "duplicates",
+                "localizedSourceToTarget": null,
+                "localizedTargetToSource": null,
+                "aggregation": true,
+                "localizedName": null,
+                "uid": 2,
+                "name": "Duplicate",
+                "$type": "IssueLinkType"
+            },
+            "issuesSize": 0,
+            "unresolvedIssuesSize": 0,
+            "trimmedIssues": [],
+            "id": "95-2s",
+            "$type": "IssueLink"
+        },
+        {
+            "direction": "INWARD",
+            "linkType": {
+                "directed": true,
+                "sourceToTarget": "is duplicated by",
+                "targetToSource": "duplicates",
+                "localizedSourceToTarget": null,
+                "localizedTargetToSource": null,
+                "aggregation": true,
+                "localizedName": null,
+                "uid": 2,
+                "name": "Duplicate",
+                "$type": "IssueLinkType"
+            },
+            "issuesSize": 0,
+            "unresolvedIssuesSize": 0,
+            "trimmedIssues": [],
+            "id": "95-2t",
+            "$type": "IssueLink"
+        },
+        {
+            "direction": "OUTWARD",
+            "linkType": {
+                "directed": true,
+                "sourceToTarget": "parent for",
+                "targetToSource": "subtask of",
+                "localizedSourceToTarget": null,
+                "localizedTargetToSource": null,
+                "aggregation": true,
+                "localizedName": null,
+                "uid": 3,
+                "name": "Subtask",
+                "$type": "IssueLinkType"
+            },
+            "issuesSize": 0,
+            "unresolvedIssuesSize": 0,
+            "trimmedIssues": [],
+            "id": "95-3s",
+            "$type": "IssueLink"
+        },
+        {
+            "direction": "INWARD",
+            "linkType": {
+                "directed": true,
+                "sourceToTarget": "parent for",
+                "targetToSource": "subtask of",
+                "localizedSourceToTarget": null,
+                "localizedTargetToSource": null,
+                "aggregation": true,
+                "localizedName": null,
+                "uid": 3,
+                "name": "Subtask",
+                "$type": "IssueLinkType"
+            },
+            "issuesSize": 0,
+            "unresolvedIssuesSize": 0,
+            "trimmedIssues": [],
+            "id": "95-3t",
+            "$type": "IssueLink"
+        },
+        {
+            "direction": "OUTWARD",
+            "linkType": {
+                "directed": true,
+                "sourceToTarget": "blocks",
+                "targetToSource": "is blocked by",
+                "localizedSourceToTarget": null,
+                "localizedTargetToSource": null,
+                "aggregation": false,
+                "localizedName": null,
+                "uid": 4,
+                "name": "Depend_0",
+                "$type": "IssueLinkType"
+            },
+            "issuesSize": 0,
+            "unresolvedIssuesSize": 0,
+            "trimmedIssues": [],
+            "id": "95-4s",
+            "$type": "IssueLink"
+        },
+        {
+            "direction": "INWARD",
+            "linkType": {
+                "directed": true,
+                "sourceToTarget": "blocks",
+                "targetToSource": "is blocked by",
+                "localizedSourceToTarget": null,
+                "localizedTargetToSource": null,
+                "aggregation": false,
+                "localizedName": null,
+                "uid": 4,
+                "name": "Depend_0",
+                "$type": "IssueLinkType"
+            },
+            "issuesSize": 0,
+            "unresolvedIssuesSize": 0,
+            "trimmedIssues": [],
+            "id": "95-4t",
+            "$type": "IssueLink"
+        },
+        {
+            "direction": "OUTWARD",
+            "linkType": {
+                "directed": true,
+                "sourceToTarget": "clones",
+                "targetToSource": "is cloned by",
+                "localizedSourceToTarget": null,
+                "localizedTargetToSource": null,
+                "aggregation": false,
+                "localizedName": null,
+                "uid": 5,
+                "name": "Cloners",
+                "$type": "IssueLinkType"
+            },
+            "issuesSize": 0,
+            "unresolvedIssuesSize": 0,
+            "trimmedIssues": [],
+            "id": "95-5s",
+            "$type": "IssueLink"
+        },
+        {
+            "direction": "INWARD",
+            "linkType": {
+                "directed": true,
+                "sourceToTarget": "clones",
+                "targetToSource": "is cloned by",
+                "localizedSourceToTarget": null,
+                "localizedTargetToSource": null,
+                "aggregation": false,
+                "localizedName": null,
+                "uid": 5,
+                "name": "Cloners",
+                "$type": "IssueLinkType"
+            },
+            "issuesSize": 0,
+            "unresolvedIssuesSize": 0,
+            "trimmedIssues": [],
+            "id": "95-5t",
+            "$type": "IssueLink"
+        }
+    ],
+    "project": {
+        "leader": {
+            "id": "1-1",
+            "$type": "User"
+        },
+        "isDemo": false,
+        "shortName": "P",
+        "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+        "team": {
+            "allUsersGroup": false,
+            "ringId": "ed8d05a3-b1f8-4d55-9d27-8e4ad3784460",
+            "icon": null,
+            "name": "Heropayments Team",
+            "id": "3-9",
+            "$type": "UserGroup"
+        },
+        "plugins": {
+            "$type": "ProjectPlugins",
+            "vcsIntegrationSettings": {
+                "processors": [],
+                "$type": "ProjectVcsIntegrationSettings"
+            },
+            "timeTrackingSettings": {
+                "estimate": null,
+                "timeSpent": null,
+                "enabled": true,
+                "$type": "ProjectTimeTrackingSettings"
+            },
+            "helpDeskSettings": {
+                "enabled": false,
+                "$type": "ProjectHelpDeskSettings"
+            }
+        },
+        "name": "Heropayments",
+        "id": "0-7",
+        "$type": "Project"
+    },
+    "tags": [],
+    "description": "нужна v2 ручка, которую с ключом superpayments можно вызвать для замены customerId на адресах на {customerId}-BANNED, и отвязки мультидепо от текущих пейментов с созданием новых пейментов под эти адреса, чтобы при новом депозите на такой адрес, средства попадали на новый BANNED customerId",
+    "watchers": {
+        "hasStar": true,
+        "$type": "IssueWatchers"
+    },
+    "fields": [
+        {
+            "projectCustomField": {
+                "bundle": {
+                    "id": "82-0",
+                    "$type": "EnumBundle"
+                },
+                "emptyFieldText": "No Priority",
+                "canBeEmpty": false,
+                "isPublic": true,
+                "ordinal": 0,
+                "field": {
+                    "localizedName": null,
+                    "ordinal": 0,
+                    "fieldType": {
+                        "valueType": "enum",
+                        "isMultiValue": false,
+                        "$type": "FieldType"
+                    },
+                    "name": "Priority",
+                    "id": "77-1",
+                    "$type": "CustomField"
+                },
+                "id": "101-45",
+                "$type": "EnumProjectCustomField"
+            },
+            "value": {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "archived": false,
+                "description": null,
+                "name": "Normal",
+                "id": "83-45",
+                "$type": "EnumBundleElement"
+            },
+            "isUpdatable": true,
+            "name": "Priority",
+            "id": "101-45",
+            "$type": "SingleEnumIssueCustomField"
+        },
+        {
+            "value": {
+                "ringId": "969e717d-839c-4f6a-8546-5d66ff4823fd",
+                "avatarUrl": "/hub/api/rest/avatar/969e717d-839c-4f6a-8546-5d66ff4823fd?s=48&etag==MjYtMTU1NA%3D%3D",
+                "login": "randomnerd",
+                "fullName": "Vitaly A. Sorokin",
+                "name": "Vitaly A. Sorokin",
+                "id": "1-85",
+                "$type": "User"
+            },
+            "projectCustomField": {
+                "bundle": {
+                    "id": "8-7",
+                    "$type": "UserBundle"
+                },
+                "emptyFieldText": "Unassigned",
+                "canBeEmpty": true,
+                "isPublic": true,
+                "ordinal": 1,
+                "field": {
+                    "localizedName": null,
+                    "ordinal": 3,
+                    "fieldType": {
+                        "valueType": "user",
+                        "isMultiValue": false,
+                        "$type": "FieldType"
+                    },
+                    "name": "Assignee",
+                    "id": "77-4",
+                    "$type": "CustomField"
+                },
+                "id": "109-7",
+                "$type": "UserProjectCustomField"
+            },
+            "isUpdatable": true,
+            "name": "Assignee",
+            "id": "109-7",
+            "$type": "SingleUserIssueCustomField"
+        },
+        {
+            "value": [
+                {
+                    "ringId": "0addc918-eb74-419d-9164-2cdac884a1d2",
+                    "avatarUrl": "/hub/api/rest/avatar/0addc918-eb74-419d-9164-2cdac884a1d2?s=48&etag==MjYtMjA0Ng%3D%3D",
+                    "login": "d.lopatin",
+                    "fullName": "d.lopatin",
+                    "name": "d.lopatin",
+                    "id": "1-110",
+                    "$type": "User"
+                }
+            ],
+            "projectCustomField": {
+                "bundle": {
+                    "id": "8-38",
+                    "$type": "UserBundle"
+                },
+                "emptyFieldText": "No reviewer",
+                "canBeEmpty": true,
+                "isPublic": true,
+                "ordinal": 2,
+                "field": {
+                    "localizedName": null,
+                    "ordinal": 42,
+                    "fieldType": {
+                        "valueType": "user",
+                        "isMultiValue": true,
+                        "$type": "FieldType"
+                    },
+                    "name": "Reviewer",
+                    "id": "77-45",
+                    "$type": "CustomField"
+                },
+                "id": "109-38",
+                "$type": "UserProjectCustomField"
+            },
+            "isUpdatable": true,
+            "name": "Reviewer",
+            "id": "109-38",
+            "$type": "MultiUserIssueCustomField"
+        },
+        {
+            "value": {
+                "ringId": "19fee189-bbb3-477c-a315-df1cf8cf903e",
+                "avatarUrl": "/hub/api/rest/avatar/19fee189-bbb3-477c-a315-df1cf8cf903e?s=48&etag==MjYtMjA0NA%3D%3D",
+                "login": "v.ivlev",
+                "fullName": "v.ivlev",
+                "name": "v.ivlev",
+                "id": "1-192",
+                "$type": "User"
+            },
+            "projectCustomField": {
+                "bundle": {
+                    "id": "8-49",
+                    "$type": "UserBundle"
+                },
+                "emptyFieldText": "Тестируй меня полностью",
+                "canBeEmpty": true,
+                "isPublic": true,
+                "ordinal": 3,
+                "field": {
+                    "localizedName": null,
+                    "ordinal": 81,
+                    "fieldType": {
+                        "valueType": "user",
+                        "isMultiValue": false,
+                        "$type": "FieldType"
+                    },
+                    "name": "QA",
+                    "id": "77-86",
+                    "$type": "CustomField"
+                },
+                "id": "109-49",
+                "$type": "UserProjectCustomField"
+            },
+            "isUpdatable": true,
+            "name": "QA",
+            "id": "109-49",
+            "$type": "SingleUserIssueCustomField"
+        },
+        {
+            "projectCustomField": {
+                "bundle": {
+                    "id": "84-7",
+                    "$type": "StateBundle"
+                },
+                "emptyFieldText": "No stage",
+                "canBeEmpty": false,
+                "isPublic": true,
+                "ordinal": 4,
+                "field": {
+                    "localizedName": null,
+                    "ordinal": 10,
+                    "fieldType": {
+                        "valueType": "state",
+                        "isMultiValue": false,
+                        "$type": "FieldType"
+                    },
+                    "name": "Stage",
+                    "id": "77-10",
+                    "$type": "CustomField"
+                },
+                "id": "101-44",
+                "$type": "StateProjectCustomField"
+            },
+            "value": {
+                "isResolved": false,
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "archived": false,
+                "description": "Tasks that were deployed, moved to QA and still some fixing is required.",
+                "name": "Need fix",
+                "id": "85-83",
+                "$type": "StateBundleElement"
+            },
+            "isUpdatable": true,
+            "name": "Stage",
+            "id": "101-44",
+            "$type": "StateIssueCustomField"
+        },
+        {
+            "projectCustomField": {
+                "bundle": {
+                    "id": "82-1",
+                    "$type": "EnumBundle"
+                },
+                "emptyFieldText": "No Type",
+                "canBeEmpty": false,
+                "isPublic": true,
+                "ordinal": 5,
+                "field": {
+                    "localizedName": null,
+                    "ordinal": 1,
+                    "fieldType": {
+                        "valueType": "enum",
+                        "isMultiValue": false,
+                        "$type": "FieldType"
+                    },
+                    "name": "Type",
+                    "id": "77-2",
+                    "$type": "CustomField"
+                },
+                "id": "101-46",
+                "$type": "EnumProjectCustomField"
+            },
+            "value": {
+                "localizedName": null,
+                "color": {
+                    "background": "#409600",
+                    "id": "3",
+                    "$type": "FieldStyle"
+                },
+                "archived": false,
+                "description": null,
+                "name": "Task",
+                "id": "83-9",
+                "$type": "EnumBundleElement"
+            },
+            "isUpdatable": true,
+            "name": "Type",
+            "id": "101-46",
+            "$type": "SingleEnumIssueCustomField"
+        },
+        {
+            "value": null,
+            "projectCustomField": {
+                "emptyFieldText": "No spent time",
+                "canBeEmpty": true,
+                "isPublic": true,
+                "ordinal": 6,
+                "field": {
+                    "localizedName": null,
+                    "ordinal": 24,
+                    "fieldType": {
+                        "valueType": "string",
+                        "isMultiValue": false,
+                        "$type": "FieldType"
+                    },
+                    "name": "Spent time",
+                    "id": "77-40",
+                    "$type": "CustomField"
+                },
+                "id": "145-19",
+                "$type": "SimpleProjectCustomField"
+            },
+            "isUpdatable": true,
+            "name": "Spent time",
+            "id": "145-19",
+            "$type": "SimpleIssueCustomField"
+        },
+        {
+            "value": null,
+            "projectCustomField": {
+                "emptyFieldText": "No due date",
+                "canBeEmpty": true,
+                "isPublic": true,
+                "ordinal": 7,
+                "field": {
+                    "localizedName": null,
+                    "ordinal": 25,
+                    "fieldType": {
+                        "valueType": "date and time",
+                        "isMultiValue": false,
+                        "$type": "FieldType"
+                    },
+                    "name": "Due date",
+                    "id": "77-24",
+                    "$type": "CustomField"
+                },
+                "id": "145-8",
+                "$type": "SimpleProjectCustomField"
+            },
+            "isUpdatable": true,
+            "name": "Due date",
+            "id": "145-8",
+            "$type": "SimpleIssueCustomField"
+        },
+        {
+            "value": null,
+            "projectCustomField": {
+                "isSpentTime": false,
+                "isEstimation": false,
+                "emptyFieldText": "?",
+                "canBeEmpty": true,
+                "isPublic": true,
+                "ordinal": 8,
+                "field": {
+                    "localizedName": null,
+                    "ordinal": 37,
+                    "fieldType": {
+                        "valueType": "period",
+                        "isMultiValue": false,
+                        "$type": "FieldType"
+                    },
+                    "name": "ETA",
+                    "id": "77-39",
+                    "$type": "CustomField"
+                },
+                "id": "146-9",
+                "$type": "PeriodProjectCustomField"
+            },
+            "isUpdatable": true,
+            "name": "ETA",
+            "id": "146-9",
+            "$type": "PeriodIssueCustomField"
+        },
+        {
+            "value": null,
+            "projectCustomField": {
+                "emptyFieldText": "No story points",
+                "canBeEmpty": true,
+                "isPublic": true,
+                "ordinal": 9,
+                "field": {
+                    "localizedName": null,
+                    "ordinal": 32,
+                    "fieldType": {
+                        "valueType": "integer",
+                        "isMultiValue": false,
+                        "$type": "FieldType"
+                    },
+                    "name": "Story points",
+                    "id": "77-33",
+                    "$type": "CustomField"
+                },
+                "id": "145-88",
+                "$type": "SimpleProjectCustomField"
+            },
+            "isUpdatable": true,
+            "name": "Story points",
+            "id": "145-88",
+            "$type": "SimpleIssueCustomField"
+        },
+        {
+            "projectCustomField": {
+                "bundle": {
+                    "id": "82-62",
+                    "$type": "EnumBundle"
+                },
+                "emptyFieldText": "No sprint",
+                "canBeEmpty": true,
+                "isPublic": true,
+                "ordinal": 11,
+                "field": {
+                    "localizedName": null,
+                    "ordinal": 83,
+                    "fieldType": {
+                        "valueType": "enum",
+                        "isMultiValue": false,
+                        "$type": "FieldType"
+                    },
+                    "name": "Sprint",
+                    "id": "77-88",
+                    "$type": "CustomField"
+                },
+                "id": "101-259",
+                "$type": "EnumProjectCustomField"
+            },
+            "value": {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "archived": false,
+                "description": null,
+                "name": "7 sprint",
+                "id": "83-212",
+                "$type": "EnumBundleElement"
+            },
+            "isUpdatable": true,
+            "name": "Sprint",
+            "id": "101-259",
+            "$type": "SingleEnumIssueCustomField"
+        },
+        {
+            "projectCustomField": {
+                "bundle": {
+                    "id": "82-63",
+                    "$type": "EnumBundle"
+                },
+                "emptyFieldText": "No category",
+                "canBeEmpty": true,
+                "isPublic": true,
+                "ordinal": 12,
+                "field": {
+                    "localizedName": null,
+                    "ordinal": 84,
+                    "fieldType": {
+                        "valueType": "enum",
+                        "isMultiValue": false,
+                        "$type": "FieldType"
+                    },
+                    "name": "Category",
+                    "id": "77-89",
+                    "$type": "CustomField"
+                },
+                "id": "101-260",
+                "$type": "EnumProjectCustomField"
+            },
+            "value": null,
+            "isUpdatable": true,
+            "name": "Category",
+            "id": "101-260",
+            "$type": "SingleEnumIssueCustomField"
+        }
+    ],
+    "id": "2-69239",
+    "$type": "Issue"
+}

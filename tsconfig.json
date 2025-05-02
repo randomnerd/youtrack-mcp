@@ -1,0 +1,25 @@
+{
+  "include": ["src"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "allowJs": true,
+    "checkJs": false,
+    "outDir": "./build",
+    "incremental": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "alwaysStrict": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {},
+    "typeRoots": [
+      "node_modules/@types",
+      "src/types"
+    ],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
+  }
+}
