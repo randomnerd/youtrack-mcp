@@ -42,7 +42,8 @@ describe('Sprint Routes', () => {
         name: 'Sprint 1',
         startDate: '2023-01-01',
         endDate: '2023-01-14',
-        status: 'active'
+        status: 'active',
+        $type: 'Sprint' as const
       };
       mockGetById.mockResolvedValue(mockSprint);
 
@@ -86,8 +87,8 @@ describe('Sprint Routes', () => {
     test('should return sprints filtered by provided criteria', async () => {
       // Arrange
       const mockSprints = [
-        { id: 'sprint-1', name: 'Sprint 1', status: 'active' },
-        { id: 'sprint-2', name: 'Sprint 2', status: 'active' }
+        { id: 'sprint-1', name: 'Sprint 1', status: 'active', $type: 'Sprint' as const },
+        { id: 'sprint-2', name: 'Sprint 2', status: 'active', $type: 'Sprint' as const }
       ];
       mockFindSprints.mockResolvedValue(mockSprints);
 

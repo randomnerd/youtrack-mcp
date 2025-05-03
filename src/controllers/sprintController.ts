@@ -80,6 +80,16 @@ export class SprintController {
       if (sprintId) {
         // Get specific sprint
         const sprint = await SprintModel.getById(boardId, sprintId);
+        
+        if (!sprint) {
+          return {
+            contents: [{
+              uri: uri.href,
+              text: "Sprint not found."
+            }]
+          };
+        }
+        
         return SprintView.handleResourceRequest(uri, req.params, sprint || undefined, board || undefined);
       } else {
         // Get board to list its sprints
@@ -87,7 +97,7 @@ export class SprintController {
           return {
             contents: [{
               uri: uri.href,
-              text: `No board found with ID: ${boardId}`
+              text: "Board not found."
             }]
           };
         }

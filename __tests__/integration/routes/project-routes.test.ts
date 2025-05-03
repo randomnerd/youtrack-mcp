@@ -33,8 +33,8 @@ describe('Project Routes', () => {
     test('should return list of all projects', async () => {
       // Arrange
       const mockProjects: YouTrackTypes.Project[] = [
-        { id: 'project-1', name: 'Project 1', shortName: 'P1', description: 'Test Project 1' },
-        { id: 'project-2', name: 'Project 2', shortName: 'P2', description: 'Test Project 2' }
+        { id: 'project-1', name: 'Project 1', shortName: 'P1', description: 'Test Project 1', $type: 'Project' },
+        { id: 'project-2', name: 'Project 2', shortName: 'P2', description: 'Test Project 2', $type: 'Project' }
       ];
       mockGetAll.mockResolvedValue(mockProjects);
 

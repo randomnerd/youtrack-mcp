@@ -27,7 +27,8 @@ describe('View Utils', () => {
         id: 'sprint-1',
         name: 'Sprint 1',
         start: 1620000000000,
-        finish: 1622000000000
+        finish: 1622000000000,
+        $type: 'Sprint' as const
       };
       
       const result = formatSprintPeriod(sprint);
@@ -40,7 +41,8 @@ describe('View Utils', () => {
     it('should handle undefined dates', () => {
       const sprint = {
         id: 'sprint-1',
-        name: 'Sprint 1'
+        name: 'Sprint 1',
+        $type: 'Sprint' as const
       };
       
       const result = formatSprintPeriod(sprint);
@@ -56,9 +58,10 @@ describe('View Utils', () => {
         id: 'board-1',
         name: 'Test Board',
         projects: [
-          { id: 'project-1', name: 'Project 1' },
-          { id: 'project-2', name: 'Project 2' }
-        ]
+          { id: 'project-1', name: 'Project 1', $type: 'Project' as const },
+          { id: 'project-2', name: 'Project 2', $type: 'Project' as const }
+        ],
+        $type: 'Agile' as const
       };
       
       const result = formatBoardProjects(board);
@@ -69,7 +72,8 @@ describe('View Utils', () => {
     it('should handle undefined projects', () => {
       const board = {
         id: 'board-1',
-        name: 'Test Board'
+        name: 'Test Board',
+        $type: 'Agile' as const
       };
       
       const result = formatBoardProjects(board);
@@ -81,7 +85,8 @@ describe('View Utils', () => {
       const board = {
         id: 'board-1',
         name: 'Test Board',
-        projects: []
+        projects: [],
+        $type: 'Agile' as const
       };
       
       const result = formatBoardProjects(board);
@@ -96,7 +101,8 @@ describe('View Utils', () => {
         id: 'sprint-1',
         name: 'Sprint 1',
         start: 1620000000000,
-        finish: 1622000000000
+        finish: 1622000000000,
+        $type: 'Sprint' as const
       };
       
       const result = formatSprintListItem(sprint);
@@ -115,7 +121,8 @@ describe('View Utils', () => {
         id: 'sprint-1',
         name: 'Sprint 1',
         start: 1620000000000,
-        finish: 1622000000000
+        finish: 1622000000000,
+        $type: 'Sprint' as const
       };
       
       const result = formatSprintDetailItem(sprint);
@@ -134,9 +141,10 @@ describe('View Utils', () => {
         id: 'board-1',
         name: 'Test Board',
         projects: [
-          { id: 'project-1', name: 'Project 1' },
-          { id: 'project-2', name: 'Project 2' }
-        ]
+          { id: 'project-1', name: 'Project 1', $type: 'Project' as const },
+          { id: 'project-2', name: 'Project 2', $type: 'Project' as const }
+        ],
+        $type: 'Agile' as const
       };
       
       const result = formatBoardListItem(board);
@@ -151,8 +159,11 @@ describe('View Utils', () => {
     it('should return "Resolved" for resolved issues', () => {
       const issue = {
         id: 'issue-1',
+        idReadable: 'TEST-1',
+        numberInProject: 1,
         summary: 'Test Issue',
-        resolved: true
+        resolved: true,
+        $type: 'Issue' as const
       };
       
       const result = formatIssueStatus(issue);
@@ -163,8 +174,11 @@ describe('View Utils', () => {
     it('should return "Open" for unresolved issues', () => {
       const issue = {
         id: 'issue-1',
+        idReadable: 'TEST-1',
+        numberInProject: 1,
         summary: 'Test Issue',
-        resolved: false
+        resolved: false,
+        $type: 'Issue' as const
       };
       
       const result = formatIssueStatus(issue);
@@ -175,7 +189,10 @@ describe('View Utils', () => {
     it('should return "Open" for issues with undefined resolved property', () => {
       const issue = {
         id: 'issue-1',
-        summary: 'Test Issue'
+        idReadable: 'TEST-1',
+        numberInProject: 1,
+        summary: 'Test Issue',
+        $type: 'Issue' as const
       };
       
       const result = formatIssueStatus(issue);

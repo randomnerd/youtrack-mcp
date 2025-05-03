@@ -24,15 +24,28 @@ export class IssueView {
       text: title
     };
     
-    // Format all issues together using the new formatter
-    const formattedIssues = formatIssuesForAI(issues);
-    
-    return {
-      content: [
-        summaryContent, 
-        { type: "text" as const, text: formattedIssues }
-      ]
-    };
+    try {
+      // Format all issues together using the new formatter
+      const formattedIssues = formatIssuesForAI(issues);
+      
+      return {
+        content: [
+          summaryContent, 
+          { type: "text" as const, text: formattedIssues }
+        ]
+      };
+    } catch (error) {
+      // Handle formatting errors
+      return {
+        content: [
+          summaryContent,
+          { 
+            type: "text" as const, 
+            text: `Error processing issue: ${(error as Error).message}`
+          }
+        ]
+      };
+    }
   }
   
   static renderUpdateSuccess(issueId: string): McpResponse {
@@ -52,6 +65,10 @@ export class IssueView {
       return CommonView.createResourceResponse(uri, "Please specify an issue ID or use a sprint resource to list issues.");
     }
     
-    return CommonView.createResourceResponse(uri, formatIssueForAI(issue));
+    try {
+      return CommonView.createResourceResponse(uri, formatIssueForAI(issue));
+    } catch (error) {
+      return CommonView.createResourceResponse(uri, `Error processing issue: ${(error as Error).message}`);
+    }
   }
 } 

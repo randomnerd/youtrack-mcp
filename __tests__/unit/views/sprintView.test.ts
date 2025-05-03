@@ -58,9 +58,13 @@ describe('SprintView', () => {
       const sprint = mockSprints[0];
       const boardId = 'board-1';
       const issues = [
-        { id: 'issue-1' }, 
-        { id: 'issue-2' }
+        // These are IssueRefs, not full Issue objects
+        { id: 'issue-1', idReadable: 'PROJ-1', $type: 'Issue' }, 
+        { id: 'issue-2', idReadable: 'PROJ-2', $type: 'Issue' }
       ] as YouTrackTypes.IssueRef[];
+      
+      // Clear any previous calls to the formatter
+      (formatIssuesForAI as jest.Mock).mockClear();
       
       const result = SprintView.renderDetail(sprint, boardId, issues);
       

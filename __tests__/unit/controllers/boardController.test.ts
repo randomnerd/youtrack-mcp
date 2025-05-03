@@ -1,6 +1,7 @@
 import { boardFixtures } from '../../fixtures';
 import { BoardController } from '../../../src/controllers/boardController';
 import { BoardModel } from '../../../src/models/board';
+import { Board } from '../../../src/types/youtrack';
 
 // Mock the BoardModel
 jest.mock('../../../src/models/board', () => ({

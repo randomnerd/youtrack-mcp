@@ -2,7 +2,14 @@ import { jest } from '@jest/globals';
 import * as YouTrackTypes from '../../src/types/youtrack';
 
 // Define extended types for testing
-export interface MockIssue extends Omit<YouTrackTypes.Issue, 'status'> {
+export interface MockIssue {
+  id: string;
+  idReadable: string;
+  numberInProject: number;
+  summary?: string;
+  description?: string;
+  customFields?: any[];
+  $type: 'Issue';
   status?: string;
   assignee?: {
     id?: string;

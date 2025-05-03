@@ -38,17 +38,20 @@ Issue Count: ${issues.length || 0}
 
     // Format the issues using the new formatter
     // Filter for full Issue objects (not just refs)
-    const fullIssues = issues.filter((issue): issue is YouTrackTypes.Issue => 'summary' in issue);
+    const fullIssues = issues.filter((issue): issue is YouTrackTypes.Issue => 
+      'summary' in issue && 'idReadable' in issue && 'numberInProject' in issue
+    );
+    
     let issuesContent;
     
-    if (fullIssues.length > 0) {
-      // If we have full issues, use the batch formatter
+    if (fullIssues.length === issues.length) {
+      // If all issues are full issues, use the batch formatter
       issuesContent = {
         type: 'text' as const,
         text: formatIssuesForAI(fullIssues)
       };
     } else {
-      // If we only have issue references, format them simply
+      // If we only have issue references or incomplete issues, format them simply
       issuesContent = {
         type: 'text' as const,
         text: issues.map(issue => 

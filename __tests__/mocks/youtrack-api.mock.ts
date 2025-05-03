@@ -1,6 +1,6 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { boardFixtures, issueFixtures, sprintFixtures, projectFixtures } from '../fixtures';
+import { boardFixtures, issueFixtures, sprintFixtures, projectFixtures, activityFixtures } from '../fixtures';
 
 // Create axios mock
 const mockAxios = new MockAdapter(axios);
@@ -91,6 +91,7 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
 
   // Project endpoints
   mockAxios.onGet(createYouTrackUrl(baseUrl, '/admin/projects')).reply(200, projectFixtures.listProjects);
+  mockAxios.onGet(`${baseUrl}/admin/projects`).reply(200, projectFixtures.listProjects);
   
   // Handle all project ID formats
   mockAxios.onGet(new RegExp(`${baseUrl}/admin/projects/([^/]+)$`)).reply((config) => {
@@ -161,31 +162,28 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
   });
 
   // Add mocks for issue activities
-  mockAxios.onGet(new RegExp(`${baseUrl}/issues/([^/]+)/activities$`)).reply(200, [
-    { id: 'activity-1', $type: 'IssueCreatedActivityItem', timestamp: 1620000000000, author: { id: 'user-1', login: 'user1' } },
-    { id: 'activity-2', $type: 'CustomFieldActivityItem', timestamp: 1620100000000, author: { id: 'user-2', login: 'user2' } }
-  ]);
-
-  mockAxios.onGet(new RegExp(`${baseUrl}/issues/([^/]+)/activitiesPage$`)).reply(200, {
-    $type: 'CursorPage',
-    activities: [
-      { id: 'activity-1', $type: 'IssueCreatedActivityItem', timestamp: 1620000000000 }
-    ],
-    hasNext: true,
-    hasPrev: false,
-    nextCursor: 'next-cursor-123'
+  mockAxios.onGet(new RegExp(`${baseUrl}/issues/([^/]+)/activities$`)).reply((config) => {
+    const issueId = config.url?.split('/').pop();
+    
+    // Try to find activities by idReadable
+    const activities = activityFixtures.activitiesByIssue[issueId || ''] || 
+      activityFixtures.activities;
+    
+    return [200, activities];
   });
+
+  mockAxios.onGet(new RegExp(`${baseUrl}/issues/([^/]+)/activitiesPage$`)).reply(200, activityFixtures.activityPage);
 
   // Fix VCS changes endpoints to match what's in the implementation
   mockAxios.onGet(new RegExp(`${baseUrl}/issues/([^/]+)/vcsChanges$`)).reply(200, [
-    { id: 'change-1', version: '123abc', text: 'Fixed bug', date: 1620000000000 },
-    { id: 'change-2', version: '456def', text: 'Updated feature', date: 1620100000000 }
+    { id: 'change-1', version: 'sample123abc', text: 'Sample bug fix', date: 1620000000000 },
+    { id: 'change-2', version: 'sample456def', text: 'Sample feature update', date: 1620100000000 }
   ]);
 
   mockAxios.onGet(new RegExp(`${baseUrl}/vcsChanges/([^/]+)$`)).reply(200, {
     id: 'change-1',
-    version: '123abc',
-    text: 'Fixed bug',
+    version: 'sample123abc',
+    text: 'Sample bug fix',
     date: 1620000000000
   });
 
@@ -196,199 +194,13 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
     const issueId = matches?.[1] || '1';
     
     return [200, [
-      { id: 'change-1', version: '123abc', text: 'Fixed bug', date: 1620000000000 },
-      { id: 'change-2', version: '456def', text: 'Updated feature', date: 1620100000000 }
+      { id: 'change-1', version: 'sample123abc', text: 'Sample bug fix', date: 1620000000000 },
+      { id: 'change-2', version: 'sample456def', text: 'Sample feature update', date: 1620100000000 }
     ]];
-  });
-
-  mockAxios.onGet(new RegExp(`${baseUrl}/changes/([^/]+)$`)).reply(function(config) {
-    // Capture the change ID from the URL using regex
-    const matches = config.url?.match(/\/changes\/([^/]+)$/);
-    const changeId = matches?.[1] || 'change-1';
-    
-    return [200, {
-      id: changeId,
-      version: '123abc',
-      text: 'Fixed bug',
-      date: 1620000000000
-    }];
-  });
-
-  // Fix VCS servers endpoint
-  mockAxios.onGet(createYouTrackUrl(baseUrl, '/vcsServers')).reply(200, [
-    { id: 'server-1', url: 'http://git.example.com', name: 'Git Server' },
-    { id: 'server-2', url: 'http://svn.example.com', name: 'SVN Server' }
-  ]);
-
-  // Add mock for admin/vcsServers as used in tests
-  mockAxios.onGet(createYouTrackUrl(baseUrl, '/admin/vcsServers')).reply(200, [
-    { id: 'server-1', url: 'http://git.example.com', name: 'Git Server' },
-    { id: 'server-2', url: 'http://svn.example.com', name: 'SVN Server' }
-  ]);
-
-  // Add mock for VCS processors (both paths used in the implementation)
-  mockAxios.onGet(new RegExp(`${baseUrl}/admin/projects/([^/]+)/vcsHostingChangesProcessors$`)).reply(200, [
-    { id: 'processor-1', name: 'GitHub Webhook Processor' },
-    { id: 'processor-2', name: 'GitLab Webhook Processor' }
-  ]);
-
-  mockAxios.onGet(new RegExp(`${baseUrl}/admin/projects/([^/]+)/vcsRepositories$`)).reply(200, [
-    { id: 'processor-1', name: 'GitHub Webhook Processor', server: { id: 'server-1', url: 'http://git.example.com' } },
-    { id: 'processor-2', name: 'GitLab Webhook Processor', server: { id: 'server-2', url: 'http://svn.example.com' } }
-  ]);
-
-  // Fix bundles
-  mockAxios.onGet(new RegExp(`${baseUrl}/admin/customFieldSettings/bundles\\?.*`)).reply(function(config) {
-    const bundleType = config.url?.split('type:')[1] || 'state';
-    return [200, [
-      { id: 'bundle-1', name: 'State Bundle', type: bundleType },
-      { id: 'bundle-2', name: 'Another State Bundle', type: bundleType }
-    ]];
-  });
-
-  // Add explicit mock for listBundles endpoint
-  mockAxios.onGet(new RegExp(`${baseUrl}/admin/customFieldSettings/bundles/(state|version|enum)$`)).reply(function(config) {
-    const matches = config.url?.match(/\/bundles\/([^/?]+)$/);
-    const bundleType = matches?.[1] || 'state';
-    
-    return [200, [
-      { id: 'bundle-1', name: 'State Bundle', type: bundleType },
-      { id: 'bundle-2', name: 'Another State Bundle', type: bundleType }
-    ]];
-  });
-
-  // Fix bundle by ID - use with and without "id:" prefix
-  mockAxios.onGet(new RegExp(`${baseUrl}/admin/customFieldSettings/bundles/id:([^/]+)$`)).reply(function(config) {
-    const matches = config.url?.match(/\/bundles\/id:([^/]+)$/);
-    const bundleId = matches?.[1] || 'bundle-1';
-    
-    return [200, {
-      id: bundleId,
-      name: 'State Bundle',
-      type: 'state',
-      values: [
-        { id: 'element-1', name: 'Element 1' },
-        { id: 'element-2', name: 'Element 2' }
-      ]
-    }];
   });
   
-  // Add mock for non-prefixed bundle URL
-  mockAxios.onGet(new RegExp(`${baseUrl}/admin/customFieldSettings/bundles/([^/]+)$`)).reply(function(config) {
-    const matches = config.url?.match(/\/bundles\/([^/]+)$/);
-    const bundleId = matches?.[1] || 'bundle-1';
-    
-    // Skip if this is a bundle type (handled by another mock)
-    if (['state', 'version', 'enum'].includes(bundleId)) {
-      return [404, { error: 'Not found' }];
-    }
-    
-    return [200, {
-      id: bundleId,
-      name: 'State Bundle',
-      type: 'state',
-      values: [
-        { id: 'element-1', name: 'Element 1' },
-        { id: 'element-2', name: 'Element 2' }
-      ]
-    }];
-  });
-
-  // Fix bundle elements - add proper values endpoint
-  mockAxios.onGet(new RegExp(`${baseUrl}/admin/customFieldSettings/bundles/([^/]+)/values$`)).reply(200, [
-    { id: 'element-1', name: 'Element 1' },
-    { id: 'element-2', name: 'Element 2' }
-  ]);
-
-  // Add mocks for user notifications
-  mockAxios.onGet(new RegExp(`${baseUrl}/users/([^/]+)/notifications$`)).reply(200, {
-    id: 'notify-1',
-    userId: 'user-1',
-    notifyOnOwnChanges: false,
-    emailSettings: { onMention: true }
-  });
-
-  mockAxios.onPost(new RegExp(`${baseUrl}/users/([^/]+)/notifications$`)).reply(200, {
-    id: 'notify-1',
-    userId: 'user-1',
-    notifyOnOwnChanges: true,
-    emailSettings: { onMention: false }
-  });
-
-  // Mock for retry testing
-  mockAxios.onGet(`${baseUrl}/issues/retry-test`).replyOnce(503, { error: 'Service Unavailable' })
-    .onGet(`${baseUrl}/issues/retry-test`).replyOnce(200, { id: 'retry-test', summary: 'Retry success' });
-
-  mockAxios.onGet(`${baseUrl}/issues/rate-limited`).replyOnce(429, { error: 'Too Many Requests' })
-    .onGet(`${baseUrl}/issues/rate-limited`).replyOnce(200, { id: 'rate-limited', summary: 'Rate limit success' });
-
-  mockAxios.onGet(`${baseUrl}/issues/client-error`).reply(400, { error: 'Bad Request' });
-
-  // Add mock for telemetry endpoint
-  mockAxios.onGet(`${baseUrl}/admin/telemetry`).reply(200, {
-    installations: 10,
-    activeUsers: 25,
-    projects: 15,
-    issues: 500
-  });
-
-  // Add user notification settings endpoints
-  mockAxios.onGet(new RegExp(`${baseUrl}/users/([^/]+)/profiles/notifications$`)).reply(function(config) {
-    const matches = config.url?.match(/\/users\/([^/]+)\/profiles\/notifications$/);
-    const userId = matches?.[1] || 'user-1';
-    
-    return [200, {
-      id: userId,
-      emailNotificationsEnabled: true,
-      jabberNotificationsEnabled: false,
-      notifyOnOwnChanges: false,
-      mentionNotificationsEnabled: true,
-      autoWatchOnComment: true,
-      autoWatchOnCreate: true,
-      autoWatchOnVote: false,
-      autoWatchOnUpdate: false
-    }];
-  });
-
-  mockAxios.onPost(new RegExp(`${baseUrl}/users/([^/]+)/profiles/notifications$`)).reply(function(config) {
-    const matches = config.url?.match(/\/users\/([^/]+)\/profiles\/notifications$/);
-    const userId = matches?.[1] || 'user-1';
-    
-    // Get the updated settings from the request body
-    const updateSettings = JSON.parse(config.data);
-    
-    // Return the updated notification settings
-    return [200, {
-      id: userId,
-      emailNotificationsEnabled: updateSettings.emailNotificationsEnabled !== undefined 
-        ? updateSettings.emailNotificationsEnabled 
-        : true,
-      jabberNotificationsEnabled: updateSettings.jabberNotificationsEnabled !== undefined 
-        ? updateSettings.jabberNotificationsEnabled 
-        : false,
-      notifyOnOwnChanges: updateSettings.notifyOnOwnChanges !== undefined 
-        ? updateSettings.notifyOnOwnChanges 
-        : false,
-      mentionNotificationsEnabled: updateSettings.mentionNotificationsEnabled !== undefined 
-        ? updateSettings.mentionNotificationsEnabled 
-        : true,
-      autoWatchOnComment: updateSettings.autoWatchOnComment !== undefined 
-        ? updateSettings.autoWatchOnComment 
-        : true,
-      autoWatchOnCreate: updateSettings.autoWatchOnCreate !== undefined 
-        ? updateSettings.autoWatchOnCreate 
-        : true,
-      autoWatchOnVote: updateSettings.autoWatchOnVote !== undefined 
-        ? updateSettings.autoWatchOnVote 
-        : false,
-      autoWatchOnUpdate: updateSettings.autoWatchOnUpdate !== undefined 
-        ? updateSettings.autoWatchOnUpdate 
-        : false
-    }];
-  });
-
-  // Add mocks for error handling test endpoints
-  mockAxios.onGet(createYouTrackUrl(baseUrl, '/test-retry')).reply(() => {
+  // Add test-specific mocks for error handling tests
+  mockAxios.onGet(`${baseUrl}/test-retry`).reply(() => {
     retryCallCount++;
     if (retryCallCount < 2) {
       return [500, 'Server Error'];
@@ -396,7 +208,7 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
     return [200, { success: true }];
   });
   
-  mockAxios.onGet(createYouTrackUrl(baseUrl, '/test-rate-limit')).reply(() => {
+  mockAxios.onGet(`${baseUrl}/test-rate-limit`).reply(() => {
     rateLimitCallCount++;
     if (rateLimitCallCount < 2) {
       return [429, 'Too Many Requests'];
@@ -404,11 +216,57 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
     return [200, { success: true }];
   });
   
-  mockAxios.onGet(createYouTrackUrl(baseUrl, '/test-client-error')).reply(400, 'Bad Request');
+  mockAxios.onGet(`${baseUrl}/test-client-error`).reply(400, 'Bad Request');
   
-  mockAxios.onGet(createYouTrackUrl(baseUrl, '/test-max-retries')).reply(500, 'Persistent Server Error');
-
-  // Add a catch-all mock for unmocked endpoints - will return 404 with more information
+  mockAxios.onGet(`${baseUrl}/test-max-retries`).reply(500, 'Persistent Server Error');
+  
+  // Add mocks for bundle endpoints used in tests
+  mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles?fields=id,name,$type&$type=state`).reply(200, [
+    { id: 'bundle-1', name: 'State Bundle', type: 'state' },
+    { id: 'bundle-2', name: 'Another State Bundle', type: 'state' }
+  ]);
+  
+  mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/state`).reply(200, [
+    { id: 'bundle-1', name: 'State Bundle', type: 'state' },
+    { id: 'bundle-2', name: 'Another State Bundle', type: 'state' }
+  ]);
+  
+  mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/bundle-1`).reply(200, {
+    id: 'bundle-1',
+    name: 'State Bundle',
+    type: 'state',
+    values: [
+      { id: 'element-1', name: 'Element 1' },
+      { id: 'element-2', name: 'Element 2' }
+    ]
+  });
+  
+  // Add mock for user notifications
+  mockAxios.onGet(`${baseUrl}/users/user-1/profiles/notifications`).reply(200, {
+    id: 'user-1',
+    emailNotificationsEnabled: true,
+    jabberNotificationsEnabled: false,
+    notifyOnOwnChanges: false,
+    mentionNotificationsEnabled: true,
+    autoWatchOnComment: true,
+    autoWatchOnCreate: true,
+    autoWatchOnVote: false,
+    autoWatchOnUpdate: false
+  });
+  
+  mockAxios.onPost(`${baseUrl}/users/user-1/profiles/notifications`).reply(200, {
+    id: 'user-1',
+    emailNotificationsEnabled: true,
+    jabberNotificationsEnabled: false,
+    notifyOnOwnChanges: true,
+    mentionNotificationsEnabled: true,
+    autoWatchOnComment: true,
+    autoWatchOnCreate: true,
+    autoWatchOnVote: false,
+    autoWatchOnUpdate: false
+  });
+  
+  // Add a catch-all mock for unmocked endpoints
   mockAxios.onAny(new RegExp(`${baseUrl}/.*`)).reply((config) => {
     // Don't log warning for our explicitly non-existent test endpoint
     if (!config.url?.includes('/non-existent-endpoint/')) {
@@ -421,14 +279,22 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
     }];
   });
 
-  return mockAxios;
+  // Add the boards list mock more explicitly
+  mockAxios.onGet(createYouTrackUrl(baseUrl, 'api/agiles')).reply(200, boardFixtures.listBoards);
 };
 
 export const resetMocks = () => {
   mockAxios.reset();
-  // Reset any counters used in mocks
   retryCallCount = 0;
   rateLimitCallCount = 0;
 };
 
+export const getMockCallCount = () => {
+  return {
+    retryCallCount,
+    rateLimitCallCount
+  };
+};
+
+// Export mockAxios as the default export to maintain compatibility with tests
 export default mockAxios; 

@@ -49,7 +49,7 @@ describe('SprintController', () => {
   describe('getSprint', () => {
     test('should return sprint details when sprint exists', async () => {
       // Arrange
-      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', issues: [] };
+      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', issues: [], $type: 'Sprint' };
       mockGetById.mockResolvedValue(mockSprint);
       mockRenderDetail.mockReturnValue({ success: true, data: mockSprint });
 
@@ -64,8 +64,8 @@ describe('SprintController', () => {
 
     test('should fetch sprint issues when sprint has no issues', async () => {
       // Arrange
-      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', issues: [] };
-      const mockIssues: YouTrackTypes.Issue[] = [{ id: 'issue-1', summary: 'Test Issue' }];
+      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', issues: [], $type: 'Sprint' };
+      const mockIssues: YouTrackTypes.Issue[] = [{ id: 'issue-1', summary: 'Test Issue', idReadable: 'TEST-1', numberInProject: 1, $type: 'Issue' }];
       mockGetById.mockResolvedValue(mockSprint);
       mockGetSprintIssues.mockResolvedValue(mockIssues);
       mockRenderDetail.mockReturnValue({ success: true, data: { ...mockSprint, issues: mockIssues } });
@@ -95,7 +95,7 @@ describe('SprintController', () => {
 
     test('should handle error when fetching sprint issues', async () => {
       // Arrange
-      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', issues: [] };
+      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', issues: [], $type: 'Sprint' };
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       
       mockGetById.mockResolvedValue(mockSprint);
@@ -119,8 +119,8 @@ describe('SprintController', () => {
   describe('findSprints', () => {
     test('should return sprints with board name when boardId is provided', async () => {
       // Arrange
-      const mockSprints: YouTrackTypes.Sprint[] = [{ id: 'sprint-1', name: 'Sprint 1' }];
-      const mockBoard: YouTrackTypes.Board = { id: 'board-1', name: 'Board 1' };
+      const mockSprints: YouTrackTypes.Sprint[] = [{ id: 'sprint-1', name: 'Sprint 1', $type: 'Sprint' }];
+      const mockBoard: YouTrackTypes.Board = { id: 'board-1', name: 'Board 1', $type: 'Agile' };
       const options = { boardId: 'board-1', status: 'active' as const };
       
       mockFindSprints.mockResolvedValue(mockSprints);
@@ -139,7 +139,7 @@ describe('SprintController', () => {
 
     test('should return sprints without board name when boardId is not provided', async () => {
       // Arrange
-      const mockSprints: YouTrackTypes.Sprint[] = [{ id: 'sprint-1', name: 'Sprint 1' }];
+      const mockSprints: YouTrackTypes.Sprint[] = [{ id: 'sprint-1', name: 'Sprint 1', $type: 'Sprint' }];
       const options = { status: 'all' as const };
       
       mockFindSprints.mockResolvedValue(mockSprints);
@@ -157,7 +157,7 @@ describe('SprintController', () => {
 
     test('should handle error when fetching board details', async () => {
       // Arrange
-      const mockSprints: YouTrackTypes.Sprint[] = [{ id: 'sprint-1', name: 'Sprint 1' }];
+      const mockSprints: YouTrackTypes.Sprint[] = [{ id: 'sprint-1', name: 'Sprint 1', $type: 'Sprint' }];
       const options = { boardId: 'board-1' };
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       
@@ -202,8 +202,8 @@ describe('SprintController', () => {
       // Arrange
       const mockUri = new URL('http://example.com/api/boards/board-1/sprints/sprint-1');
       const mockReq = { params: { boardId: 'board-1', sprintId: 'sprint-1' } };
-      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1' };
-      const mockBoard: YouTrackTypes.Board = { id: 'board-1', name: 'Board 1' };
+      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', $type: 'Sprint' };
+      const mockBoard: YouTrackTypes.Board = { id: 'board-1', name: 'Board 1', $type: 'Agile' };
       const mockResponse = { contents: [{ uri: mockUri.href, text: 'Sprint details' }] };
       
       mockGetById.mockResolvedValue(mockSprint);
@@ -226,7 +226,8 @@ describe('SprintController', () => {
       const mockBoard: YouTrackTypes.Board = { 
         id: 'board-1', 
         name: 'Board 1',
-        sprints: [{ id: 'sprint-1', name: 'Sprint 1' }]
+        $type: 'Agile',
+        sprints: [{ id: 'sprint-1', name: 'Sprint 1', $type: 'Sprint' }]
       };
       const mockResponse = { contents: [{ uri: mockUri.href, text: 'Board sprints' }] };
       
@@ -242,22 +243,42 @@ describe('SprintController', () => {
       expect(result).toEqual(mockResponse);
     });
 
-    test('should return error when board does not exist', async () => {
+    test('should handle error when sprint or board is not found', async () => {
       // Arrange
-      const mockUri = new URL('http://example.com/api/boards/non-existent/sprints');
-      const mockReq = { params: { boardId: 'non-existent' } };
+      const mockUri = new URL('http://example.com/api/boards/board-1/sprints/sprint-1');
+      const mockReq = { params: { boardId: 'board-1', sprintId: 'sprint-1' } };
       
-      mockBoardGetById.mockResolvedValue(null);
-
+      mockGetById.mockResolvedValue(null);
+      
       // Act
       const result = await SprintController.handleResourceRequest(mockUri, mockReq);
 
       // Assert
-      expect(mockBoardGetById).toHaveBeenCalledWith('non-existent');
+      expect(mockGetById).toHaveBeenCalledWith('board-1', 'sprint-1');
       expect(result).toEqual({
         contents: [{
           uri: mockUri.href,
-          text: "No board found with ID: non-existent"
+          text: "Sprint not found."
+        }]
+      });
+    });
+
+    test('should handle error when board is not found', async () => {
+      // Arrange
+      const mockUri = new URL('http://example.com/api/boards/board-1/sprints');
+      const mockReq = { params: { boardId: 'board-1' } };
+      
+      mockBoardGetById.mockResolvedValue(null);
+      
+      // Act
+      const result = await SprintController.handleResourceRequest(mockUri, mockReq);
+
+      // Assert
+      expect(mockBoardGetById).toHaveBeenCalledWith('board-1');
+      expect(result).toEqual({
+        contents: [{
+          uri: mockUri.href,
+          text: "Board not found."
         }]
       });
     });

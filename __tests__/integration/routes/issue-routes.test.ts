@@ -43,9 +43,13 @@ describe('Issue Routes', () => {
       // Arrange
       const mockIssue: MockIssue = {
         id: 'issue-1',
+        idReadable: 'PROJ-1',
+        numberInProject: 1,
         summary: 'Fix login page',
         description: 'The login page needs styling fixes',
         status: 'Open',
+        customFields: [],
+        $type: 'Issue',
         assignee: { name: 'John Doe' }
       };
       mockGetById.mockResolvedValue(mockIssue);
@@ -98,8 +102,8 @@ describe('Issue Routes', () => {
     test('should return matching issues for search query', async () => {
       // Arrange
       const mockIssues: MockIssue[] = [
-        { id: 'issue-1', summary: 'Fix login page', status: 'Open' },
-        { id: 'issue-2', summary: 'Login page styling', status: 'In Progress' }
+        { id: 'issue-1', idReadable: 'PROJ-1', numberInProject: 1, summary: 'Fix login page', status: 'Open', customFields: [], $type: 'Issue' },
+        { id: 'issue-2', idReadable: 'PROJ-2', numberInProject: 2, summary: 'Login page styling', status: 'In Progress', customFields: [], $type: 'Issue' }
       ];
       mockSearchIssues.mockResolvedValue(mockIssues);
 
@@ -136,8 +140,8 @@ describe('Issue Routes', () => {
     test('should return issues matching criteria', async () => {
       // Arrange
       const mockIssues: MockIssue[] = [
-        { id: 'issue-1', summary: 'Test Issue 1', status: 'Open', assignee: { name: 'John Doe' } },
-        { id: 'issue-2', summary: 'Test Issue 2', status: 'Open', assignee: { name: 'John Doe' } }
+        { id: 'issue-1', idReadable: 'PROJ-1', numberInProject: 1, summary: 'Test Issue 1', status: 'Open', customFields: [], $type: 'Issue', assignee: { name: 'John Doe' } },
+        { id: 'issue-2', idReadable: 'PROJ-2', numberInProject: 2, summary: 'Test Issue 2', status: 'Open', customFields: [], $type: 'Issue', assignee: { name: 'John Doe' } }
       ];
       mockFindByCriteria.mockResolvedValue(mockIssues);
 
@@ -162,9 +166,13 @@ describe('Issue Routes', () => {
       // Arrange
       const mockUpdatedIssue: MockIssue = {
         id: 'issue-1',
+        idReadable: 'PROJ-1',
+        numberInProject: 1,
         summary: 'Updated Issue Title',
         description: 'Updated description',
-        status: 'In Progress'
+        status: 'In Progress',
+        customFields: [],
+        $type: 'Issue'
       };
       mockUpdateIssue.mockResolvedValue(mockUpdatedIssue);
 
