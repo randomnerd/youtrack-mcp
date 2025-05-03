@@ -1,4 +1,4 @@
-import type { Issue } from 'youtrack-rest-client';
+import type { Issue } from '../types/youtrack';
 
 /**
  * Helper interface to track contributor information
@@ -23,6 +23,8 @@ interface Contributor {
 export function mapIssueToAIReadableText(issue: Issue): string {
   // Cast issue to any to access properties which might not be in the type definition
   const issueData = issue as any;
+
+  console.error(JSON.stringify(issue, null, 2));
   
   // Basic issue information
   let result = `Issue ID: ${issue.id}
@@ -119,9 +121,6 @@ ${resolvedDate ? `Resolved: ${resolvedDate.toLocaleString()}\n` : ''}`;
     result += `Draft: ${issueData.isDraft ? 'Yes' : 'No'}\n`;
   }
 
-  // Description
-  result += `\nDescription:\n${issueData.description || 'No description'}\n`;
-
   // Priority, Type, etc.
   if (issueData.priority) {
     result += `\nPriority: ${issueData.priority.name || issueData.priority}\n`;
@@ -134,7 +133,6 @@ ${resolvedDate ? `Resolved: ${resolvedDate.toLocaleString()}\n` : ''}`;
   // Extract custom fields for better reporting
   const fields = issueData.fields || [];
   if (fields.length > 0) {
-    result += '\nCustom Fields:\n';
     for (const field of fields) {
       let value = field.value;
       
@@ -150,9 +148,12 @@ ${resolvedDate ? `Resolved: ${resolvedDate.toLocaleString()}\n` : ''}`;
         }
       }
       
-      result += `  ${field.name}: ${value}\n`;
+      result += `${field.name}: ${value}\n`;
     }
   }
+
+  // Description
+  result += `\nDescription:\n${issueData.description || 'No description'}\n`;
 
   // Votes
   if (issueData.votes !== undefined) {
@@ -296,6 +297,33 @@ ${resolvedDate ? `Resolved: ${resolvedDate.toLocaleString()}\n` : ''}`;
       // Add activity author to contributors
       if (activity.author && timestamp) {
         addContributor(activity.author, 'Activity Contributor', timestamp, changeText);
+      }
+    }
+    
+    // Add a dedicated timeline for stage changes
+    const stageChanges = activities.filter((activity: any) => {
+      const field = activity.field || activity.targetMember?.field?.name || '';
+      const fieldLower = field.toLowerCase();
+      return (fieldLower === 'stage' || fieldLower === 'state' || fieldLower === 'status') && 
+             activity.oldValue !== undefined && activity.newValue !== undefined;
+    });
+    
+    if (stageChanges.length > 0) {
+      result += '\nStage Change Timeline:\n';
+      for (const change of stageChanges) {
+        const author = change.author?.fullName || change.author?.login || 'Unknown';
+        const timestamp = change.timestamp ? new Date(change.timestamp) : null;
+        const date = timestamp ? timestamp.toLocaleString() : 'Unknown date';
+        const field = change.field || change.targetMember?.field?.name || 'stage';
+        const oldValue = change.oldValue || 'Unset';
+        const newValue = change.newValue || 'Unknown';
+        
+        result += `  ${date} - ${oldValue} → ${newValue} (by ${author})\n`;
+        
+        // Add stage change contributor
+        if (change.author && timestamp) {
+          addContributor(change.author, 'Stage Manager', timestamp, `Changed ${field} to ${newValue}`);
+        }
       }
     }
   }

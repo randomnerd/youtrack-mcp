@@ -1,8 +1,8 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import youtrackClient from './youtrack-client.js';
-import type { Issue } from 'youtrack-rest-client';
+import youtrackClient from './youtrack-client';
 import { mapIssueToAIReadableText } from './utils/issue-mapper.js';
+import * as YouTrackTypes from './types/youtrack';
 
 // Create an MCP server for YouTrack
 const server = new McpServer({
@@ -43,7 +43,7 @@ server.tool(
   {},
   async () => {
     try {
-      const boards = await youtrackClient.agiles.all();
+      const boards = await youtrackClient.listBoards();
 
       if (!boards || boards.length === 0) {
         return {
@@ -95,7 +95,7 @@ server.tool(
   },
   async ({ boardId }) => {
     try {
-      const board = await youtrackClient.agiles.byId(boardId);
+      const board = await youtrackClient.getBoard(boardId);
 
       if (!board) {
         return {
@@ -164,7 +164,7 @@ server.tool(
   },
   async ({ boardId, sprintId }) => {
     try {
-      const sprint = await youtrackClient.sprints.byId(boardId, sprintId);
+      const sprint = await youtrackClient.getSprint(boardId, sprintId);
 
       if (!sprint) {
         return {
@@ -184,7 +184,7 @@ server.tool(
         try {
           // The library doesn't have a direct method to get sprint issues,
           // so we need to search for them with a query
-          const sprintIssues = await youtrackClient.issues.search(`sprint: {${sprint.name}}`);
+          const sprintIssues = await youtrackClient.searchIssues(`sprint: {${sprint.name}}`);
           issues = sprintIssues;
         } catch (err) {
           console.error("Error fetching sprint issues:", err);
@@ -227,7 +227,7 @@ Issue Count: ${issues.length || 0}
         try {
           return {
             type: 'text' as const,
-            text: `--- Issue ${index + 1} of ${issues.length} ---\n${mapIssueToAIReadableText(issue as any)}\n${'-'.repeat(50)}`
+            text: `--- Issue ${index + 1} of ${issues.length} ---\n${mapIssueToAIReadableText(issue)}\n${'-'.repeat(50)}`
           };
         } catch (error) {
           return {
@@ -267,7 +267,7 @@ server.tool(
   },
   async ({ issueId }) => {
     try {
-      const issue: Issue = await youtrackClient.issues.byId(issueId)
+      const issue: YouTrackTypes.Issue = await youtrackClient.getIssue(issueId);
       
       if (!issue) {
         return {
@@ -301,29 +301,11 @@ server.tool(
   },
   async ({ issueId, summary, description, resolved }) => {
     try {
-      interface IssueUpdate {
-        id: string;
-        summary?: string;
-        description?: string;
-        customFields?: Array<{name: string, value: string}>;
-      }
-      
-      const updates: IssueUpdate = {
-        id: issueId
-      };
-      
-      if (summary !== undefined) updates.summary = summary;
-      if (description !== undefined) updates.description = description;
-      
-      // Handle resolved status if provided
-      if (resolved !== undefined) {
-        updates.customFields = [{
-          name: "State",
-          value: resolved ? "Resolved" : "Open"
-        }];
-      }
-      
-      await youtrackClient.issues.update(updates);
+      await youtrackClient.updateIssue(issueId, {
+        summary,
+        description,
+        resolved
+      });
       
       return {
         content: [{ 
@@ -348,7 +330,7 @@ server.tool(
   {},
   async () => {
     try {
-      const projects = await youtrackClient.projects.all();
+      const projects = await youtrackClient.listProjects();
       
       if (!projects || projects.length === 0) {
         return {
@@ -387,14 +369,8 @@ server.tool(
   },
   async ({ query, limit, sortBy }) => {
     try {
-      // Construct sort options if provided
-      const searchParams: Record<string, string> = {};
-      if (sortBy && typeof sortBy === 'string') {
-        searchParams.sort = sortBy;
-      }
-      
-      // Search for issues with the provided query
-      const issues = await youtrackClient.issues.search(query || '');
+      // Search for issues with the provided query and options
+      const issues = await youtrackClient.searchIssues(query || '', { limit, sortBy });
       
       // Check if issues array is valid
       if (!Array.isArray(issues)) {
@@ -476,53 +452,15 @@ server.tool(
   },
   async ({ project, assignee, sprint, type, status, limit }) => {
     try {
-      // Build the search query based on provided criteria
-      const queryParts: string[] = [];
-      
-      if (project && typeof project === 'string') {
-        queryParts.push(`project: {${project}}`);
-      }
-      
-      if (assignee && typeof assignee === 'string') {
-        queryParts.push(`assignee: ${assignee}`);
-      }
-      
-      if (sprint && typeof sprint === 'string') {
-        queryParts.push(`sprint: {${sprint}}`);
-      }
-      
-      if (type && typeof type === 'string') {
-        queryParts.push(`Type: {${type}}`);
-      }
-      
-      if (status && typeof status === 'string') {
-        // Handle special case for resolved status
-        const statusLower = status.toLowerCase();
-        if (statusLower === 'resolved') {
-          queryParts.push('#Resolved');
-        } else if (statusLower === 'unresolved') {
-          queryParts.push('#Unresolved');
-        } else {
-          queryParts.push(`State: {${status}}`);
-        }
-      }
-      
-      // If no criteria provided, return an error
-      if (queryParts.length === 0) {
-        return {
-          content: [{ 
-            type: "text" as const, 
-            text: "Please provide at least one search criterion." 
-          }],
-          isError: true
-        };
-      }
-      
-      // Combine all query parts
-      const query = queryParts.join(' ');
-      
-      // Search for issues
-      const issues = await youtrackClient.issues.search(query);
+      // Call the dedicated method for finding issues by criteria
+      const issues = await youtrackClient.findIssuesByCriteria({
+        project,
+        assignee,
+        sprint,
+        type,
+        status,
+        limit
+      });
       
       // Check if issues array is valid
       if (!Array.isArray(issues)) {
@@ -545,15 +483,34 @@ server.tool(
         return {
           content: [{ 
             type: "text" as const, 
-            text: `No issues found matching criteria. Query: ${query}` 
+            text: `No issues found matching criteria.` 
           }]
         };
       }
       
+      // Build query string for display purposes
+      const queryParts: string[] = [];
+      
+      if (project) queryParts.push(`project: {${project}}`);
+      if (assignee) queryParts.push(`assignee: ${assignee}`);
+      if (sprint) queryParts.push(`sprint: {${sprint}}`);
+      if (type) queryParts.push(`Type: {${type}}`);
+      if (status) {
+        if (status.toLowerCase() === 'resolved') {
+          queryParts.push('#Resolved');
+        } else if (status.toLowerCase() === 'unresolved') {
+          queryParts.push('#Unresolved');
+        } else {
+          queryParts.push(`State: {${status}}`);
+        }
+      }
+      
+      const queryDisplay = queryParts.length > 0 ? queryParts.join(' ') : 'All issues';
+      
       // Provide a summary
       const summaryContent = {
         type: "text" as const,
-        text: `Found ${issues.length} issues matching criteria.\nUsed query: "${query}"\nShowing ${limitedIssues.length} results.`
+        text: `Found ${issues.length} issues matching criteria.\nUsed query: "${queryDisplay}"\nShowing ${limitedIssues.length} results.`
       };
       
       // Create content entries for each issue
@@ -602,101 +559,13 @@ server.tool(
   },
   async ({ boardId, sprintName, status, limit }) => {
     try {
-      // If boardId provided, get that specific board
-      let sprints: SprintWithBoard[] = [];
-      
-      if (boardId && typeof boardId === 'string') {
-        // Get the board 
-        const board = await youtrackClient.agiles.byId(boardId);
-        
-        if (!board) {
-          return {
-            content: [{ 
-              type: "text" as const, 
-              text: `No board found with ID: ${boardId}` 
-            }],
-            isError: true
-          };
-        }
-        
-        // Extract sprints from the board
-        if (board.sprints && Array.isArray(board.sprints)) {
-          // Convert and ensure required fields are present
-          sprints = board.sprints
-            .filter(sprint => sprint && typeof sprint.id === 'string' && typeof sprint.name === 'string')
-            .map(sprint => ({
-              id: sprint.id as string, // Type assertion since we filtered
-              name: sprint.name as string, // Type assertion since we filtered
-              start: sprint.start,
-              finish: sprint.finish,
-              goal: typeof sprint.goal === 'string' ? sprint.goal : undefined,
-              boardId: board.id,
-              boardName: board.name,
-              archived: sprint.archived,
-              unresolvedIssuesCount: sprint.unresolvedIssuesCount
-            } as SprintWithBoard)); // Assert the entire object matches our interface
-        }
-      } else {
-        // Get all boards and collect all sprints
-        const boards = await youtrackClient.agiles.all();
-        
-        if (!Array.isArray(boards) || boards.length === 0) {
-          return {
-            content: [{ 
-              type: "text" as const, 
-              text: "No agile boards found." 
-            }],
-            isError: true
-          };
-        }
-        
-        // Collect sprints from all boards
-        for (const board of boards) {
-          if (board && board.sprints && Array.isArray(board.sprints) && board.sprints.length > 0) {
-            // Filter and map sprints with required fields
-            const boardSprints = board.sprints
-              .filter(sprint => sprint && typeof sprint.id === 'string' && typeof sprint.name === 'string')
-              .map(sprint => ({
-                id: sprint.id as string, // Type assertion since we filtered
-                name: sprint.name as string, // Type assertion since we filtered
-                start: sprint.start,
-                finish: sprint.finish,
-                goal: typeof sprint.goal === 'string' ? sprint.goal : undefined,
-                boardId: board.id,
-                boardName: board.name,
-                archived: sprint.archived,
-                unresolvedIssuesCount: sprint.unresolvedIssuesCount
-              } as SprintWithBoard)); // Assert the entire object matches our interface
-              
-            sprints.push(...boardSprints);
-          }
-        }
-      }
-      
-      // Filter by sprint name if provided
-      if (sprintName && typeof sprintName === 'string') {
-        const searchTerm = sprintName.toLowerCase();
-        sprints = sprints.filter(sprint => 
-          sprint.name && typeof sprint.name === 'string' && sprint.name.toLowerCase().includes(searchTerm)
-        );
-      }
-      
-      // Filter by status if not "all"
-      if (status !== "all") {
-        const isActive = status === "active";
-        // Filter active vs archived sprints based on current date
-        const now = new Date();
-        
-        sprints = sprints.filter(sprint => {
-          const startDate = sprint.start ? new Date(sprint.start) : null;
-          const endDate = sprint.finish ? new Date(sprint.finish) : null;
-          
-          if (!startDate || !endDate) return false;
-          
-          const isSprintActive = startDate <= now && endDate >= now;
-          return isActive ? isSprintActive : !isSprintActive;
-        });
-      }
+      // Use the dedicated method for finding sprints
+      const sprints = await youtrackClient.findSprints({
+        boardId,
+        sprintName,
+        status,
+        limit
+      });
       
       // Ensure limit is a valid number
       const safeLimit = typeof limit === 'number' && limit > 0 ? limit : 10;
@@ -715,17 +584,17 @@ server.tool(
       
       // Format sprint information
       const sprintsText = limitedSprints.map(sprint => {
-        const boardInfo = sprint.boardName && typeof sprint.boardName === 'string' ? 
-          `Board: ${sprint.boardName} (ID: ${sprint.boardId})` : 
-          `Board ID: ${boardId || 'Unknown'}`;
+        // For displaying board info, we might need to fetch extra board data
+        const boardInfo = boardId ? 
+          `Board ID: ${boardId}` : 
+          `Board ID: Unknown`;
         
         const startDate = sprint.start ? new Date(sprint.start).toLocaleDateString() : 'N/A';
         const finishDate = sprint.finish ? new Date(sprint.finish).toLocaleDateString() : 'N/A';
         
         return `Sprint: ${sprint.name} (ID: ${sprint.id})
 ${boardInfo}
-Period: ${startDate} - ${finishDate}
-${sprint.goal && typeof sprint.goal === 'string' ? `Goal: ${sprint.goal}\n` : ''}`;
+Period: ${startDate} - ${finishDate}`;
       }).join('\n\n' + '-'.repeat(50) + '\n\n');
       
       return {
@@ -761,7 +630,7 @@ server.resource(
     try {
       if (boardId) {
         // Get specific board
-        const board = await youtrackClient.agiles.byId(boardId);
+        const board = await youtrackClient.getBoard(boardId);
         
         if (!board) {
           return {
@@ -786,7 +655,7 @@ server.resource(
         };
       } else {
         // List all boards
-        const boards = await youtrackClient.agiles.all();
+        const boards = await youtrackClient.listBoards();
         
         if (!boards || boards.length === 0) {
           return {
@@ -844,7 +713,7 @@ server.resource(
       
       if (sprintId) {
         // Get specific sprint
-        const sprint = await youtrackClient.sprints.byId(boardId, sprintId);
+        const sprint = await youtrackClient.getSprint(boardId, sprintId);
         
         if (!sprint) {
           return {
@@ -859,7 +728,7 @@ server.resource(
         let issues = sprint.issues || [];
         if (!issues.length) {
           try {
-            const sprintIssues = await youtrackClient.issues.search(`sprint: {${sprint.name}}`);
+            const sprintIssues = await youtrackClient.searchIssues(`sprint: {${sprint.name}}`);
             issues = sprintIssues;
           } catch (err) {
             console.error("Error fetching sprint issues:", err);
@@ -880,7 +749,7 @@ server.resource(
         };
       } else {
         // Get board to list its sprints
-        const board = await youtrackClient.agiles.byId(boardId);
+        const board = await youtrackClient.getBoard(boardId);
         
         if (!board) {
           return {
@@ -929,7 +798,7 @@ server.resource(
     try {
       if (issueId) {
         // Get specific issue
-        const issue = await youtrackClient.issues.byId(issueId);
+        const issue = await youtrackClient.getIssue(issueId);
         
         if (!issue) {
           return {

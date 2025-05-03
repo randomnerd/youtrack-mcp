@@ -1,0 +1,2365 @@
+[
+    {
+        "removed": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#b7e281",
+                    "id": "14",
+                    "$type": "FieldStyle"
+                },
+                "name": "QA in progress",
+                "id": "85-143",
+                "$type": "StateBundleElement"
+            }
+        ],
+        "added": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "Need fix",
+                "id": "85-83",
+                "$type": "StateBundleElement"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Stage_10",
+        "author": {
+            "ringId": "e8b5fc63-22d9-4586-8ce0-89619e96d3d6",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/e8b5fc63-22d9-4586-8ce0-89619e96d3d6?s=48&etag==MjYtMjA1OA%3D%3D",
+            "login": "m.shushkevich",
+            "banBadge": null,
+            "fullName": "m.shushkevich",
+            "name": "m.shushkevich",
+            "isLocked": false,
+            "id": "1-211",
+            "$type": "User"
+        },
+        "timestamp": 1746018953313,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "state",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-10",
+                "$type": "CustomField"
+            },
+            "presentation": "Stage",
+            "id": "77-10",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-429949",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "authorGroup": {
+            "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+            "name": "HeroPayments",
+            "$type": "UserGroup"
+        },
+        "author": {
+            "ringId": "e8b5fc63-22d9-4586-8ce0-89619e96d3d6",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/e8b5fc63-22d9-4586-8ce0-89619e96d3d6?s=48&etag==MjYtMjA1OA%3D%3D",
+            "login": "m.shushkevich",
+            "banBadge": null,
+            "fullName": "m.shushkevich",
+            "name": "m.shushkevich",
+            "isLocked": false,
+            "id": "1-211",
+            "$type": "User"
+        },
+        "removed": [],
+        "added": [
+            {
+                "usesMarkdown": true,
+                "reactions": [],
+                "reactionOrder": null,
+                "issue": {
+                    "visibility": {
+                        "$type": "UnlimitedVisibility"
+                    },
+                    "project": {
+                        "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                        "id": "0-7",
+                        "$type": "Project"
+                    },
+                    "id": "2-69162",
+                    "$type": "Issue"
+                },
+                "deleted": false,
+                "hasEmail": false,
+                "textPreview": "<div class=\"wiki text common-markdown\"><ol class=\"wiki-list0\">\n<li>Необходимо отображать колонки в порядке указанном в ТЗ, сейчас порядок не совпадает (п.4 в описании)</li>\n<li>RR Percent (в само значение в ячейке дописать значок %) (п.9 в описании)</li>\n<li>Поиск отрабатывает только по текущей страницы пагинации, должен по всем.</li>\n<li>И может можно что-нибудь сделать с горизонтальным скроллом, сейчас чтобы подвинуть его, нужно в конец страницы отмотать.</li>\n</ol>\n</div>",
+                "author": {
+                    "ringId": "e8b5fc63-22d9-4586-8ce0-89619e96d3d6",
+                    "online": false,
+                    "issueRelatedGroup": {
+                        "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                        "$type": "UserGroup"
+                    },
+                    "banned": false,
+                    "avatarUrl": "/hub/api/rest/avatar/e8b5fc63-22d9-4586-8ce0-89619e96d3d6?s=48&etag==MjYtMjA1OA%3D%3D",
+                    "login": "m.shushkevich",
+                    "banBadge": null,
+                    "fullName": "m.shushkevich",
+                    "name": "m.shushkevich",
+                    "isLocked": false,
+                    "id": "1-211",
+                    "$type": "User"
+                },
+                "text": "\n\n1. Необходимо отображать колонки в порядке указанном в ТЗ, сейчас порядок не совпадает (п.4 в описании)\n2. RR Percent (в само значение в ячейке дописать значок %) (п.9 в описании)\n3. Поиск отрабатывает только по текущей страницы пагинации, должен по всем.\n4. И может можно что-нибудь сделать с горизонтальным скроллом, сейчас чтобы подвинуть его, нужно в конец страницы отмотать.",
+                "mentionedIssues": [],
+                "mentionedUsers": [],
+                "mentionedArticles": [],
+                "attachments": [],
+                "canUpdateVisibility": true,
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "created": 1746018949039,
+                "id": "4-52587",
+                "$type": "IssueComment"
+            }
+        ],
+        "id": "4-52587.0-0",
+        "targetMember": null,
+        "timestamp": 1746018949039,
+        "marker": 0,
+        "category": {
+            "id": "CommentsCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "comments",
+            "id": "comments",
+            "$type": "PredefinedFilterField"
+        },
+        "type": "ADD",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1746018949039,
+            "id": "4-52587",
+            "$type": "IssueComment"
+        },
+        "$type": "CommentActivityItem"
+    },
+    {
+        "removed": [],
+        "added": [
+            {
+                "name": "m.shushkevich",
+                "isLocked": false,
+                "id": "1-211",
+                "$type": "User"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__QA_86",
+        "author": {
+            "ringId": "e8b5fc63-22d9-4586-8ce0-89619e96d3d6",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/e8b5fc63-22d9-4586-8ce0-89619e96d3d6?s=48&etag==MjYtMjA1OA%3D%3D",
+            "login": "m.shushkevich",
+            "banBadge": null,
+            "fullName": "m.shushkevich",
+            "name": "m.shushkevich",
+            "isLocked": false,
+            "id": "1-211",
+            "$type": "User"
+        },
+        "timestamp": 1746016650177,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "user",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-86",
+                "$type": "CustomField"
+            },
+            "presentation": "QA",
+            "id": "77-86",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-429902",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "QA",
+                "id": "85-41",
+                "$type": "StateBundleElement"
+            }
+        ],
+        "added": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#b7e281",
+                    "id": "14",
+                    "$type": "FieldStyle"
+                },
+                "name": "QA in progress",
+                "id": "85-143",
+                "$type": "StateBundleElement"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Stage_10",
+        "author": {
+            "ringId": "e8b5fc63-22d9-4586-8ce0-89619e96d3d6",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/e8b5fc63-22d9-4586-8ce0-89619e96d3d6?s=48&etag==MjYtMjA1OA%3D%3D",
+            "login": "m.shushkevich",
+            "banBadge": null,
+            "fullName": "m.shushkevich",
+            "name": "m.shushkevich",
+            "isLocked": false,
+            "id": "1-211",
+            "$type": "User"
+        },
+        "timestamp": 1746016479603,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "state",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-10",
+                "$type": "CustomField"
+            },
+            "presentation": "Stage",
+            "id": "77-10",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-429900",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "Code Review",
+                "id": "85-40",
+                "$type": "StateBundleElement"
+            }
+        ],
+        "added": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "QA",
+                "id": "85-41",
+                "$type": "StateBundleElement"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Stage_10",
+        "author": {
+            "ringId": "0addc918-eb74-419d-9164-2cdac884a1d2",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/0addc918-eb74-419d-9164-2cdac884a1d2?s=48&etag==MjYtMjA0Ng%3D%3D",
+            "login": "d.lopatin",
+            "banBadge": null,
+            "fullName": "d.lopatin",
+            "name": "d.lopatin",
+            "isLocked": false,
+            "id": "1-110",
+            "$type": "User"
+        },
+        "timestamp": 1746006240574,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "state",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-10",
+                "$type": "CustomField"
+            },
+            "presentation": "Stage",
+            "id": "77-10",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-429687",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": [
+            {
+                "color": {
+                    "background": "#ffee9c",
+                    "id": "18",
+                    "$type": "FieldStyle"
+                },
+                "name": "comments",
+                "id": "6-375",
+                "$type": "IssueTag"
+            }
+        ],
+        "added": [],
+        "targetMember": "tags",
+        "author": {
+            "ringId": "0addc918-eb74-419d-9164-2cdac884a1d2",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/0addc918-eb74-419d-9164-2cdac884a1d2?s=48&etag==MjYtMjA0Ng%3D%3D",
+            "login": "d.lopatin",
+            "banBadge": null,
+            "fullName": "d.lopatin",
+            "name": "d.lopatin",
+            "isLocked": false,
+            "id": "1-110",
+            "$type": "User"
+        },
+        "timestamp": 1746006235503,
+        "marker": 0,
+        "category": {
+            "id": "TagsCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "tag",
+            "id": "tag",
+            "$type": "PredefinedFilterField"
+        },
+        "id": "0-0.9-429686",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "TagsActivityItem"
+    },
+    {
+        "removed": [],
+        "added": [
+            {
+                "name": "Vitaly A. Sorokin",
+                "isLocked": false,
+                "id": "1-85",
+                "$type": "User"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Reviewer_45",
+        "author": {
+            "ringId": "969e717d-839c-4f6a-8546-5d66ff4823fd",
+            "online": true,
+            "profiles": {
+                "$type": "UserProfiles",
+                "general": {
+                    "trackOnlineStatus": true,
+                    "$type": "GeneralUserProfile"
+                }
+            },
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "email": "WitaliS@techjedi.co",
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/969e717d-839c-4f6a-8546-5d66ff4823fd?s=48&etag==MjYtMTU1NA%3D%3D",
+            "login": "randomnerd",
+            "banBadge": null,
+            "fullName": "Vitaly A. Sorokin",
+            "name": "Vitaly A. Sorokin",
+            "isLocked": false,
+            "id": "1-85",
+            "$type": "User"
+        },
+        "timestamp": 1745835222999,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "user",
+                    "isMultiValue": true,
+                    "$type": "FieldType"
+                },
+                "id": "77-45",
+                "$type": "CustomField"
+            },
+            "presentation": "Reviewer",
+            "id": "77-45",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-428434",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": [],
+        "added": [
+            {
+                "color": {
+                    "background": "#ffee9c",
+                    "id": "18",
+                    "$type": "FieldStyle"
+                },
+                "name": "comments",
+                "id": "6-375",
+                "$type": "IssueTag"
+            }
+        ],
+        "targetMember": "tags",
+        "author": {
+            "ringId": "969e717d-839c-4f6a-8546-5d66ff4823fd",
+            "online": true,
+            "profiles": {
+                "$type": "UserProfiles",
+                "general": {
+                    "trackOnlineStatus": true,
+                    "$type": "GeneralUserProfile"
+                }
+            },
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "email": "WitaliS@techjedi.co",
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/969e717d-839c-4f6a-8546-5d66ff4823fd?s=48&etag==MjYtMTU1NA%3D%3D",
+            "login": "randomnerd",
+            "banBadge": null,
+            "fullName": "Vitaly A. Sorokin",
+            "name": "Vitaly A. Sorokin",
+            "isLocked": false,
+            "id": "1-85",
+            "$type": "User"
+        },
+        "timestamp": 1745835161008,
+        "marker": 0,
+        "category": {
+            "id": "TagsCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "tag",
+            "id": "tag",
+            "$type": "PredefinedFilterField"
+        },
+        "id": "0-0.9-428431",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "TagsActivityItem"
+    },
+    {
+        "authorGroup": {
+            "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+            "name": "HeroPayments",
+            "$type": "UserGroup"
+        },
+        "author": {
+            "ringId": "969e717d-839c-4f6a-8546-5d66ff4823fd",
+            "online": true,
+            "profiles": {
+                "$type": "UserProfiles",
+                "general": {
+                    "trackOnlineStatus": true,
+                    "$type": "GeneralUserProfile"
+                }
+            },
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "email": "WitaliS@techjedi.co",
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/969e717d-839c-4f6a-8546-5d66ff4823fd?s=48&etag==MjYtMTU1NA%3D%3D",
+            "login": "randomnerd",
+            "banBadge": null,
+            "fullName": "Vitaly A. Sorokin",
+            "name": "Vitaly A. Sorokin",
+            "isLocked": false,
+            "id": "1-85",
+            "$type": "User"
+        },
+        "removed": [],
+        "added": [
+            {
+                "usesMarkdown": true,
+                "reactions": [],
+                "reactionOrder": null,
+                "issue": {
+                    "visibility": {
+                        "$type": "UnlimitedVisibility"
+                    },
+                    "project": {
+                        "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                        "id": "0-7",
+                        "$type": "Project"
+                    },
+                    "id": "2-69162",
+                    "$type": "Issue"
+                },
+                "deleted": false,
+                "hasEmail": false,
+                "textPreview": "<div class=\"wiki text common-markdown\"><p>мр в падмин не билдится, мр в папи с конфликтами</p>\n</div>",
+                "author": {
+                    "ringId": "969e717d-839c-4f6a-8546-5d66ff4823fd",
+                    "online": true,
+                    "profiles": {
+                        "$type": "UserProfiles",
+                        "general": {
+                            "trackOnlineStatus": true,
+                            "$type": "GeneralUserProfile"
+                        }
+                    },
+                    "issueRelatedGroup": {
+                        "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                        "$type": "UserGroup"
+                    },
+                    "email": "WitaliS@techjedi.co",
+                    "banned": false,
+                    "avatarUrl": "/hub/api/rest/avatar/969e717d-839c-4f6a-8546-5d66ff4823fd?s=48&etag==MjYtMTU1NA%3D%3D",
+                    "login": "randomnerd",
+                    "banBadge": null,
+                    "fullName": "Vitaly A. Sorokin",
+                    "name": "Vitaly A. Sorokin",
+                    "isLocked": false,
+                    "id": "1-85",
+                    "$type": "User"
+                },
+                "text": "мр в падмин не билдится, мр в папи с конфликтами",
+                "mentionedIssues": [],
+                "mentionedUsers": [],
+                "mentionedArticles": [],
+                "attachments": [],
+                "canUpdateVisibility": true,
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "created": 1745835155079,
+                "id": "4-52384",
+                "$type": "IssueComment"
+            }
+        ],
+        "id": "4-52384.0-0",
+        "targetMember": null,
+        "timestamp": 1745835155079,
+        "marker": 0,
+        "category": {
+            "id": "CommentsCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "comments",
+            "id": "comments",
+            "$type": "PredefinedFilterField"
+        },
+        "type": "ADD",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1745835155079,
+            "id": "4-52384",
+            "$type": "IssueComment"
+        },
+        "$type": "CommentActivityItem"
+    },
+    {
+        "removed": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "6 Sprint",
+                "id": "83-211",
+                "$type": "EnumBundleElement"
+            }
+        ],
+        "added": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "7 sprint",
+                "id": "83-212",
+                "$type": "EnumBundleElement"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Sprint_88",
+        "author": {
+            "ringId": "969e717d-839c-4f6a-8546-5d66ff4823fd",
+            "online": true,
+            "profiles": {
+                "$type": "UserProfiles",
+                "general": {
+                    "trackOnlineStatus": true,
+                    "$type": "GeneralUserProfile"
+                }
+            },
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "email": "WitaliS@techjedi.co",
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/969e717d-839c-4f6a-8546-5d66ff4823fd?s=48&etag==MjYtMTU1NA%3D%3D",
+            "login": "randomnerd",
+            "banBadge": null,
+            "fullName": "Vitaly A. Sorokin",
+            "name": "Vitaly A. Sorokin",
+            "isLocked": false,
+            "id": "1-85",
+            "$type": "User"
+        },
+        "timestamp": 1745825320854,
+        "marker": 1,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "enum",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-88",
+                "$type": "CustomField"
+            },
+            "presentation": "Sprint",
+            "id": "77-88",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-427906",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "In progress",
+                "id": "85-39",
+                "$type": "StateBundleElement"
+            }
+        ],
+        "added": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "Code Review",
+                "id": "85-40",
+                "$type": "StateBundleElement"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Stage_10",
+        "author": {
+            "ringId": "0addc918-eb74-419d-9164-2cdac884a1d2",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/0addc918-eb74-419d-9164-2cdac884a1d2?s=48&etag==MjYtMjA0Ng%3D%3D",
+            "login": "d.lopatin",
+            "banBadge": null,
+            "fullName": "d.lopatin",
+            "name": "d.lopatin",
+            "isLocked": false,
+            "id": "1-110",
+            "$type": "User"
+        },
+        "timestamp": 1745592090969,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "state",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-10",
+                "$type": "CustomField"
+            },
+            "presentation": "Stage",
+            "id": "77-10",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-427737",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "authorGroup": {
+            "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+            "name": "HeroPayments",
+            "$type": "UserGroup"
+        },
+        "author": {
+            "ringId": "0addc918-eb74-419d-9164-2cdac884a1d2",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/0addc918-eb74-419d-9164-2cdac884a1d2?s=48&etag==MjYtMjA0Ng%3D%3D",
+            "login": "d.lopatin",
+            "banBadge": null,
+            "fullName": "d.lopatin",
+            "name": "d.lopatin",
+            "isLocked": false,
+            "id": "1-110",
+            "$type": "User"
+        },
+        "removed": [],
+        "added": [
+            {
+                "usesMarkdown": true,
+                "reactions": [],
+                "reactionOrder": null,
+                "issue": {
+                    "visibility": {
+                        "$type": "UnlimitedVisibility"
+                    },
+                    "project": {
+                        "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                        "id": "0-7",
+                        "$type": "Project"
+                    },
+                    "id": "2-69162",
+                    "$type": "Issue"
+                },
+                "deleted": false,
+                "hasEmail": false,
+                "textPreview": "<div class=\"wiki text common-markdown\"><p>совместимый бек в приаттаченной задаче <a href=\"/issue/P-3842\" title=\"[rolling reserve] Добавить поле в трансфер\" data-issue-id=\"2-69160\">P-3842</a></p>\n</div>",
+                "author": {
+                    "ringId": "0addc918-eb74-419d-9164-2cdac884a1d2",
+                    "online": false,
+                    "issueRelatedGroup": {
+                        "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                        "$type": "UserGroup"
+                    },
+                    "banned": false,
+                    "avatarUrl": "/hub/api/rest/avatar/0addc918-eb74-419d-9164-2cdac884a1d2?s=48&etag==MjYtMjA0Ng%3D%3D",
+                    "login": "d.lopatin",
+                    "banBadge": null,
+                    "fullName": "d.lopatin",
+                    "name": "d.lopatin",
+                    "isLocked": false,
+                    "id": "1-110",
+                    "$type": "User"
+                },
+                "text": "совместимый бек в приаттаченной задаче P-3842\n",
+                "mentionedIssues": [
+                    {
+                        "idReadable": "P-3842",
+                        "resolved": null,
+                        "summary": "[rolling reserve] Добавить поле в трансфер",
+                        "$type": "Issue"
+                    }
+                ],
+                "mentionedUsers": [],
+                "mentionedArticles": [],
+                "attachments": [],
+                "canUpdateVisibility": true,
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "created": 1745592076299,
+                "id": "4-52334",
+                "$type": "IssueComment"
+            }
+        ],
+        "id": "4-52334.0-0",
+        "targetMember": null,
+        "timestamp": 1745592076299,
+        "marker": 0,
+        "category": {
+            "id": "CommentsCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "comments",
+            "id": "comments",
+            "$type": "PredefinedFilterField"
+        },
+        "type": "ADD",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1745592076299,
+            "id": "4-52334",
+            "$type": "IssueComment"
+        },
+        "$type": "CommentActivityItem"
+    },
+    {
+        "authorGroup": {
+            "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+            "name": "HeroPayments",
+            "$type": "UserGroup"
+        },
+        "author": {
+            "ringId": "0addc918-eb74-419d-9164-2cdac884a1d2",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/0addc918-eb74-419d-9164-2cdac884a1d2?s=48&etag==MjYtMjA0Ng%3D%3D",
+            "login": "d.lopatin",
+            "banBadge": null,
+            "fullName": "d.lopatin",
+            "name": "d.lopatin",
+            "isLocked": false,
+            "id": "1-110",
+            "$type": "User"
+        },
+        "removed": [],
+        "added": [
+            {
+                "usesMarkdown": true,
+                "reactions": [],
+                "reactionOrder": null,
+                "issue": {
+                    "visibility": {
+                        "$type": "UnlimitedVisibility"
+                    },
+                    "project": {
+                        "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                        "id": "0-7",
+                        "$type": "Project"
+                    },
+                    "id": "2-69162",
+                    "$type": "Issue"
+                },
+                "deleted": false,
+                "hasEmail": false,
+                "textPreview": "<div class=\"wiki text common-markdown\"><p>QA notes:<br/>фильтр по датам анлока добавлен, но пока не будет прогнан скрипт по проставлению этих дат в BalanceChanges - этот фильтр будет возвращать все записи, где в поле unlock будет null</p>\n</div>",
+                "author": {
+                    "ringId": "0addc918-eb74-419d-9164-2cdac884a1d2",
+                    "online": false,
+                    "issueRelatedGroup": {
+                        "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                        "$type": "UserGroup"
+                    },
+                    "banned": false,
+                    "avatarUrl": "/hub/api/rest/avatar/0addc918-eb74-419d-9164-2cdac884a1d2?s=48&etag==MjYtMjA0Ng%3D%3D",
+                    "login": "d.lopatin",
+                    "banBadge": null,
+                    "fullName": "d.lopatin",
+                    "name": "d.lopatin",
+                    "isLocked": false,
+                    "id": "1-110",
+                    "$type": "User"
+                },
+                "text": "QA notes: \nфильтр по датам анлока добавлен, но пока не будет прогнан скрипт по проставлению этих дат в BalanceChanges - этот фильтр будет возвращать все записи, где в поле unlock будет null",
+                "mentionedIssues": [],
+                "mentionedUsers": [],
+                "mentionedArticles": [],
+                "attachments": [],
+                "canUpdateVisibility": true,
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "created": 1745583744783,
+                "id": "4-52316",
+                "$type": "IssueComment"
+            }
+        ],
+        "id": "4-52316.0-0",
+        "targetMember": null,
+        "timestamp": 1745583744783,
+        "marker": 0,
+        "category": {
+            "id": "CommentsCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "comments",
+            "id": "comments",
+            "$type": "PredefinedFilterField"
+        },
+        "type": "ADD",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1745583744783,
+            "id": "4-52316",
+            "$type": "IssueComment"
+        },
+        "$type": "CommentActivityItem"
+    },
+    {
+        "removed": "1. Добавить колонку External Partner ID (см таску в линке)\n2. Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID\n3. Добавить поиск по диапазону Unlock time (по дефолту пустой, тоесть ищет по всем)\n4. Поменять местами колонки чтобы были в таком порядке:\n    1. Date\n    2. Status\n    3. External Partner ID\n    4. Payment ID\n    5. Total\n    6. Available\n    7. Locked\n    8. Ticker\n    9. RR Percent (в само значение в ячейке дописать значок %)\n   10. Merchant from\n   11. Merchant to\n   12. Unlock time\n   13. Unlocked At\n5. Добавить пагинацию вверху страницы (такую же как внизу)\n6. Добавить кнопку выгрузки отчета",
+        "added": "1. Добавить колонку External Partner ID (см таску в линке)\n2. Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID\n3. Добавить поиск по диапазону Unlock time (по дефолту пустой, тоесть ищет по всем)\n4. Поменять местами колонки чтобы были в таком порядке:\n    1. Date\n    2. Status\n    3. External Partner ID\n    4. Payment ID\n    5. Total\n    6. Available\n    7. Locked\n    8. Ticker\n    9. RR Percent (в само значение в ячейке дописать значок %)\n   10. Merchant from\n   11. Merchant to\n   12. Unlock time\n   13. Unlocked At\n   14. Transfer id\n5. Добавить пагинацию вверху страницы (такую же как внизу)\n6. Добавить кнопку выгрузки отчета\n7. Сохранять настройки колонок в локал стораж",
+        "markup": "<div class=\"wiki text common-markdown\"><ol class=\"wiki-list0\">\n<li>Добавить колонку External Partner ID (см таску в линке)</li>\n<li>Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID</li>\n<li>Добавить поиск по диапазону Unlock time (по дефолту пустой, тоесть ищет по всем)</li>\n<li>Поменять местами колонки чтобы были в таком порядке:\n<ol class=\"wiki-list0\">\n<li>Date</li>\n<li>Status</li>\n<li>External Partner ID</li>\n<li>Payment ID</li>\n<li>Total</li>\n<li>Available</li>\n<li>Locked</li>\n<li>Ticker</li>\n<li>RR Percent (в само значение в ячейке дописать значок %)</li>\n<li>Merchant from</li>\n<li>Merchant to</li>\n<li>Unlock time</li>\n<li>Unlocked At</li>\n<li>Transfer id</li>\n</ol>\n</li>\n<li>Добавить пагинацию вверху страницы (такую же как внизу)</li>\n<li>Добавить кнопку выгрузки отчета</li>\n<li>Сохранять настройки колонок в локал стораж</li>\n</ol>\n</div>",
+        "targetMember": "description",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1745493394213,
+        "marker": 0,
+        "category": {
+            "id": "DescriptionCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "description",
+            "id": "description",
+            "$type": "PredefinedFilterField"
+        },
+        "id": "0-0.9-426857",
+        "type": "MODIFY_PROPERTY",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "TextMarkupActivityItem"
+    },
+    {
+        "removed": "1. Добавить колонку External Partner ID (см таску в линке)\n2. Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID\n3. Добавить поиск по диапазону Unlock time\n4. Поменять местами колонки чтобы были в таком порядке:\n    1. Date\n    2. Status\n    3. External Partner ID\n    4. Payment ID\n    5. Total\n    6. Available\n    7. Locked\n    8. Ticker\n    9. RR Percent (в само значение в ячейке дописать значок %)\n   10. Merchant from\n   11. Merchant to\n   12. Unlock time\n   13. Unlocked At\n5. Добавить пагинацию вверху страницы (такую же как внизу)\n6. Добавить кнопку выгрузки отчета",
+        "added": "1. Добавить колонку External Partner ID (см таску в линке)\n2. Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID\n3. Добавить поиск по диапазону Unlock time (по дефолту пустой, тоесть ищет по всем)\n4. Поменять местами колонки чтобы были в таком порядке:\n    1. Date\n    2. Status\n    3. External Partner ID\n    4. Payment ID\n    5. Total\n    6. Available\n    7. Locked\n    8. Ticker\n    9. RR Percent (в само значение в ячейке дописать значок %)\n   10. Merchant from\n   11. Merchant to\n   12. Unlock time\n   13. Unlocked At\n5. Добавить пагинацию вверху страницы (такую же как внизу)\n6. Добавить кнопку выгрузки отчета",
+        "markup": "<div class=\"wiki text common-markdown\"><ol class=\"wiki-list0\">\n<li>Добавить колонку External Partner ID (см таску в линке)</li>\n<li>Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID</li>\n<li>Добавить поиск по диапазону Unlock time (по дефолту пустой, тоесть ищет по всем)</li>\n<li>Поменять местами колонки чтобы были в таком порядке:\n<ol class=\"wiki-list0\">\n<li>Date</li>\n<li>Status</li>\n<li>External Partner ID</li>\n<li>Payment ID</li>\n<li>Total</li>\n<li>Available</li>\n<li>Locked</li>\n<li>Ticker</li>\n<li>RR Percent (в само значение в ячейке дописать значок %)</li>\n<li>Merchant from</li>\n<li>Merchant to</li>\n<li>Unlock time</li>\n<li>Unlocked At</li>\n<li>Transfer id</li>\n</ol>\n</li>\n<li>Добавить пагинацию вверху страницы (такую же как внизу)</li>\n<li>Добавить кнопку выгрузки отчета</li>\n<li>Сохранять настройки колонок в локал стораж</li>\n</ol>\n</div>",
+        "targetMember": "description",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1745486760592,
+        "marker": 0,
+        "category": {
+            "id": "DescriptionCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "description",
+            "id": "description",
+            "$type": "PredefinedFilterField"
+        },
+        "id": "0-0.9-426583",
+        "type": "MODIFY_PROPERTY",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "TextMarkupActivityItem"
+    },
+    {
+        "removed": "1. Добавить колонку External Partner ID (см таску в линке)\n2. Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID\n3. Поменять местами колонки чтобы были в таком порядке:\n    1. Date\n    2. Status\n    3. External Partner ID\n    4. Payment ID\n    5. Total\n    6. Available\n    7. Locked\n    8. Ticker\n    9. RR Percent (в само значение в ячейке дописать значок %)\n   10. Merchant from\n   11. Merchant to\n   12. Unlock time\n   13. Unlocked At\n4. Добавить пагинацию вверху страницы (такую же как внизу)\n5. Добавить кнопку выгрузки отчета",
+        "added": "1. Добавить колонку External Partner ID (см таску в линке)\n2. Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID\n3. Добавить поиск по диапазону Unlock time\n4. Поменять местами колонки чтобы были в таком порядке:\n    1. Date\n    2. Status\n    3. External Partner ID\n    4. Payment ID\n    5. Total\n    6. Available\n    7. Locked\n    8. Ticker\n    9. RR Percent (в само значение в ячейке дописать значок %)\n   10. Merchant from\n   11. Merchant to\n   12. Unlock time\n   13. Unlocked At\n5. Добавить пагинацию вверху страницы (такую же как внизу)\n6. Добавить кнопку выгрузки отчета",
+        "markup": "<div class=\"wiki text common-markdown\"><ol class=\"wiki-list0\">\n<li>Добавить колонку External Partner ID (см таску в линке)</li>\n<li>Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID</li>\n<li>Добавить поиск по диапазону Unlock time (по дефолту пустой, тоесть ищет по всем)</li>\n<li>Поменять местами колонки чтобы были в таком порядке:\n<ol class=\"wiki-list0\">\n<li>Date</li>\n<li>Status</li>\n<li>External Partner ID</li>\n<li>Payment ID</li>\n<li>Total</li>\n<li>Available</li>\n<li>Locked</li>\n<li>Ticker</li>\n<li>RR Percent (в само значение в ячейке дописать значок %)</li>\n<li>Merchant from</li>\n<li>Merchant to</li>\n<li>Unlock time</li>\n<li>Unlocked At</li>\n<li>Transfer id</li>\n</ol>\n</li>\n<li>Добавить пагинацию вверху страницы (такую же как внизу)</li>\n<li>Добавить кнопку выгрузки отчета</li>\n<li>Сохранять настройки колонок в локал стораж</li>\n</ol>\n</div>",
+        "targetMember": "description",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1745486271890,
+        "marker": 0,
+        "category": {
+            "id": "DescriptionCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "description",
+            "id": "description",
+            "$type": "PredefinedFilterField"
+        },
+        "id": "0-0.9-426569",
+        "type": "MODIFY_PROPERTY",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "TextMarkupActivityItem"
+    },
+    {
+        "removed": "1. Добавить колонку External Partner ID (см таску в линке)\n2. Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID\n3. Поменять местами колонки чтобы были в таком порядке:\n    1. Date\n    2. Status\n    3. External Partner ID\n    4. Payment ID\n    5. Total\n    6. Available\n    7. Locked\n    8. Ticker\n    9. RR Percent (в само значение в ячейке дописать значок %)\n   10. Merchant from\n   11. Merchant to\n   12. Unlocked At\n4. Добавить пагинацию вверху страницы (такую же как внизу)\n5. Добавить кнопку выгрузки отчета",
+        "added": "1. Добавить колонку External Partner ID (см таску в линке)\n2. Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID\n3. Поменять местами колонки чтобы были в таком порядке:\n    1. Date\n    2. Status\n    3. External Partner ID\n    4. Payment ID\n    5. Total\n    6. Available\n    7. Locked\n    8. Ticker\n    9. RR Percent (в само значение в ячейке дописать значок %)\n   10. Merchant from\n   11. Merchant to\n   12. Unlock time\n   13. Unlocked At\n4. Добавить пагинацию вверху страницы (такую же как внизу)\n5. Добавить кнопку выгрузки отчета",
+        "markup": "<div class=\"wiki text common-markdown\"><ol class=\"wiki-list0\">\n<li>Добавить колонку External Partner ID (см таску в линке)</li>\n<li>Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID</li>\n<li>Добавить поиск по диапазону Unlock time (по дефолту пустой, тоесть ищет по всем)</li>\n<li>Поменять местами колонки чтобы были в таком порядке:\n<ol class=\"wiki-list0\">\n<li>Date</li>\n<li>Status</li>\n<li>External Partner ID</li>\n<li>Payment ID</li>\n<li>Total</li>\n<li>Available</li>\n<li>Locked</li>\n<li>Ticker</li>\n<li>RR Percent (в само значение в ячейке дописать значок %)</li>\n<li>Merchant from</li>\n<li>Merchant to</li>\n<li>Unlock time</li>\n<li>Unlocked At</li>\n<li>Transfer id</li>\n</ol>\n</li>\n<li>Добавить пагинацию вверху страницы (такую же как внизу)</li>\n<li>Добавить кнопку выгрузки отчета</li>\n<li>Сохранять настройки колонок в локал стораж</li>\n</ol>\n</div>",
+        "targetMember": "description",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1745483301085,
+        "marker": 0,
+        "category": {
+            "id": "DescriptionCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "description",
+            "id": "description",
+            "$type": "PredefinedFilterField"
+        },
+        "id": "0-0.9-426510",
+        "type": "MODIFY_PROPERTY",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "TextMarkupActivityItem"
+    },
+    {
+        "authorGroup": {
+            "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+            "name": "HeroPayments",
+            "$type": "UserGroup"
+        },
+        "author": {
+            "ringId": "0addc918-eb74-419d-9164-2cdac884a1d2",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/0addc918-eb74-419d-9164-2cdac884a1d2?s=48&etag==MjYtMjA0Ng%3D%3D",
+            "login": "d.lopatin",
+            "banBadge": null,
+            "fullName": "d.lopatin",
+            "name": "d.lopatin",
+            "isLocked": false,
+            "id": "1-110",
+            "$type": "User"
+        },
+        "removed": [],
+        "added": [
+            {
+                "usesMarkdown": true,
+                "reactions": [],
+                "reactionOrder": null,
+                "issue": {
+                    "visibility": {
+                        "$type": "UnlimitedVisibility"
+                    },
+                    "project": {
+                        "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                        "id": "0-7",
+                        "$type": "Project"
+                    },
+                    "id": "2-69162",
+                    "$type": "Issue"
+                },
+                "deleted": false,
+                "hasEmail": false,
+                "textPreview": "<div class=\"wiki text common-markdown\"><p>papi: <a href=\"https://gitlab.heronodes.io/payments/c5/dev/backend/papi/-/merge_requests/964/diffs?commit_id=c2d115006ae0bb57d2c63cec308ad45d742068f1\" target=\"_blank\" rel=\"noopener noreferrer\">https://gitlab.heronodes.io/payments/c5/dev/backend/papi/-/merge_requests/964/diffs?commit_id=c2d115006ae0bb57d2c63cec308ad45d742068f1</a><br/>padmin: <a href=\"https://gitlab.heronodes.io/payments/c5/dev/frontend/papi-admin/-/merge_requests/220\" target=\"_blank\" rel=\"noopener noreferrer\">https://gitlab.heronodes.io/payments/c5/dev/frontend/papi-admin/-/merge_requests/220</a></p>\n</div>",
+                "author": {
+                    "ringId": "0addc918-eb74-419d-9164-2cdac884a1d2",
+                    "online": false,
+                    "issueRelatedGroup": {
+                        "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                        "$type": "UserGroup"
+                    },
+                    "banned": false,
+                    "avatarUrl": "/hub/api/rest/avatar/0addc918-eb74-419d-9164-2cdac884a1d2?s=48&etag==MjYtMjA0Ng%3D%3D",
+                    "login": "d.lopatin",
+                    "banBadge": null,
+                    "fullName": "d.lopatin",
+                    "name": "d.lopatin",
+                    "isLocked": false,
+                    "id": "1-110",
+                    "$type": "User"
+                },
+                "text": "papi: https://gitlab.heronodes.io/payments/c5/dev/backend/papi/-/merge_requests/964/diffs?commit_id=c2d115006ae0bb57d2c63cec308ad45d742068f1\npadmin: https://gitlab.heronodes.io/payments/c5/dev/frontend/papi-admin/-/merge_requests/220",
+                "mentionedIssues": [],
+                "mentionedUsers": [],
+                "mentionedArticles": [],
+                "attachments": [],
+                "canUpdateVisibility": true,
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "created": 1745409370058,
+                "id": "4-52186",
+                "$type": "IssueComment"
+            }
+        ],
+        "id": "4-52186.0-0",
+        "targetMember": null,
+        "timestamp": 1745409370058,
+        "marker": 0,
+        "category": {
+            "id": "CommentsCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "comments",
+            "id": "comments",
+            "$type": "PredefinedFilterField"
+        },
+        "type": "ADD",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1745409370058,
+            "id": "4-52186",
+            "$type": "IssueComment"
+        },
+        "$type": "CommentActivityItem"
+    },
+    {
+        "removed": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "To do",
+                "id": "85-38",
+                "$type": "StateBundleElement"
+            }
+        ],
+        "added": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "In progress",
+                "id": "85-39",
+                "$type": "StateBundleElement"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Stage_10",
+        "author": {
+            "ringId": "0addc918-eb74-419d-9164-2cdac884a1d2",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/0addc918-eb74-419d-9164-2cdac884a1d2?s=48&etag==MjYtMjA0Ng%3D%3D",
+            "login": "d.lopatin",
+            "banBadge": null,
+            "fullName": "d.lopatin",
+            "name": "d.lopatin",
+            "isLocked": false,
+            "id": "1-110",
+            "$type": "User"
+        },
+        "timestamp": 1745241031299,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "state",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-10",
+                "$type": "CustomField"
+            },
+            "presentation": "Stage",
+            "id": "77-10",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-425169",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": [],
+        "added": [
+            {
+                "name": "d.lopatin",
+                "isLocked": false,
+                "id": "1-110",
+                "$type": "User"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Assignee_4",
+        "author": {
+            "ringId": "0addc918-eb74-419d-9164-2cdac884a1d2",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/0addc918-eb74-419d-9164-2cdac884a1d2?s=48&etag==MjYtMjA0Ng%3D%3D",
+            "login": "d.lopatin",
+            "banBadge": null,
+            "fullName": "d.lopatin",
+            "name": "d.lopatin",
+            "isLocked": false,
+            "id": "1-110",
+            "$type": "User"
+        },
+        "timestamp": 1745241031299,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "user",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-4",
+                "$type": "CustomField"
+            },
+            "presentation": "Assignee",
+            "id": "77-4",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-425168",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": "1. Добавить колонку External Partner ID (см таску в линке)\n2. Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID\n3. Поменять местами колонки чтобы были в таком порядке:\n    1. Date\n    2. External Partner ID\n    3. Payment ID\n    4. Total\n    5. Available\n    6. Locked\n    7. Ticker\n    8. RR Percent (в само значение в ячейке дописать значок %)\n    9. Merchant from\n   10. Merchant to\n   11. Unlocked At\n   12. Status\n4. Добавить пагинацию вверху страницы (такую же как внизу)\n5. Добавить кнопку выгрузки отчета",
+        "added": "1. Добавить колонку External Partner ID (см таску в линке)\n2. Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID\n3. Поменять местами колонки чтобы были в таком порядке:\n    1. Date\n    2. Status\n    3. External Partner ID\n    4. Payment ID\n    5. Total\n    6. Available\n    7. Locked\n    8. Ticker\n    9. RR Percent (в само значение в ячейке дописать значок %)\n   10. Merchant from\n   11. Merchant to\n   12. Unlocked At\n4. Добавить пагинацию вверху страницы (такую же как внизу)\n5. Добавить кнопку выгрузки отчета",
+        "markup": "<div class=\"wiki text common-markdown\"><ol class=\"wiki-list0\">\n<li>Добавить колонку External Partner ID (см таску в линке)</li>\n<li>Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID</li>\n<li>Добавить поиск по диапазону Unlock time (по дефолту пустой, тоесть ищет по всем)</li>\n<li>Поменять местами колонки чтобы были в таком порядке:\n<ol class=\"wiki-list0\">\n<li>Date</li>\n<li>Status</li>\n<li>External Partner ID</li>\n<li>Payment ID</li>\n<li>Total</li>\n<li>Available</li>\n<li>Locked</li>\n<li>Ticker</li>\n<li>RR Percent (в само значение в ячейке дописать значок %)</li>\n<li>Merchant from</li>\n<li>Merchant to</li>\n<li>Unlock time</li>\n<li>Unlocked At</li>\n<li>Transfer id</li>\n</ol>\n</li>\n<li>Добавить пагинацию вверху страницы (такую же как внизу)</li>\n<li>Добавить кнопку выгрузки отчета</li>\n<li>Сохранять настройки колонок в локал стораж</li>\n</ol>\n</div>",
+        "targetMember": "description",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1744789018060,
+        "marker": 0,
+        "category": {
+            "id": "DescriptionCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "description",
+            "id": "description",
+            "$type": "PredefinedFilterField"
+        },
+        "id": "0-0.9-423034",
+        "type": "MODIFY_PROPERTY",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "TextMarkupActivityItem"
+    },
+    {
+        "removed": [
+            {
+                "name": "d.alexandrov",
+                "isLocked": false,
+                "id": "1-183",
+                "$type": "User"
+            }
+        ],
+        "added": [],
+        "targetMember": "__CUSTOM_FIELD__Assignee_4",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1744726105298,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "user",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-4",
+                "$type": "CustomField"
+            },
+            "presentation": "Assignee",
+            "id": "77-4",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-422837",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "5 sprint",
+                "id": "83-210",
+                "$type": "EnumBundleElement"
+            }
+        ],
+        "added": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "6 Sprint",
+                "id": "83-211",
+                "$type": "EnumBundleElement"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Sprint_88",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1744726061810,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "enum",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-88",
+                "$type": "CustomField"
+            },
+            "presentation": "Sprint",
+            "id": "77-88",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-422833",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": [],
+        "added": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "5 sprint",
+                "id": "83-210",
+                "$type": "EnumBundleElement"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Sprint_88",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1744726059705,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "enum",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-88",
+                "$type": "CustomField"
+            },
+            "presentation": "Sprint",
+            "id": "77-88",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-422832",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "Normal",
+                "id": "83-45",
+                "$type": "EnumBundleElement"
+            }
+        ],
+        "added": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#ff7123",
+                    "id": "11",
+                    "$type": "FieldStyle"
+                },
+                "name": "Major",
+                "id": "83-58",
+                "$type": "EnumBundleElement"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Priority_1",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1744725909696,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "enum",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-1",
+                "$type": "CustomField"
+            },
+            "presentation": "Priority",
+            "id": "77-1",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-422827",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "Product in progress",
+                "id": "85-286",
+                "$type": "StateBundleElement"
+            }
+        ],
+        "added": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#fff",
+                    "id": "0",
+                    "$type": "FieldStyle"
+                },
+                "name": "To do",
+                "id": "85-38",
+                "$type": "StateBundleElement"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Stage_10",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1744725497595,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "state",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-10",
+                "$type": "CustomField"
+            },
+            "presentation": "Stage",
+            "id": "77-10",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-422821",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": [],
+        "added": [
+            {
+                "name": "d.alexandrov",
+                "isLocked": false,
+                "id": "1-183",
+                "$type": "User"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Assignee_4",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1744725497595,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "user",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-4",
+                "$type": "CustomField"
+            },
+            "presentation": "Assignee",
+            "id": "77-4",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-422820",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": [],
+        "added": [
+            {
+                "usesMarkdown": true,
+                "idReadable": "P-3841",
+                "numberInProject": 3841,
+                "reactions": [],
+                "mentionedIssues": [],
+                "mentionedUsers": [],
+                "mentionedArticles": [],
+                "resolved": null,
+                "summary": "Доработки Ролинг резерва",
+                "isDraft": false,
+                "attachments": [],
+                "hasEmail": false,
+                "canUpdateVisibility": true,
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "created": 1744722319854,
+                "project": {
+                    "leader": {
+                        "id": "1-1",
+                        "$type": "User"
+                    },
+                    "isDemo": false,
+                    "shortName": "P",
+                    "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                    "team": {
+                        "allUsersGroup": false,
+                        "ringId": "ed8d05a3-b1f8-4d55-9d27-8e4ad3784460",
+                        "icon": null,
+                        "name": "Heropayments Team",
+                        "id": "3-9",
+                        "$type": "UserGroup"
+                    },
+                    "plugins": {
+                        "$type": "ProjectPlugins",
+                        "vcsIntegrationSettings": {
+                            "processors": [],
+                            "$type": "ProjectVcsIntegrationSettings"
+                        },
+                        "timeTrackingSettings": {
+                            "estimate": null,
+                            "timeSpent": null,
+                            "enabled": true,
+                            "$type": "ProjectTimeTrackingSettings"
+                        },
+                        "helpDeskSettings": {
+                            "enabled": false,
+                            "$type": "ProjectHelpDeskSettings"
+                        }
+                    },
+                    "name": "Heropayments",
+                    "id": "0-7",
+                    "$type": "Project"
+                },
+                "id": "2-69158",
+                "$type": "Issue"
+            }
+        ],
+        "targetMember": "$l3t",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1744725394597,
+        "marker": 0,
+        "category": {
+            "id": "LinksCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "Subtask of",
+            "linkId": "95-3t",
+            "id": "$l3t",
+            "$type": "LinkTypeFilterField"
+        },
+        "id": "0-0.9-422815",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "LinksActivityItem"
+    },
+    {
+        "removed": [],
+        "added": [
+            {
+                "localizedName": null,
+                "color": {
+                    "background": "#409600",
+                    "id": "3",
+                    "$type": "FieldStyle"
+                },
+                "name": "Planned",
+                "id": "83-195",
+                "$type": "EnumBundleElement"
+            }
+        ],
+        "targetMember": "__CUSTOM_FIELD__Category_89",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1744725309834,
+        "marker": 0,
+        "category": {
+            "id": "CustomFieldCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "customField": {
+                "fieldType": {
+                    "valueType": "enum",
+                    "isMultiValue": false,
+                    "$type": "FieldType"
+                },
+                "id": "77-89",
+                "$type": "CustomField"
+            },
+            "presentation": "Category",
+            "id": "77-89",
+            "$type": "CustomFilterField"
+        },
+        "id": "0-0.9-422811",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "CustomFieldActivityItem"
+    },
+    {
+        "removed": [],
+        "added": [
+            {
+                "usesMarkdown": true,
+                "idReadable": "P-3842",
+                "numberInProject": 3842,
+                "reactions": [],
+                "mentionedIssues": [],
+                "mentionedUsers": [],
+                "mentionedArticles": [],
+                "resolved": null,
+                "summary": "[rolling reserve] Добавить поле в трансфер",
+                "isDraft": false,
+                "attachments": [
+                    {
+                        "issue": {
+                            "visibility": {
+                                "$type": "UnlimitedVisibility"
+                            },
+                            "project": {
+                                "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                                "id": "0-7",
+                                "$type": "Project"
+                            },
+                            "id": "2-69160",
+                            "$type": "Issue"
+                        },
+                        "imageDimensions": {
+                            "width": 1918,
+                            "height": 892
+                        },
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "mimeType": "image/png",
+                        "created": 1745930217448,
+                        "author": {
+                            "ringId": "e8b5fc63-22d9-4586-8ce0-89619e96d3d6",
+                            "fullName": "m.shushkevich",
+                            "id": "1-211",
+                            "$type": "User"
+                        },
+                        "removed": false,
+                        "comment": {
+                            "visibility": {
+                                "$type": "UnlimitedVisibility"
+                            },
+                            "id": "4-52492",
+                            "$type": "IssueComment"
+                        },
+                        "url": "/api/files/7-20909?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA5MDl8YktENk5nVC1UdlhlWXphcjZtblZIOWwwQTJ5U0cz%0D%0Adl85ZjNMS2J1bkxQWQ0K%0D%0A&updated=1745929814063",
+                        "name": "image.png",
+                        "size": 170100,
+                        "thumbnailURL": "/api/files/125-34886?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDg4NnxscjNweElrbWFRZmdiX1RFVGxJVTZtWFN0YlFu%0D%0ANDVPb01HTDdBaXZZRDJFDQo%0D%0A",
+                        "id": "7-20909",
+                        "$type": "IssueAttachment"
+                    },
+                    {
+                        "issue": {
+                            "visibility": {
+                                "$type": "UnlimitedVisibility"
+                            },
+                            "project": {
+                                "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                                "id": "0-7",
+                                "$type": "Project"
+                            },
+                            "id": "2-69160",
+                            "$type": "Issue"
+                        },
+                        "imageDimensions": {
+                            "width": 1417,
+                            "height": 1022
+                        },
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "mimeType": "image/png",
+                        "created": 1745930217448,
+                        "author": {
+                            "ringId": "e8b5fc63-22d9-4586-8ce0-89619e96d3d6",
+                            "fullName": "m.shushkevich",
+                            "id": "1-211",
+                            "$type": "User"
+                        },
+                        "removed": false,
+                        "comment": {
+                            "visibility": {
+                                "$type": "UnlimitedVisibility"
+                            },
+                            "id": "4-52492",
+                            "$type": "IssueComment"
+                        },
+                        "url": "/api/files/7-20910?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA5MTB8MFhVTGZWanZ3N1N1QWJ1czdsMHFrSEtqMWJqZnUy%0D%0AWEhZYWZTUWtHQmtvRQ0K%0D%0A&updated=1745929838697",
+                        "name": "999.png",
+                        "size": 151179,
+                        "thumbnailURL": "/api/files/125-34887?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDg4N3x2M3VYTk44OXVuOFNHbkxic2JleVJ2QjF0TExH%0D%0AZ1U4QjhGZ1liRzJSVXNFDQo%0D%0A",
+                        "id": "7-20910",
+                        "$type": "IssueAttachment"
+                    },
+                    {
+                        "issue": {
+                            "visibility": {
+                                "$type": "UnlimitedVisibility"
+                            },
+                            "project": {
+                                "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                                "id": "0-7",
+                                "$type": "Project"
+                            },
+                            "id": "2-69160",
+                            "$type": "Issue"
+                        },
+                        "imageDimensions": {
+                            "width": 1408,
+                            "height": 976
+                        },
+                        "visibility": {
+                            "$type": "UnlimitedVisibility"
+                        },
+                        "mimeType": "image/png",
+                        "created": 1745930217448,
+                        "author": {
+                            "ringId": "e8b5fc63-22d9-4586-8ce0-89619e96d3d6",
+                            "fullName": "m.shushkevich",
+                            "id": "1-211",
+                            "$type": "User"
+                        },
+                        "removed": false,
+                        "comment": {
+                            "visibility": {
+                                "$type": "UnlimitedVisibility"
+                            },
+                            "id": "4-52492",
+                            "$type": "IssueComment"
+                        },
+                        "url": "/api/files/7-20911?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDctMjA5MTF8aEZFWmM2YXRrRE15RVF0M3d3SDd6VUFYWDdrZTRS%0D%0AS1BBcFVfMW5idDUyWQ0K%0D%0A&updated=1745929943410",
+                        "name": "image1.png",
+                        "size": 169166,
+                        "thumbnailURL": "/api/files/125-34888?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDEyNS0zNDg4OHx2QTFjR2o3RGhyaWFrejdGZ2ZJS1c1Q21saVpX%0D%0AcGxIdzEtNzdOVnYxMm1BDQo%0D%0A",
+                        "id": "7-20911",
+                        "$type": "IssueAttachment"
+                    }
+                ],
+                "hasEmail": false,
+                "canUpdateVisibility": true,
+                "visibility": {
+                    "$type": "UnlimitedVisibility"
+                },
+                "created": 1744723056166,
+                "project": {
+                    "leader": {
+                        "id": "1-1",
+                        "$type": "User"
+                    },
+                    "isDemo": false,
+                    "shortName": "P",
+                    "ringId": "e6da350e-2cf6-4fd5-aba4-8cc3a8da4453",
+                    "team": {
+                        "allUsersGroup": false,
+                        "ringId": "ed8d05a3-b1f8-4d55-9d27-8e4ad3784460",
+                        "icon": null,
+                        "name": "Heropayments Team",
+                        "id": "3-9",
+                        "$type": "UserGroup"
+                    },
+                    "plugins": {
+                        "$type": "ProjectPlugins",
+                        "vcsIntegrationSettings": {
+                            "processors": [],
+                            "$type": "ProjectVcsIntegrationSettings"
+                        },
+                        "timeTrackingSettings": {
+                            "estimate": null,
+                            "timeSpent": null,
+                            "enabled": true,
+                            "$type": "ProjectTimeTrackingSettings"
+                        },
+                        "helpDeskSettings": {
+                            "enabled": false,
+                            "$type": "ProjectHelpDeskSettings"
+                        }
+                    },
+                    "name": "Heropayments",
+                    "id": "0-7",
+                    "$type": "Project"
+                },
+                "id": "2-69160",
+                "$type": "Issue"
+            }
+        ],
+        "targetMember": "$l0t",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1744725285130,
+        "marker": 0,
+        "category": {
+            "id": "LinksCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "Relates to",
+            "linkId": "95-0",
+            "id": "$l0",
+            "$type": "LinkTypeFilterField"
+        },
+        "id": "0-0.9-422809",
+        "type": "MODIFY_LINK",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "LinksActivityItem"
+    },
+    {
+        "removed": "1. Добавить колонку External Partner ID (см таску в линке)\n2. Поменять местами колонки чтобы были в таком порядке:\n   1. Date\n3. Добавить пагинацию вверху страницы (такую же как внизу)",
+        "added": "1. Добавить колонку External Partner ID (см таску в линке)\n2. Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID\n3. Поменять местами колонки чтобы были в таком порядке:\n    1. Date\n    2. External Partner ID\n    3. Payment ID\n    4. Total\n    5. Available\n    6. Locked\n    7. Ticker\n    8. RR Percent (в само значение в ячейке дописать значок %)\n    9. Merchant from\n   10. Merchant to\n   11. Unlocked At\n   12. Status\n4. Добавить пагинацию вверху страницы (такую же как внизу)\n5. Добавить кнопку выгрузки отчета",
+        "markup": "<div class=\"wiki text common-markdown\"><ol class=\"wiki-list0\">\n<li>Добавить колонку External Partner ID (см таску в линке)</li>\n<li>Добавить поле поиска по External Partner ID либо сделать в одном поле поиск по обоим айдишникам - как проще, в таком случае переименовать поле в ID</li>\n<li>Добавить поиск по диапазону Unlock time (по дефолту пустой, тоесть ищет по всем)</li>\n<li>Поменять местами колонки чтобы были в таком порядке:\n<ol class=\"wiki-list0\">\n<li>Date</li>\n<li>Status</li>\n<li>External Partner ID</li>\n<li>Payment ID</li>\n<li>Total</li>\n<li>Available</li>\n<li>Locked</li>\n<li>Ticker</li>\n<li>RR Percent (в само значение в ячейке дописать значок %)</li>\n<li>Merchant from</li>\n<li>Merchant to</li>\n<li>Unlock time</li>\n<li>Unlocked At</li>\n<li>Transfer id</li>\n</ol>\n</li>\n<li>Добавить пагинацию вверху страницы (такую же как внизу)</li>\n<li>Добавить кнопку выгрузки отчета</li>\n<li>Сохранять настройки колонок в локал стораж</li>\n</ol>\n</div>",
+        "targetMember": "description",
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "timestamp": 1744725067569,
+        "marker": 0,
+        "category": {
+            "id": "DescriptionCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "description",
+            "id": "description",
+            "$type": "PredefinedFilterField"
+        },
+        "id": "0-0.9-422803",
+        "type": "MODIFY_PROPERTY",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "$type": "TextMarkupActivityItem"
+    },
+    {
+        "author": {
+            "ringId": "822cdc23-b959-4563-93cf-545dc90e9a18",
+            "online": false,
+            "issueRelatedGroup": {
+                "icon": "/api/files/81-503?sign=MTc0NjQwMzIwMDAwMHwxLTg1fDgxLTUwM3xyUlg2MHQyMll4UjYxa2tkZkJsNWx6SVkzWmFkWFJw%0D%0AdzIzTGxTcXA4WC1BDQo%0D%0A",
+                "$type": "UserGroup"
+            },
+            "banned": false,
+            "avatarUrl": "/hub/api/rest/avatar/822cdc23-b959-4563-93cf-545dc90e9a18?s=48&etag==MjYtMTk2NQ%3D%3D",
+            "login": "d.alexandrov",
+            "banBadge": null,
+            "fullName": "d.alexandrov",
+            "name": "d.alexandrov",
+            "isLocked": false,
+            "id": "1-183",
+            "$type": "User"
+        },
+        "id": "2-69162.0-0",
+        "target": {
+            "usesMarkdown": true,
+            "created": 1744723904923,
+            "id": "2-69162",
+            "$type": "Issue"
+        },
+        "removed": [],
+        "added": [],
+        "targetMember": null,
+        "timestamp": 1744723904923,
+        "marker": 0,
+        "category": {
+            "id": "IssueCreatedCategory",
+            "$type": "ActivityCategory"
+        },
+        "field": {
+            "presentation": "created",
+            "id": "created",
+            "$type": "PredefinedFilterField"
+        },
+        "type": "ADD",
+        "$type": "IssueCreatedActivityItem"
+    }
+]

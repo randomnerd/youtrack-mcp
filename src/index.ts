@@ -15,3 +15,5 @@ server
     console.error('Failed to start YouTrack MCP server:', err);
     process.exit(1);
   });
+
+export { YouTrack } from './utils/youtrack.js';
