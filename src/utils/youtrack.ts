@@ -313,6 +313,28 @@ export class YouTrack {
       if (error.response.status >= 500 || error.response.status === 429) {
         return true;
       }
+    } else if (typeof error === 'object' && error !== null) {
+      // Handle plain error objects in tests (non-Axios errors)
+      const err = error as any;
+      
+      // Check for response property with status
+      if (err.response && typeof err.response.status === 'number') {
+        if (err.response.status >= 500 || err.response.status === 429) {
+          return true;
+        }
+      }
+      
+      // Check for network error messages
+      if (err.message && typeof err.message === 'string') {
+        const message = err.message.toLowerCase();
+        if (
+          message.includes('network error') ||
+          message.includes('timeout') ||
+          message.includes('exceeded')
+        ) {
+          return true;
+        }
+      }
     }
     
     return false;
