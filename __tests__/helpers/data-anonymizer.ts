@@ -117,10 +117,7 @@ export function anonymizeIssue(issue: YouTrackTypes.Issue, options: AnonymizerOp
     $type: issue.$type
   };
 
-  // Handle comments if present
-  if (issue.comments && issue.comments.length > 0) {
-    anonymizedIssue.comments = issue.comments.map(comment => anonymizeComment(comment, opts));
-  }
+  // Comments are now only accessed through activities, so we don't need to handle issue.comments
   
   // Handle custom fields if present
   if (issue.customFields && issue.customFields.length > 0) {
@@ -199,27 +196,55 @@ function anonymizeActivity(activity: YouTrackTypes.ActivityItem, options: Anonym
   }
   
   // Handle added items if present
-  if (activity.added && activity.added.length > 0) {
-    anonymizedActivity.added = activity.added.map(item => ({
-      ...item,
-      id: opts.preserveIds ? item.id : generateSampleString('added', item.id, opts.seed || ''),
-      name: item.name ? `Sample ${item.name}` : undefined,
-      presentation: item.presentation ? `Sample ${item.presentation}` : undefined,
-      text: item.text ? 'Sample added text' : undefined,
-      author: item.author ? anonymizeUser(item.author, opts) : undefined
-    }));
+  if (activity.added) {
+    // Handle both array and non-array cases
+    if (Array.isArray(activity.added) && activity.added.length > 0) {
+      anonymizedActivity.added = activity.added.map(item => ({
+        ...item,
+        id: opts.preserveIds ? item.id : generateSampleString('added', item.id, opts.seed || ''),
+        name: item.name ? `Sample ${item.name}` : undefined,
+        presentation: item.presentation ? `Sample ${item.presentation}` : undefined,
+        text: item.text ? 'Sample added text' : undefined,
+        author: item.author ? anonymizeUser(item.author, opts) : undefined
+      }));
+    } else if (!Array.isArray(activity.added)) {
+      // Handle single object case
+      const item = activity.added;
+      anonymizedActivity.added = {
+        ...item,
+        id: opts.preserveIds ? item.id : generateSampleString('added', item.id, opts.seed || ''),
+        name: item.name ? `Sample ${item.name}` : undefined,
+        presentation: item.presentation ? `Sample ${item.presentation}` : undefined,
+        text: item.text ? 'Sample added text' : undefined,
+        author: item.author ? anonymizeUser(item.author, opts) : undefined
+      };
+    }
   }
   
   // Handle removed items if present
-  if (activity.removed && activity.removed.length > 0) {
-    anonymizedActivity.removed = activity.removed.map(item => ({
-      ...item,
-      id: opts.preserveIds ? item.id : generateSampleString('removed', item.id, opts.seed || ''),
-      name: item.name ? `Sample ${item.name}` : undefined,
-      presentation: item.presentation ? `Sample ${item.presentation}` : undefined,
-      text: item.text ? 'Sample removed text' : undefined,
-      author: item.author ? anonymizeUser(item.author, opts) : undefined
-    }));
+  if (activity.removed) {
+    // Handle both array and non-array cases
+    if (Array.isArray(activity.removed) && activity.removed.length > 0) {
+      anonymizedActivity.removed = activity.removed.map(item => ({
+        ...item,
+        id: opts.preserveIds ? item.id : generateSampleString('removed', item.id, opts.seed || ''),
+        name: item.name ? `Sample ${item.name}` : undefined,
+        presentation: item.presentation ? `Sample ${item.presentation}` : undefined,
+        text: item.text ? 'Sample removed text' : undefined,
+        author: item.author ? anonymizeUser(item.author, opts) : undefined
+      }));
+    } else if (!Array.isArray(activity.removed)) {
+      // Handle single object case
+      const item = activity.removed;
+      anonymizedActivity.removed = {
+        ...item,
+        id: opts.preserveIds ? item.id : generateSampleString('removed', item.id, opts.seed || ''),
+        name: item.name ? `Sample ${item.name}` : undefined,
+        presentation: item.presentation ? `Sample ${item.presentation}` : undefined,
+        text: item.text ? 'Sample removed text' : undefined,
+        author: item.author ? anonymizeUser(item.author, opts) : undefined
+      };
+    }
   }
   
   return anonymizedActivity;

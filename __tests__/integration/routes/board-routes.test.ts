@@ -80,7 +80,8 @@ describe('Board Routes', () => {
   });
   
   test('getBoard should return a specific board', async () => {
-    const boardId = '1';
+    // Use a valid board ID from the fixture
+    const boardId = boardFixtures.boards[0].id;
     const response = await BoardController.getBoard(boardId);
     
     expect(BoardModel.getById).toHaveBeenCalledWith(boardId);
@@ -98,14 +99,16 @@ describe('Board Routes', () => {
   });
   
   test('handleResourceRequest should return board data as resource', async () => {
-    const uri = new URL('youtrack://boards/1');
-    const req = { params: { boardId: '1' } };
+    // Use a valid board ID from the fixture
+    const boardId = boardFixtures.boards[0].id;
+    const uri = new URL(`youtrack://boards/${boardId}`);
+    const req = { params: { boardId } };
     
     // Reset mock before this test to ensure call count is accurate
     (BoardModel.getById as jest.Mock).mockClear();
     
     await BoardController.handleResourceRequest(uri, req);
     
-    expect(BoardModel.getById).toHaveBeenCalledWith('1');
+    expect(BoardModel.getById).toHaveBeenCalledWith(boardId);
   });
 }); 

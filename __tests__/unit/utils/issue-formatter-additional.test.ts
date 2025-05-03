@@ -20,7 +20,8 @@ const {
   formatCustomFields,
   formatIssuesOverview,
   formatPeriodValue,
-  getLinkRelationName
+  getLinkRelationName,
+  extractCommentsFromActivities
 } = issueFormatterModule as any;
 
 describe('Issue Formatter - Private Function Tests', () => {
@@ -914,6 +915,117 @@ describe('Issue Formatter - Private Function Tests', () => {
       expect(result).toContain('"id": "issue1"');
       expect(result).toContain('"idReadable": "TEST-1"');
       expect(result).toContain('"summary": "Test Issue"');
+    });
+  });
+
+  describe('extractCommentsFromActivities function', () => {
+    it('should extract comments from CommentActivityItem entries', () => {
+      const activities = [
+        {
+          id: 'activity1',
+          $type: 'CommentActivityItem',
+          timestamp: Date.now() - 86400000,
+          author: {
+            id: 'user1',
+            name: 'User One',
+            fullName: 'User One',
+            $type: 'User'
+          },
+          target: { 
+            id: 'comment1', 
+            text: 'This is a test comment', 
+            $type: 'IssueComment' 
+          }
+        },
+        {
+          id: 'activity2',
+          $type: 'CustomFieldActivityItem',
+          timestamp: Date.now() - 43200000,
+          author: {
+            id: 'user2',
+            name: 'User Two',
+            fullName: 'User Two',
+            $type: 'User'
+          },
+          field: {
+            id: 'field1',
+            name: 'Status',
+            $type: 'CustomFilterField'
+          }
+        },
+        {
+          id: 'activity3',
+          $type: 'CommentActivityItem',
+          timestamp: Date.now() - 21600000,
+          author: {
+            id: 'user3',
+            name: 'User Three',
+            fullName: 'User Three',
+            $type: 'User'
+          },
+          added: {
+            id: 'comment2',
+            text: 'This is another test comment',
+            created: Date.now() - 21600000,
+            author: {
+              id: 'user3',
+              name: 'User Three',
+              fullName: 'User Three',
+              $type: 'User'
+            },
+            $type: 'IssueComment'
+          }
+        }
+      ] as YouTrackTypes.ActivityItem[];
+
+      const comments = extractCommentsFromActivities(activities);
+      
+      expect(comments.length).toBe(2);
+      expect(comments[0].id).toBe('comment1');
+      expect(comments[0].text).toBe('This is a test comment');
+      expect(comments[1].id).toBe('comment2');
+      expect(comments[1].text).toBe('This is another test comment');
+    });
+
+    it('should return empty array when no activities are provided', () => {
+      const comments = extractCommentsFromActivities([]);
+      expect(comments).toEqual([]);
+    });
+
+    it('should handle array of added items in CommentActivityItem', () => {
+      const activities = [
+        {
+          id: 'activity1',
+          $type: 'CommentActivityItem',
+          timestamp: Date.now(),
+          author: {
+            id: 'user1',
+            name: 'User One',
+            fullName: 'User One',
+            $type: 'User'
+          },
+          added: [
+            {
+              id: 'comment1',
+              text: 'First comment in array',
+              created: Date.now() - 86400000,
+              $type: 'IssueComment'
+            },
+            {
+              id: 'comment2',
+              text: 'Second comment in array',
+              created: Date.now() - 43200000,
+              $type: 'IssueComment'
+            }
+          ]
+        }
+      ] as YouTrackTypes.ActivityItem[];
+
+      const comments = extractCommentsFromActivities(activities);
+      
+      expect(comments.length).toBe(2);
+      expect(comments[0].text).toBe('First comment in array');
+      expect(comments[1].text).toBe('Second comment in array');
     });
   });
 }); 

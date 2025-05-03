@@ -339,7 +339,6 @@ export interface Issue {
   draftOwner?: User;
   votes?: number;
   voters?: IssueVoters;
-  comments?: IssueComment[];
   commentsCount?: number;
   tags?: IssueTag[];
   links?: IssueLink[];
@@ -527,6 +526,7 @@ export interface AgileStatus {
 
 export interface NotificationsUserProfile {
   id: string;
+  userId?: string;
   notifyOnOwnChanges?: boolean;
   jabberNotificationsEnabled?: boolean;
   emailNotificationsEnabled?: boolean;
@@ -649,8 +649,8 @@ export interface ActivityItem {
     text?: string;
     $type: string;
   };
-  added?: ActivityChange[];
-  removed?: ActivityChange[];
+  added?: ActivityChange[] | ActivityChange;
+  removed?: ActivityChange[] | ActivityChange;
   targetMember?: string;
   field?: {
     id: string;
@@ -739,5 +739,7 @@ export interface CustomFilterField {
 
 /**
  * Extended issue type that includes activities
+ * Note: Comments are obtained exclusively from CommentActivityItem entries in the activities array
+ * as the Issue type no longer has a direct comments property
  */
 export type IssueWithActivities = Issue & { activities?: ActivityItem[] }; 

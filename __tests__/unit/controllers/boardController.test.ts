@@ -60,8 +60,9 @@ describe('Board Controller', () => {
 
   describe('getBoard', () => {
     it('should return a specific board', async () => {
-      const boardId = '1';
-      const board = boardFixtures.boards.find(b => b.id === boardId);
+      // Use one of the existing board IDs from the fixture
+      const boardId = boardFixtures.boards[0].id;
+      const board = boardFixtures.boards[0];
       
       (BoardModel.getById as jest.Mock).mockResolvedValue(board);
       
@@ -71,7 +72,7 @@ describe('Board Controller', () => {
       expect(result).toHaveProperty('content');
       expect(Array.isArray(result.content)).toBe(true);
       // Content should contain board name
-      expect(JSON.stringify(result.content)).toContain(board?.name);
+      expect(JSON.stringify(result.content)).toContain(board.name);
     });
 
     it('should handle board not found', async () => {
@@ -89,7 +90,7 @@ describe('Board Controller', () => {
     });
 
     it('should handle errors', async () => {
-      const boardId = '1';
+      const boardId = boardFixtures.boards[0].id;
       (BoardModel.getById as jest.Mock).mockRejectedValue(new Error('Board fetch error'));
       
       const result = await BoardController.getBoard(boardId);

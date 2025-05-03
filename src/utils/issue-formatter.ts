@@ -34,6 +34,66 @@ const DEFAULT_OPTIONS: IssueFormatterOptions = {
 };
 
 /**
+ * Extracts comments from activity items
+ * @param activities - Array of activity items
+ * @returns Array of comments
+ */
+export function extractCommentsFromActivities(activities: YouTrackTypes.ActivityItem[]): YouTrackTypes.IssueComment[] {
+  if (!activities || activities.length === 0) {
+    return [];
+  }
+  
+  const comments: YouTrackTypes.IssueComment[] = [];
+  
+  // Process activities to extract comments
+  for (const activity of activities) {
+    if (activity.$type === 'CommentActivityItem') {
+      const commentActivity = activity as YouTrackTypes.CommentActivityItem;
+      
+      // Check if there's a valid comment target
+      if (commentActivity.target && commentActivity.target.$type === 'IssueComment') {
+        // Create a comment object from the activity
+        const comment: YouTrackTypes.IssueComment = {
+          id: commentActivity.target.id,
+          text: commentActivity.target.text || null,
+          created: activity.timestamp,
+          author: activity.author,
+          $type: 'IssueComment'
+        };
+        
+        comments.push(comment);
+      } else if (commentActivity.added) {
+        // Some API responses include comments in the 'added' field
+        const addedItems = Array.isArray(commentActivity.added) 
+          ? commentActivity.added 
+          : [commentActivity.added];
+          
+        for (const item of addedItems) {
+          if (item.$type === 'IssueComment') {
+            const comment: YouTrackTypes.IssueComment = {
+              id: item.id,
+              text: item.text || null,
+              created: item.created || activity.timestamp,
+              author: item.author || activity.author,
+              $type: 'IssueComment'
+            };
+            
+            comments.push(comment);
+          }
+        }
+      }
+    }
+  }
+  
+  // Sort comments by creation date (oldest first)
+  return comments.sort((a, b) => {
+    if (!a.created) return -1;
+    if (!b.created) return 1;
+    return a.created - b.created;
+  });
+}
+
+/**
  * Formats a YouTrack Issue object into an AI-readable text format for reporting
  * @param issue - The YouTrack Issue object to format
  * @param options - Formatting options
@@ -90,9 +150,16 @@ export function formatIssueForAI(
       sections.push(formatCustomFields(issue.customFields, opts.priorityFields));
     }
     
-    // Comments section (if available)
-    if (issue.comments && issue.comments.length > 0) {
-      sections.push(formatComments(issue.comments, opts));
+    // Comments section - always extract from activities
+    let comments: YouTrackTypes.IssueComment[] = [];
+    
+    // Extract comments from activities if available
+    if ('activities' in issue && issue.activities && issue.activities.length > 0) {
+      comments = extractCommentsFromActivities(issue.activities);
+    }
+    
+    if (comments.length > 0) {
+      sections.push(formatComments(comments, opts));
     }
     
     // Links section (if available)
@@ -587,7 +654,31 @@ export function formatActivities(
       switch (activity.$type) {
         case 'CommentActivityItem':
           const commentActivity = activity as YouTrackTypes.CommentActivityItem;
-          const commentText = commentActivity.target?.text || '';
+          
+          // Try to access comment text from various possible locations
+          let commentText = '';
+          
+          // First check target.text (standard location)
+          if (commentActivity.target?.text) {
+            commentText = commentActivity.target.text;
+          } 
+          // Then check in added field if available
+          else if (commentActivity.added) {
+            const addedItems = Array.isArray(commentActivity.added) 
+              ? commentActivity.added 
+              : [commentActivity.added];
+              
+            for (const item of addedItems) {
+              if (item.$type === 'IssueComment' && item.text) {
+                commentText = item.text;
+                break;
+              } else if (item.text) {
+                commentText = item.text;
+                break;
+              }
+            }
+          }
+          
           activityText = `${author} added a comment: ${commentText.length > 100 ? `${commentText.substring(0, 100)}...` : commentText}`;
           break;
           
@@ -599,14 +690,23 @@ export function formatActivities(
           const fieldActivity = activity as YouTrackTypes.CustomFieldActivityItem;
           const fieldName = fieldActivity.field?.name || 'Unknown field';
           
-          // Format added/removed values
-          const fromValue = fieldActivity.removed && fieldActivity.removed.length > 0
-            ? fieldActivity.removed.map(v => v.name || v.id || 'Empty').join(', ')
-            : 'Empty';
+          // Helper function to handle both array and single object cases
+          const formatValues = (values: YouTrackTypes.ActivityChange[] | YouTrackTypes.ActivityChange | undefined) => {
+            if (!values) return 'Empty';
             
-          const toValue = fieldActivity.added && fieldActivity.added.length > 0
-            ? fieldActivity.added.map(v => v.name || v.id || 'Empty').join(', ')
-            : 'Empty';
+            if (Array.isArray(values) && values.length > 0) {
+              return values.map(v => v.name || v.id || 'Empty').join(', ');
+            } else if (!Array.isArray(values)) {
+              // Handle single object case
+              return values.name || values.id || 'Empty';
+            }
+            
+            return 'Empty';
+          };
+          
+          // Format added/removed values
+          const fromValue = formatValues(fieldActivity.removed);
+          const toValue = formatValues(fieldActivity.added);
             
           activityText = `${author} changed ${fieldName}: ${fromValue} → ${toValue}`;
           break;
