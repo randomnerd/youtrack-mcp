@@ -2,7 +2,7 @@ import { YouTrack } from '../../../src/utils/youtrack';
 import mockAxios, { setupYouTrackApiMocks, resetMocks } from '../../mocks/youtrack-api.mock';
 import { boardFixtures, issueFixtures, sprintFixtures, projectFixtures, activityFixtures } from '../../fixtures';
 import { AxiosError } from 'axios';
-import { NotificationsUserProfile } from '../../../src/types/youtrack';
+import { NotificationsUserProfile, TelemetryData, ActivityCursorPage } from '../../../src/types/youtrack';
 
 describe('YouTrack API Client', () => {
   const baseUrl = 'http://youtrack-test.example.com/api';
@@ -592,6 +592,422 @@ describe('YouTrack API Client', () => {
       expect(mockAxios.history.post.length).toBe(1);
       expect(mockAxios.history.post[0].url).toContain(`/users/${userId}/profiles/notifications`);
       expect(JSON.parse(mockAxios.history.post[0].data)).toEqual(updateSettings);
+    });
+  });
+
+  describe('Private utility methods', () => {
+    describe('isRetryableError', () => {
+      it('should identify 5XX errors as retryable', () => {
+        const client = youtrackClient as any;
+        expect(client.isRetryableError({ response: { status: 500 } })).toBe(true);
+        expect(client.isRetryableError({ response: { status: 502 } })).toBe(true);
+        expect(client.isRetryableError({ response: { status: 503 } })).toBe(true);
+        expect(client.isRetryableError({ response: { status: 504 } })).toBe(true);
+      });
+
+      it('should identify rate limit errors as retryable', () => {
+        const client = youtrackClient as any;
+        expect(client.isRetryableError({ response: { status: 429 } })).toBe(true);
+      });
+
+      it('should identify network errors as retryable', () => {
+        const client = youtrackClient as any;
+        expect(client.isRetryableError({ message: 'Network Error' })).toBe(true);
+        expect(client.isRetryableError({ message: 'timeout of 1000ms exceeded' })).toBe(true);
+      });
+
+      it('should identify client errors as non-retryable', () => {
+        const client = youtrackClient as any;
+        expect(client.isRetryableError({ response: { status: 400 } })).toBe(false);
+        expect(client.isRetryableError({ response: { status: 401 } })).toBe(false);
+        expect(client.isRetryableError({ response: { status: 403 } })).toBe(false);
+        expect(client.isRetryableError({ response: { status: 404 } })).toBe(false);
+      });
+    });
+
+    describe('calculateRetryDelay', () => {
+      it('should use exponential backoff algorithm', () => {
+        const client = youtrackClient as any;
+        const delay1 = client.calculateRetryDelay(1);
+        const delay2 = client.calculateRetryDelay(2);
+        const delay3 = client.calculateRetryDelay(3);
+
+        expect(delay2).toBeGreaterThan(delay1);
+        expect(delay3).toBeGreaterThan(delay2);
+      });
+
+      it('should have reasonable bounds', () => {
+        const client = youtrackClient as any;
+        const delay1 = client.calculateRetryDelay(1);
+        const delay5 = client.calculateRetryDelay(5);
+
+        expect(delay1).toBeGreaterThanOrEqual(100); // min delay
+        expect(delay5).toBeLessThanOrEqual(30000); // max delay (30s)
+      });
+    });
+  });
+
+  describe('Activity-related methods', () => {
+    const issueId = 'TEST-123';
+    
+    beforeEach(() => {
+      // Set up mock data for activities
+      const activities = [
+        {
+          id: 'activity-1',
+          $type: 'IssueCreatedActivityItem',
+          timestamp: 1620000000000,
+          author: {
+            id: 'user-1',
+            $type: 'User',
+            name: 'Sample User One',
+            fullName: 'Sample User One',
+            login: 'user1'
+          }
+        },
+        {
+          id: 'activity-2',
+          $type: 'CustomFieldActivityItem',
+          timestamp: 1620100000000,
+          author: {
+            id: 'user-2',
+            $type: 'User',
+            name: 'Sample User Two',
+            fullName: 'Sample User Two',
+            login: 'user2'
+          },
+          field: {
+            id: 'field-1',
+            name: 'State',
+            $type: 'CustomField'
+          },
+          added: [{ id: 'state-1', name: 'In Progress', $type: 'StateBundleElement' }],
+          removed: [{ id: 'state-0', name: 'Open', $type: 'StateBundleElement' }]
+        }
+      ];
+      
+      mockAxios.onGet(`${baseUrl}/issues/${issueId}/activities`).reply(200, activities);
+      
+      const activityPage = {
+        $type: 'CursorPage',
+        activities: activities.slice(0, 1),
+        hasNext: true, 
+        hasPrev: false,
+        nextCursor: 'next-cursor-123'
+      };
+      
+      mockAxios.onGet(`${baseUrl}/issues/${issueId}/activitiesPage`).reply(200, activityPage);
+    });
+
+    it('should handle adding activities to issues', async () => {
+      const issue = {
+        id: issueId,
+        idReadable: issueId,
+        summary: 'Test Issue'
+      };
+      
+      const result = await (youtrackClient as any).addActivitiesToIssues(issue);
+      
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(issueId);
+      expect(result[0].activities).toBeDefined();
+      expect(Array.isArray(result[0].activities)).toBe(true);
+      expect(mockAxios.history.get.length).toBe(1);
+      const url = mockAxios.history.get[0].url || '';
+      expect(url).toContain(`/issues/${issueId}/activities`);
+    });
+
+    it('should handle adding activities to an array of issues', async () => {
+      const issues = [
+        {
+          id: issueId,
+          idReadable: issueId,
+          summary: 'Test Issue 1'
+        },
+        {
+          id: 'TEST-456',
+          idReadable: 'TEST-456',
+          summary: 'Test Issue 2'
+        }
+      ];
+      
+      // Add an additional mock for the second issue
+      mockAxios.onGet(`${baseUrl}/issues/TEST-456/activities`).reply(200, []);
+      
+      const result = await (youtrackClient as any).addActivitiesToIssues(issues);
+      
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe(issueId);
+      expect(result[0].activities).toBeDefined();
+      expect(result[1].id).toBe('TEST-456');
+      expect(result[1].activities).toBeDefined();
+      expect(mockAxios.history.get.length).toBe(2);
+      
+      // Check first request URL
+      const url1 = mockAxios.history.get[0].url || '';
+      expect(url1).toContain(`/issues/${issueId}/activities`);
+      
+      // Check second request URL
+      const url2 = mockAxios.history.get[1].url || '';
+      expect(url2).toContain('/issues/TEST-456/activities');
+    });
+
+    it('should fetch issue activities with options', async () => {
+      const options = {
+        categories: 'CustomFieldCategory',
+        start: 1620000000000,
+        end: 1620200000000,
+        author: 'user-1',
+        reverse: true,
+        skip: 0,
+        top: 10
+      };
+      
+      await youtrackClient.getIssueActivities(issueId, options);
+      
+      expect(mockAxios.history.get.length).toBe(1);
+      const url = mockAxios.history.get[0].url || '';
+      expect(url).toContain(`/issues/${issueId}/activities`);
+      
+      // In the actual implementation, parameters are converted to strings and fields are added
+      const expectedParams = {
+        categories: options.categories,
+        start: options.start.toString(),
+        end: options.end.toString(),
+        author: options.author,
+        reverse: options.reverse.toString(),
+        $top: options.top.toString(),
+        fields: expect.any(String) // The implementation adds fields parameter
+      };
+      
+      expect(mockAxios.history.get[0].params).toMatchObject(expectedParams);
+    });
+
+    it('should fetch issue activities paged', async () => {
+      const options = {
+        categories: 'CustomFieldCategory',
+        start: 1620000000000,
+        end: 1620200000000,
+        author: 'user-1',
+        reverse: true
+      };
+      
+      const result = await youtrackClient.getIssueActivitiesPage(issueId, options);
+      
+      expect(mockAxios.history.get.length).toBe(1);
+      const url = mockAxios.history.get[0].url || '';
+      expect(url).toContain(`/issues/${issueId}/activitiesPage`);
+      
+      // In the actual implementation, parameters are converted to strings and fields are added
+      const expectedParams = {
+        categories: options.categories,
+        start: options.start.toString(),
+        end: options.end.toString(),
+        author: options.author,
+        reverse: options.reverse.toString(),
+        fields: expect.any(String) // The implementation adds fields parameter
+      };
+      
+      expect(mockAxios.history.get[0].params).toMatchObject(expectedParams);
+      
+      // Access properties using type assertions
+      const cursorPage = result as any;
+      expect(cursorPage.hasNext).toBe(true);
+      expect(cursorPage.hasPrev).toBe(false);
+      expect(cursorPage.nextCursor).toBe('next-cursor-123');
+    });
+  });
+
+  describe('Constructor and URL handling', () => {
+    it('should handle base URL with trailing slash', () => {
+      const client = new YouTrack(`${baseUrl}/`, token);
+      expect((client as any).baseUrl).toBe(baseUrl);
+    });
+
+    it('should append /api to base URL if not present', () => {
+      const baseWithoutApi = 'http://youtrack-test.example.com';
+      const client = new YouTrack(baseWithoutApi, token);
+      expect((client as any).baseUrl).toBe(`${baseWithoutApi}/api`);
+    });
+
+    it('should set debug, timeout and maxRetries correctly', () => {
+      const debug = true;
+      const timeout = 5000;
+      const maxRetries = 5;
+      const client = new YouTrack(baseUrl, token, debug, timeout, maxRetries);
+      
+      expect((client as any).debug).toBe(debug);
+      expect((client as any).timeout).toBe(timeout);
+      expect((client as any).maxRetries).toBe(maxRetries);
+    });
+
+    it('should set default headers correctly', () => {
+      const client = new YouTrack(baseUrl, token);
+      const headers = (client as any).defaultHeaders;
+      
+      expect(headers.Authorization).toBe(`Bearer ${token}`);
+      expect(headers.Accept).toContain('application/json');
+    });
+  });
+
+  describe('Bundle related methods', () => {
+    beforeEach(() => {
+      // Mock bundle endpoints
+      mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/state`).reply(200, [
+        { id: 'bundle-1', name: 'State Bundle', $type: 'StateBundle' }
+      ]);
+      
+      mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/bundle-1`).reply(200, {
+        id: 'bundle-1',
+        name: 'State Bundle',
+        $type: 'StateBundle'
+      });
+      
+      mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/bundle-1/values`).reply(200, [
+        { id: 'value-1', name: 'Open', $type: 'StateBundleElement' },
+        { id: 'value-2', name: 'In Progress', $type: 'StateBundleElement' }
+      ]);
+      
+      mockAxios.onPost(`${baseUrl}/admin/customFieldSettings/bundles/bundle-1/values`).reply(200, {
+        id: 'value-3',
+        name: 'New State',
+        $type: 'StateBundleElement'
+      });
+
+      // Mock version bundle
+      mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/version/id:version-bundle-1`).reply(200, {
+        id: 'version-bundle-1',
+        name: 'Version Bundle',
+        $type: 'VersionBundle'
+      });
+
+      // Mock owned bundle
+      mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/owned/id:owned-bundle-1`).reply(200, {
+        id: 'owned-bundle-1',
+        name: 'Owned Bundle',
+        $type: 'OwnedBundle'
+      });
+    });
+
+    it('should get bundle elements', async () => {
+      await youtrackClient.getBundleElements('bundle-1');
+      
+      expect(mockAxios.history.get.length).toBe(1);
+      const url = mockAxios.history.get[0].url || '';
+      expect(url).toContain('bundle-1');
+    });
+
+    it('should create bundle element', async () => {
+      const data = { name: 'New State', description: 'A new state' };
+      await youtrackClient.createBundleElement('bundle-1', data);
+      
+      expect(mockAxios.history.post.length).toBe(1);
+      const url = mockAxios.history.post[0].url || '';
+      expect(url.includes('/admin/customFieldSettings/bundles/bundle-1/values') || 
+             url.includes('/admin/customFieldSettings/bundles/id:bundle-1/values')).toBe(true);
+      expect(JSON.parse(mockAxios.history.post[0].data)).toEqual(data);
+    });
+
+    it('should get version bundle', async () => {
+      const result = await youtrackClient.getVersionBundle('version-bundle-1');
+      
+      expect(mockAxios.history.get.length).toBe(1);
+      const url = mockAxios.history.get[0].url || '';
+      expect(url).toContain('/admin/customFieldSettings/bundles/version/id:version-bundle-1');
+      expect(result.$type).toBe('VersionBundleElement');
+    });
+
+    it('should get owned bundle', async () => {
+      const result = await youtrackClient.getOwnedBundle('owned-bundle-1');
+      
+      expect(mockAxios.history.get.length).toBe(1);
+      const url = mockAxios.history.get[0].url || '';
+      expect(url).toContain('/admin/customFieldSettings/bundles/owned/id:owned-bundle-1');
+      expect(result.$type).toBe('OwnedBundleElement');
+    });
+  });
+
+  describe('VCS related methods', () => {
+    const issueId = 'TEST-123';
+    const changeId = 'change-1';
+    const projectId = 'TEST';
+    
+    beforeEach(() => {
+      // Mock VCS related endpoints
+      mockAxios.onGet(`${baseUrl}/issues/${issueId}/changes`).reply(200, [
+        { id: changeId, version: '1.0', date: new Date().toISOString() }
+      ]);
+      
+      mockAxios.onGet(`${baseUrl}/changes/${changeId}`).reply(200, {
+        id: changeId,
+        version: '1.0',
+        date: new Date().toISOString()
+      });
+      
+      mockAxios.onGet(`${baseUrl}/admin/vcsServers`).reply(200, [
+        { id: 'vcs-1', url: 'https://github.com/example/repo' }
+      ]);
+      
+      mockAxios.onGet(`${baseUrl}/admin/projects/${projectId}/vcsRepositories`).reply(200, [
+        { id: 'processor-1', enabled: true }
+      ]);
+    });
+
+    it('should get VCS changes for an issue', async () => {
+      await youtrackClient.getVcsChanges(issueId);
+      
+      expect(mockAxios.history.get.length).toBe(1);
+      const url = mockAxios.history.get[0].url || '';
+      expect(url).toContain(`/issues/${issueId}/changes`);
+    });
+
+    it('should get VCS change by ID', async () => {
+      await youtrackClient.getVcsChange(changeId);
+      
+      expect(mockAxios.history.get.length).toBe(1);
+      const url = mockAxios.history.get[0].url || '';
+      expect(url).toContain(`/changes/${changeId}`);
+    });
+
+    it('should list VCS servers', async () => {
+      await youtrackClient.listVcsServers();
+      
+      expect(mockAxios.history.get.length).toBe(1);
+      const url = mockAxios.history.get[0].url || '';
+      expect(url).toContain('/admin/vcsServers');
+    });
+
+    it('should get VCS processors for a project', async () => {
+      await youtrackClient.getVcsProcessors(projectId);
+      
+      expect(mockAxios.history.get.length).toBe(1);
+      const url = mockAxios.history.get[0].url || '';
+      expect(url).toContain(`/admin/projects/${projectId}/vcsRepositories`);
+    });
+  });
+
+  describe('Telemetry data', () => {
+    beforeEach(() => {
+      // Mock telemetry endpoint
+      mockAxios.onGet(`${baseUrl}/admin/telemetry`).reply(200, {
+        instanceId: 'instance-1',
+        serverVersion: '2023.1.12345',
+        usersCount: 100,
+        projectsCount: 25
+      });
+    });
+
+    it('should get telemetry data', async () => {
+      const result = await youtrackClient.getTelemetryData();
+      
+      expect(mockAxios.history.get.length).toBe(1);
+      const url = mockAxios.history.get[0].url || '';
+      expect(url).toContain('/admin/telemetry');
+      
+      // Access properties using type assertions
+      const telemetryData = result as any;
+      expect(telemetryData.instanceId).toBe('instance-1');
+      expect(telemetryData.serverVersion).toBe('2023.1.12345');
     });
   });
 });
