@@ -198,4 +198,181 @@ describe('Issue Controller', () => {
       expect(JSON.stringify(result.content)).toContain(errorMessage);
     });
   });
+
+  describe('findIssuesByCriteria', () => {
+    it('should find issues by project criteria', async () => {
+      // Setup test data
+      const options = { project: 'TEST' };
+      const issues = issueFixtures.issues.slice(0, 2);
+      
+      // Setup mock
+      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
+      
+      // Call controller method
+      const result = await IssueController.findIssuesByCriteria(options);
+      
+      // Verify results
+      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(result).toHaveProperty('content');
+      expect(JSON.stringify(result.content)).toContain('Found 2 issues');
+      expect(JSON.stringify(result.content)).toContain('project: {TEST}');
+    });
+    
+    it('should find issues by assignee criteria', async () => {
+      // Setup test data
+      const options = { assignee: 'me' };
+      const issues = issueFixtures.issues.slice(0, 1);
+      
+      // Setup mock
+      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
+      
+      // Call controller method
+      const result = await IssueController.findIssuesByCriteria(options);
+      
+      // Verify results
+      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(result).toHaveProperty('content');
+      expect(JSON.stringify(result.content)).toContain('Found 1 issues');
+      expect(JSON.stringify(result.content)).toContain('assignee: me');
+    });
+    
+    it('should find issues by sprint criteria', async () => {
+      // Setup test data
+      const options = { sprint: 'Sprint 1' };
+      const issues = issueFixtures.issues.slice(1, 3);
+      
+      // Setup mock
+      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
+      
+      // Call controller method
+      const result = await IssueController.findIssuesByCriteria(options);
+      
+      // Verify results
+      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(result).toHaveProperty('content');
+      expect(JSON.stringify(result.content)).toContain('sprint: {Sprint 1}');
+    });
+    
+    it('should find issues by type criteria', async () => {
+      // Setup test data
+      const options = { type: 'Bug' };
+      const issues = issueFixtures.issues.slice(0, 1);
+      
+      // Setup mock
+      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
+      
+      // Call controller method
+      const result = await IssueController.findIssuesByCriteria(options);
+      
+      // Verify results
+      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(result).toHaveProperty('content');
+      expect(JSON.stringify(result.content)).toContain('Type: {Bug}');
+    });
+    
+    it('should find issues by resolved status', async () => {
+      // Setup test data
+      const options = { status: 'resolved' };
+      const issues = issueFixtures.issues.slice(2, 3);
+      
+      // Setup mock
+      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
+      
+      // Call controller method
+      const result = await IssueController.findIssuesByCriteria(options);
+      
+      // Verify results
+      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(result).toHaveProperty('content');
+      if (issues.length > 0) {
+        expect(JSON.stringify(result.content)).toContain('#Resolved');
+      } else {
+        expect(JSON.stringify(result.content)).toContain('No issues found');
+      }
+    });
+    
+    it('should find issues by unresolved status', async () => {
+      // Setup test data
+      const options = { status: 'unresolved' };
+      const issues = issueFixtures.issues.slice(0, 2);
+      
+      // Setup mock
+      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
+      
+      // Call controller method
+      const result = await IssueController.findIssuesByCriteria(options);
+      
+      // Verify results
+      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(result).toHaveProperty('content');
+      expect(JSON.stringify(result.content)).toContain('#Unresolved');
+    });
+    
+    it('should find issues by specific status', async () => {
+      // Setup test data
+      const options = { status: 'In Progress' };
+      const issues = issueFixtures.issues.slice(1, 2);
+      
+      // Setup mock
+      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
+      
+      // Call controller method
+      const result = await IssueController.findIssuesByCriteria(options);
+      
+      // Verify results
+      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(result).toHaveProperty('content');
+      expect(JSON.stringify(result.content)).toContain('State: {In Progress}');
+    });
+    
+    it('should handle empty results', async () => {
+      // Setup test data
+      const options = { status: 'Cancelled' };
+      
+      // Setup mock
+      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue([]);
+      
+      // Call controller method
+      const result = await IssueController.findIssuesByCriteria(options);
+      
+      // Verify results
+      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(result).toHaveProperty('content');
+      expect(JSON.stringify(result.content)).toContain('No issues found');
+    });
+    
+    it('should respect limit parameter', async () => {
+      // Setup test data
+      const options = { limit: 1 };
+      const issues = issueFixtures.issues.slice(0, 3);
+      
+      // Setup mock
+      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
+      
+      // Call controller method
+      const result = await IssueController.findIssuesByCriteria(options);
+      
+      // Verify results
+      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(result).toHaveProperty('content');
+      expect(JSON.stringify(result.content)).toContain('Showing 1 results');
+    });
+    
+    it('should handle criteria error', async () => {
+      // Setup test data
+      const options = { project: 'INVALID' };
+      const errorMessage = 'Invalid criteria';
+      
+      // Setup mock
+      (IssueModel.findIssuesByCriteria as jest.Mock).mockRejectedValue(new Error(errorMessage));
+      
+      // Call controller method
+      const result = await IssueController.findIssuesByCriteria(options);
+      
+      // Verify results
+      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(result).toHaveProperty('isError', true);
+      expect(JSON.stringify(result.content)).toContain(errorMessage);
+    });
+  });
 }); 

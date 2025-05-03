@@ -1,7 +1,12 @@
 import axios, { AxiosError } from 'axios';
 import { FieldBuilder } from './field-builder';
 import * as YouTrackTypes from '../types/youtrack';
+import debug from 'debug';
 
+// Create namespaced debuggers
+const requestDebug = debug('youtrack:api:request');
+const responseDebug = debug('youtrack:api:response');
+const errorDebug = debug('youtrack:api:error');
 
 /**
  * YouTrack class for interacting with the YouTrack REST API
@@ -157,14 +162,14 @@ export class YouTrack {
       try {
         // Debug logging - Request (only on first attempt or with debug enabled)
         if (this.debug || retries === 0) {
-          console.log(`\n==== YouTrack API Request (Attempt ${retries + 1}/${this.maxRetries + 1}) ====`);
-          console.log(`${method} ${url}`);
-          console.log(`Headers:`, JSON.stringify(requestHeaders, null, 2));
+          requestDebug(`\n==== YouTrack API Request (Attempt ${retries + 1}/${this.maxRetries + 1}) ====`);
+          requestDebug(`${method} ${url}`);
+          requestDebug(`Headers: %j`, requestHeaders);
           if (body) {
-            console.log(`Body:`, JSON.stringify(body, null, 2));
+            requestDebug(`Body: %j`, body);
           }
-          console.log(`Params:`, JSON.stringify(params, null, 2));
-          console.log(`==== End Request ====\n`);
+          requestDebug(`Params: %j`, params);
+          requestDebug(`==== End Request ====\n`);
         }
 
         const startTime = Date.now();
@@ -184,11 +189,11 @@ export class YouTrack {
         
         // Debug logging - Response (only on success or with debug enabled)
         if (this.debug) {
-          console.log(`\n==== YouTrack API Response (Attempt ${retries + 1}/${this.maxRetries + 1}) ====`);
-          console.log(`${method} ${url}`);
-          console.log(`Status: ${response.status} ${response.statusText}`);
-          console.log(`Time: ${endTime - startTime}ms`);
-          console.log(`Headers:`, JSON.stringify(response.headers, null, 2));
+          responseDebug(`\n==== YouTrack API Response (Attempt ${retries + 1}/${this.maxRetries + 1}) ====`);
+          responseDebug(`${method} ${url}`);
+          responseDebug(`Status: ${response.status} ${response.statusText}`);
+          responseDebug(`Time: ${endTime - startTime}ms`);
+          responseDebug(`Headers: %j`, response.headers);
         }
 
         // Handle non-2XX responses
@@ -198,8 +203,8 @@ export class YouTrack {
             : JSON.stringify(response.data);
             
           if (this.debug) {
-            console.log(`Error Body: ${errorText}`);
-            console.log(`==== End Response (Error) ====\n`);
+            errorDebug(`Error Body: ${errorText}`);
+            errorDebug(`==== End Response (Error) ====\n`);
           }
           
           // Only retry on server errors (5XX) or specific conditions
@@ -212,7 +217,7 @@ export class YouTrack {
             if (retries < this.maxRetries) {
               const delayMs = this.calculateRetryDelay(retries);
               if (this.debug) {
-                console.log(`Retrying in ${delayMs}ms...`);
+                errorDebug(`Retrying in ${delayMs}ms...`);
               }
               await this.delay(delayMs);
               retries++;
@@ -231,22 +236,22 @@ export class YouTrack {
         
         if (this.debug) {
           if (responseData !== null && typeof responseData === 'object') {
-            console.log(`Body:`, JSON.stringify(responseData, null, 2));
+            responseDebug(`Body: %j`, responseData);
           } else if (typeof responseData === 'string') {
-            console.log(`Body (text): ${responseData.substring(0, 1000)}${responseData.length > 1000 ? '...' : ''}`);
+            responseDebug(`Body (text): ${responseData.substring(0, 1000)}${responseData.length > 1000 ? '...' : ''}`);
           } else {
-            console.log(`Body: ${responseData}`);
+            responseDebug(`Body: ${responseData}`);
           }
-          console.log(`==== End Response ====\n`);
+          responseDebug(`==== End Response ====\n`);
         }
         
         return responseData;
       } catch (error) {
         if (this.debug) {
-          console.error(`\n==== YouTrack API Error (Attempt ${retries + 1}/${this.maxRetries + 1}) ====`);
-          console.error(`${method} ${url}`);
-          console.error(`Error:`, error);
-          console.error(`==== End Error ====\n`);
+          errorDebug(`\n==== YouTrack API Error (Attempt ${retries + 1}/${this.maxRetries + 1}) ====`);
+          errorDebug(`${method} ${url}`);
+          errorDebug(`Error: %o`, error);
+          errorDebug(`==== End Error ====\n`);
         }
         
         // Save the last error to throw if all retries fail
@@ -261,7 +266,7 @@ export class YouTrack {
         if (shouldRetry && retries < this.maxRetries) {
           const delayMs = this.calculateRetryDelay(retries);
           if (this.debug) {
-            console.log(`Retrying in ${delayMs}ms...`);
+            errorDebug(`Retrying in ${delayMs}ms...`);
           }
           await this.delay(delayMs);
           retries++;

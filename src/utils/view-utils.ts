@@ -16,7 +16,8 @@ export function formatSprintPeriod(sprint: YouTrackTypes.Sprint): string {
  * @returns Formatted projects string
  */
 export function formatBoardProjects(board: YouTrackTypes.Board): string {
-  return board.projects?.map(p => p.name).join(', ') || 'None';
+  if (!board.projects) return 'None';
+  return board.projects.length > 0 ? board.projects.map(p => p.name).join(', ') : '';
 }
 
 /**

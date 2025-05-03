@@ -1,5 +1,8 @@
 import { YouTrack } from './utils/youtrack';
 import dotenv from 'dotenv';
+import debug from 'debug';
+
+const clientDebug = debug('youtrack:client');
 
 // Define interfaces for configuration
 interface YouTrackConfig {
@@ -35,6 +38,7 @@ let youtrackClient: YouTrack;
 if (configErrors.length > 0) {
   const errorMessage = configErrors.join(' ');
   console.error(`ERROR: ${errorMessage}`);
+  clientDebug(`Configuration errors: ${errorMessage}`);
   
   // Create a proxy that throws an error when any method is called
   // This prevents errors at import time but provides clear errors when methods are called
@@ -56,11 +60,3 @@ if (configErrors.length > 0) {
 }
 
 export default youtrackClient;
-
-/* 
-// Uncomment for testing
-async function test() {
-  const issue = await youtrackClient.getIssueActivities('P-3866');
-  console.log(JSON.stringify(issue, null, 2));
-}
-*/
