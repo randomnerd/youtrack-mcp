@@ -47,7 +47,7 @@ export default youtrackClient;
 async function test() {
   // const sprint = await youtrackClient.getSprint('103-83', '104-441');
   // console.log(JSON.stringify(sprint, null, 2));
-  const issue = await youtrackClient.getIssue('P-3386');
+  const issue = await youtrackClient.getIssueActivities('P-3866');
   console.log(JSON.stringify(issue, null, 2));
 }
 

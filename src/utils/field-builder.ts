@@ -10,7 +10,7 @@ export interface FieldNode {
  * Builder class for creating field strings
  */
 export class FieldBuilder {
-  private rootFields: FieldNode[] = [];
+  public rootFields: FieldNode[] = [];
 
   /**
    * Create a new FieldBuilder

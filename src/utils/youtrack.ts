@@ -1,7 +1,7 @@
-
 import axios, { AxiosError } from 'axios';
 import { FieldBuilder } from './field-builder';
 import * as YouTrackTypes from '../types/youtrack';
+
 
 /**
  * YouTrack class for interacting with the YouTrack REST API
@@ -13,7 +13,11 @@ export class YouTrack {
   private debug: boolean;
   
   // Field builders
-  public static readonly DEFAULT_ISSUE_FIELDS = 'id,idReadable,Stage,summary,description,created,updated,resolved,numberInProject,$type,project($type,id,name),reporter($type,id,login,ringId,name),updater($type,id,login),customFields($type,id,name,projectCustomField(id,field(id,name)),value($type,id,name,isResolved,fullName,login,avatarUrl,color(id))),links($type,direction,id,linkType($type,id,localizedName)),visibility($type,id,permittedGroups($type,id,name),permittedUsers($type,id,login)),comments($type,id,text,author($type,id,login),created)';
+  public static readonly DEFAULT_AUTHOR_FIELDS = 'id,name,login';
+  public static readonly DEFAULT_ACTIVITY_CHANGE_FIELDS = `$type,id,idReadable,name,presentation,shortName,summart,text,url,author(${YouTrack.DEFAULT_AUTHOR_FIELDS}),date,created`;
+  public static readonly DEFAULT_ACTIVITY_FIELDS = `id,$type,timestamp,added(${YouTrack.DEFAULT_ACTIVITY_CHANGE_FIELDS}),removed(${YouTrack.DEFAULT_ACTIVITY_CHANGE_FIELDS}),author(${YouTrack.DEFAULT_AUTHOR_FIELDS}),field(name)`;
+  public static readonly DEFAULT_ACTIVITY_CATEGORIES = `CustomFieldCategory`;
+  public static readonly DEFAULT_ISSUE_FIELDS = `id,idReadable,Stage,summary,description,created,updated,resolved,numberInProject,$type,project($type,id,name),reporter($type,id,login,ringId,name),updater($type,id,login),customFields($type,id,name,projectCustomField(id,field(id,name)),value($type,id,name,isResolved,fullName,login,avatarUrl,color(id))),links($type,direction,id,linkType($type,id,localizedName)),comments($type,id,text,author($type,id,login),created)`;
   public static readonly DEFAULT_SPRINT_FIELDS = `id,name,goal,start,finish,archived,isDefault,unresolvedIssuesCount,issues(id,idReadable,projectCustomField(id,field(id,name))`;
   public static readonly DEFAULT_AGILE_FIELDS = `id,name,description,start,finish,isDefault,isCompleted,issues(id,idReadable,projectCustomField(id,field(id,name)))`;
   private issueFieldBuilder = new FieldBuilder(YouTrack.DEFAULT_ISSUE_FIELDS);
@@ -571,6 +575,75 @@ export class YouTrack {
         },
       }
     );
+  }
+
+  /**
+   * Get issue activities
+   * @param issueId - The ID of the issue
+   * @param options - Filter options for activities
+   * @returns Array of activity items
+   */
+  async getIssueActivities(
+    issueId: string,
+    options: {
+      categories?: string;
+      start?: number;
+      end?: number;
+      author?: string;
+      reverse?: boolean;
+      skip?: number;
+      top?: number;
+    } = {}
+  ): Promise<YouTrackTypes.ActivityItem[] | YouTrackTypes.CommentActivityItem[] | YouTrackTypes.IssueCreatedActivityItem[] | YouTrackTypes.CustomFieldActivityItem[] | YouTrackTypes.WorkItemActivityItem[] | YouTrackTypes.SimpleValueActivityItem[] | YouTrackTypes.VisibilityGroupActivityItem[]> {
+    const { categories, start, end, author, reverse, skip, top } = options;
+    
+    const params: Record<string, string> = {
+      categories: YouTrack.DEFAULT_ACTIVITY_CATEGORIES,
+      fields: YouTrack.DEFAULT_ACTIVITY_FIELDS,
+    };
+    
+    if (categories) params.categories = categories;
+    if (start) params.start = start.toString();
+    if (end) params.end = end.toString();
+    if (author) params.author = author;
+    if (reverse !== undefined) params.reverse = reverse.toString();
+    if (skip) params.$skip = skip.toString();
+    if (top) params.$top = top.toString();
+    
+    return this.request<YouTrackTypes.ActivityItem[]>(`/issues/${issueId}/activities`, { params });
+  }
+
+  /**
+   * Get issue activities page (with pagination cursors)
+   * @param issueId - The ID of the issue
+   * @param options - Filter options for activities
+   * @returns Activity cursor page
+   */
+  async getIssueActivitiesPage(
+    issueId: string,
+    options: {
+      categories?: string;
+      start?: number;
+      end?: number;
+      author?: string;
+      reverse?: boolean;
+      cursor?: string;
+    } = {}
+  ): Promise<YouTrackTypes.ActivityCursorPage> {
+    const { categories, start, end, author, reverse, cursor } = options;
+    
+    const params: Record<string, string> = {
+      fields: `id,beforeCursor,afterCursor,activities(${YouTrack.DEFAULT_ACTIVITY_FIELDS})`,
+    };
+    
+    if (categories) params.categories = categories;
+    if (start) params.start = start.toString();
+    if (end) params.end = end.toString();
+    if (author) params.author = author;
+    if (reverse !== undefined) params.reverse = reverse.toString();
+    if (cursor) params.cursor = cursor;
+    
+    return this.request<YouTrackTypes.ActivityCursorPage>(`/issues/${issueId}/activitiesPage`, { params });
   }
 
   // ======= BUNDLES =======

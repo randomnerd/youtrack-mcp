@@ -565,4 +565,106 @@ export interface IssueWatchers {
 export interface IssueVoters {
   hasVote?: boolean;
   $type?: string;
+}
+
+export interface ActivityChange {
+  id: string;
+  idReadable?: string;
+  name?: string;
+  presentation?: string;
+  shortName?: string;
+  summary?: string;
+  text?: string;
+  url?: string;
+  author?: User;
+  date?: number;
+  created?: number;
+  $type?: string;
+}
+
+export interface ActivityItem {
+  id: string;
+  $type: string;
+  timestamp: number;
+  author: User;
+  target?: {
+    id: string;
+    idReadable?: string;
+    text?: string;
+    $type: string;
+  };
+  added?: ActivityChange[];
+  removed?: ActivityChange[];
+  targetMember?: string;
+  field?: {
+    id: string;
+    name?: string;
+    presentation?: string;
+    customField?: CustomField;
+    $type?: string;
+  };
+  category?: {
+    id: string;
+    $type: string;
+  };
+  type?: string;
+}
+
+export interface ActivityCursorPage {
+  id: string;
+  activities: ActivityItem[];
+  beforeCursor?: string;
+  afterCursor?: string;
+  $type: string;
+}
+
+export interface CommentActivityItem extends ActivityItem {
+  $type: 'CommentActivityItem';
+  target: {
+    id: string;
+    text?: string;
+    $type: 'IssueComment';
+  };
+}
+
+export interface IssueCreatedActivityItem extends ActivityItem {
+  $type: 'IssueCreatedActivityItem';
+  target: {
+    id: string;
+    idReadable?: string;
+    $type: 'Issue';
+  };
+}
+
+export interface CustomFieldActivityItem extends ActivityItem {
+  $type: 'CustomFieldActivityItem';
+  target: {
+    id: string;
+    $type: 'Issue';
+  };
+}
+
+export interface WorkItemActivityItem extends ActivityItem {
+  $type: 'WorkItemActivityItem';
+  target: {
+    id: string;
+    text?: string;
+    $type: 'IssueWorkItem';
+  };
+}
+
+export interface SimpleValueActivityItem extends ActivityItem {
+  $type: 'SimpleValueActivityItem';
+  target: {
+    id: string;
+    $type: 'Issue';
+  };
+}
+
+export interface VisibilityGroupActivityItem extends ActivityItem {
+  $type: 'VisibilityGroupActivityItem';
+  target: {
+    id: string;
+    $type: 'Issue';
+  };
 } 

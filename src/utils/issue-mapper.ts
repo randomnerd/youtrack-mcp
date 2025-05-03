@@ -1,4 +1,4 @@
-import type { Issue } from '../types/youtrack';
+import type { ActivityItem, Issue } from '../types/youtrack';
 
 /**
  * Helper interface to track contributor information
@@ -18,9 +18,10 @@ interface Contributor {
 /**
  * Maps a YouTrack issue to an AI-readable text format with all meaningful properties
  * @param issue The YouTrack issue to format
+ * @param activities Optional activities related to this issue
  * @returns A formatted string representation of the issue
  */
-export function mapIssueToAIReadableText(issue: Issue): string {
+export function mapIssueToAIReadableText(issue: Issue, activities?: ActivityItem[]): string {
   // Cast issue to any to access properties which might not be in the type definition
   const issueData = issue as any;
 
@@ -244,18 +245,20 @@ ${resolvedDate ? `Resolved: ${resolvedDate.toLocaleString()}\n` : ''}`;
   }
 
   // Format activity/history for status changes if available
-  if (issueData.activities && issueData.activities.length > 0) {
+  // Use the activities parameter if provided, otherwise fallback to issueData.activities
+  const activityItems = activities || issueData.activities || [];
+  if (activityItems.length > 0) {
     result += '\nActivity History:\n';
     
     // Sort activities by timestamp if available
-    const activities = [...issueData.activities];
-    activities.sort((a: any, b: any) => {
+    const sortedActivities = [...activityItems];
+    sortedActivities.sort((a: any, b: any) => {
       if (!a.timestamp) return 1;
       if (!b.timestamp) return -1;
       return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
     });
     
-    for (const activity of activities) {
+    for (const activity of sortedActivities) {
       const author = activity.author?.fullName || activity.author?.login || 'Unknown';
       const timestamp = activity.timestamp ? new Date(activity.timestamp) : null;
       const date = timestamp ? timestamp.toLocaleString() : 'Unknown date';
@@ -301,7 +304,7 @@ ${resolvedDate ? `Resolved: ${resolvedDate.toLocaleString()}\n` : ''}`;
     }
     
     // Add a dedicated timeline for stage changes
-    const stageChanges = activities.filter((activity: any) => {
+    const stageChanges = sortedActivities.filter((activity: any) => {
       const field = activity.field || activity.targetMember?.field?.name || '';
       const fieldLower = field.toLowerCase();
       return (fieldLower === 'stage' || fieldLower === 'state' || fieldLower === 'status') && 
