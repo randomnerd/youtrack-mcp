@@ -20,6 +20,25 @@ describe('YouTrack API Client', () => {
     jest.clearAllMocks();
   });
 
+  // Add a test to verify we catch unmocked endpoints
+  describe('Unmocked endpoint handling', () => {
+    it('should throw an error for unmocked endpoints instead of making real API calls', async () => {
+      // Try to call an endpoint that is not mocked specifically
+      const unmockedEndpoint = 'unknown-api-endpoint';
+      
+      // Use a made-up method that will be routed to an unmocked endpoint
+      // Instead of using the private request method directly, we'll use the public getTelemetryData
+      // method but mock a specific URL pattern to catch it
+      mockAxios.onGet(`${baseUrl}/admin/telemetry/nonexistent`).reply(404, { error: 'Not found' }); 
+      
+      // Any unmocked endpoint should throw an error with our specific message
+      await expect(youtrackClient.getTelemetryData()).rejects.toThrow(/Endpoint not mocked/);
+      
+      // Verify a request was attempted to our mock API
+      expect(mockAxios.history.get.length).toBeGreaterThan(0);
+    });
+  });
+
   describe('Board methods', () => {
     it('should list all boards', async () => {
       const boards = await youtrackClient.listBoards();

@@ -15,6 +15,8 @@ const createYouTrackUrl = (baseUrl: string, endpoint: string) => {
 export const setupYouTrackApiMocks = (baseUrl: string) => {
   // Board endpoints
   mockAxios.onGet(createYouTrackUrl(baseUrl, '/agiles')).reply(200, boardFixtures.listBoards);
+  
+  // More flexible regex for board ID to handle both numeric IDs and text-based IDs
   mockAxios.onGet(new RegExp(`${baseUrl}/agiles/([^/]+)$`)).reply((config) => {
     const id = config.url?.split('/').pop();
     const board = boardFixtures.boards.find(b => b.id === id);
@@ -23,14 +25,16 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
 
   // Issue endpoints
   mockAxios.onGet(createYouTrackUrl(baseUrl, '/issues')).reply(200, issueFixtures.listIssues);
-  mockAxios.onGet(new RegExp(`${baseUrl}/issues/\\d+`)).reply((config) => {
+  
+  // Handle both numeric and readable IDs
+  mockAxios.onGet(new RegExp(`${baseUrl}/issues/([^/]+)$`)).reply((config) => {
     const id = config.url?.split('/').pop();
-    const issue = issueFixtures.issues.find(i => i.id === id);
-    return issue ? [200, issue] : [404, { error: 'Issue not found' }];
-  });
-  mockAxios.onGet(new RegExp(`${baseUrl}/issues/[A-Z]+-\\d+`)).reply((config) => {
-    const idReadable = config.url?.split('/').pop();
-    const issue = issueFixtures.issues.find(i => i.idReadable === idReadable);
+    // Try to find by ID first
+    let issue = issueFixtures.issues.find(i => i.id === id);
+    // If not found, try by idReadable
+    if (!issue) {
+      issue = issueFixtures.issues.find(i => i.idReadable === id);
+    }
     return issue ? [200, issue] : [404, { error: 'Issue not found' }];
   });
   
@@ -38,9 +42,15 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
   mockAxios.onGet(new RegExp(`${baseUrl}/issues\\?.*q=.*`)).reply(200, issueFixtures.listIssues);
   
   // Update issue endpoint
-  mockAxios.onPost(new RegExp(`${baseUrl}/issues/\\d+`)).reply((config) => {
+  mockAxios.onPost(new RegExp(`${baseUrl}/issues/([^/]+)$`)).reply((config) => {
     const id = config.url?.split('/').pop();
-    const issue = issueFixtures.issues.find(i => i.id === id);
+    // Try to find by ID first
+    let issue = issueFixtures.issues.find(i => i.id === id);
+    // If not found, try by idReadable
+    if (!issue) {
+      issue = issueFixtures.issues.find(i => i.idReadable === id);
+    }
+    
     if (!issue) return [404, { error: 'Issue not found' }];
     
     const updates = JSON.parse(config.data);
@@ -54,8 +64,8 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
     
     if (!boardId) return [404, { error: 'Board not found' }];
     
-    // Always return sprints for boardId '1' in tests
-    const sprints = sprintFixtures.sprintsByBoard['1'] || [];
+    // Return sprints for the specified boardId, or empty array if none exist
+    const sprints = sprintFixtures.sprintsByBoard[boardId] || [];
     return [200, sprints];
   });
 
@@ -77,10 +87,22 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
 
   // Project endpoints
   mockAxios.onGet(createYouTrackUrl(baseUrl, '/admin/projects')).reply(200, projectFixtures.listProjects);
-  mockAxios.onGet(new RegExp(`${baseUrl}/admin/projects/\\d+`)).reply((config) => {
+  
+  // Handle all project ID formats
+  mockAxios.onGet(new RegExp(`${baseUrl}/admin/projects/([^/]+)$`)).reply((config) => {
     const id = config.url?.split('/').pop();
     const project = projectFixtures.projects.find(p => p.id === id);
     return project ? [200, project] : [404, { error: 'Project not found' }];
+  });
+
+  // Add a catch-all mock for unmocked endpoints - will return 404 with more information
+  mockAxios.onAny(new RegExp(`${baseUrl}/.*`)).reply((config) => {
+    console.warn(`Unmocked endpoint called: ${config.method?.toUpperCase()} ${config.url}`);
+    return [404, { 
+      error: 'Endpoint not mocked', 
+      message: `The endpoint ${config.method?.toUpperCase()} ${config.url} is not mocked.`,
+      hint: 'Add this endpoint to the youtrack-api.mock.ts file.'
+    }];
   });
 
   return mockAxios;
