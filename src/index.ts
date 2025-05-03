@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { server } from './server.js';
+import { server } from './server';
 
 console.log('Starting YouTrack MCP server...');
 
@@ -16,4 +16,4 @@ server
     process.exit(1);
   });
 
-export { YouTrack } from './utils/youtrack.js';
+export { YouTrack } from './utils/youtrack';

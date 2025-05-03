@@ -59,4 +59,20 @@ export class CommonView {
       }]
     };
   }
+
+  /**
+   * Convert an MCP response to a Resource response
+   * @param uri - The resource URI
+   * @param response - The MCP response to convert
+   * @returns Resource response for MCP server
+   */
+  static mcpToResourceResponse(uri: URL, response: McpResponse): ResourceResponse {
+    // Join all text content items into a single string
+    const text = response.content
+      .filter(item => item.type === 'text')
+      .map(item => item.text)
+      .join('\n\n');
+
+    return this.createResourceResponse(uri, text);
+  }
 } 

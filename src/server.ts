@@ -10,6 +10,7 @@ import { registerProjectRoutes } from './routes/projectRoutes';
 import { BoardController } from './controllers/boardController';
 import { SprintController } from './controllers/sprintController';
 import { IssueController } from './controllers/issueController';
+import { ProjectController } from './controllers/projectController';
 
 // Create an MCP server for YouTrack
 const server = new McpServer({
@@ -43,6 +44,13 @@ server.resource(
   "issues",
   new ResourceTemplate("youtrack://issues/{issueId?}", { list: undefined }),
   async (uri, req) => IssueController.handleResourceRequest(uri, req)
+);
+
+// Resource for projects
+server.resource(
+  "projects",
+  new ResourceTemplate("youtrack://projects/{projectId?}", { list: undefined }),
+  async (uri, req) => ProjectController.handleResourceRequest(uri, req)
 );
 
 // Export the server for use in the main application

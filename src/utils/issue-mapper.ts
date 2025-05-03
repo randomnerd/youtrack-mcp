@@ -24,8 +24,6 @@ interface Contributor {
 export function mapIssueToAIReadableText(issue: Issue, activities?: ActivityItem[]): string {
   // Cast issue to any to access properties which might not be in the type definition
   const issueData = issue as any;
-
-  console.error(JSON.stringify(issue, null, 2));
   
   // Basic issue information
   let result = `Issue ID: ${issue.id}

@@ -11,4 +11,19 @@ export function registerProjectRoutes(server: McpServer) {
       return await ProjectController.listProjects();
     }
   );
+
+  // Find projects by name
+  server.tool(
+    'youtrack_find_projects_by_name',
+    'Find projects by name',
+    {
+      name: {
+        type: 'string',
+        description: 'Project name to search for'
+      }
+    },
+    async (params) => {
+      return await ProjectController.findProjectsByName(params.name);
+    }
+  );
 } 

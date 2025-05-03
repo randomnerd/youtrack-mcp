@@ -97,18 +97,17 @@ describe('YouTrack API Client', () => {
     });
   });
 
-  // Skipping sprint methods tests for now as they're failing
-  describe.skip('Sprint methods', () => {
+  describe('Sprint methods', () => {
     it('should get a sprint by board ID and sprint ID', async () => {
       const boardId = '1';
       const sprintId = '101';
       
       // Explicitly mock this response
-      mockAxios.onGet(`${baseUrl}/agiles/${boardId}/sprints/${sprintId}`).reply(200, sprintFixtures.sprints[0]);
+      mockAxios.onGet(`${baseUrl}/agiles/${boardId}/sprints/${sprintId}`).reply(200, sprintFixtures.sprints.find(s => s.id === sprintId));
       
       const sprint = await youtrackClient.getSprint(boardId, sprintId);
       
-      expect(sprint).toEqual(sprintFixtures.sprints[0]);
+      expect(sprint).toEqual(sprintFixtures.sprints.find(s => s.id === sprintId));
       expect(mockAxios.history.get.length).toBe(1);
       expect(mockAxios.history.get[0].url).toContain(`/agiles/${boardId}/sprints/${sprintId}`);
     });
@@ -117,13 +116,52 @@ describe('YouTrack API Client', () => {
       const boardId = '1';
       
       // Explicitly mock this response
-      mockAxios.onGet(`${baseUrl}/agiles/${boardId}/sprints`).reply(200, sprintFixtures.sprintsByBoard['1']);
+      mockAxios.onGet(`${baseUrl}/agiles/${boardId}/sprints`).reply(200, sprintFixtures.sprintsByBoard[boardId]);
       
       const sprints = await youtrackClient.findSprints({ boardId });
       
-      expect(sprints).toEqual(sprintFixtures.sprintsByBoard['1']);
+      expect(sprints).toEqual(sprintFixtures.sprintsByBoard[boardId]);
       expect(mockAxios.history.get.length).toBe(1);
       expect(mockAxios.history.get[0].url).toContain(`/agiles/${boardId}/sprints`);
+    });
+    
+    it('should handle query parameters when finding sprints', async () => {
+      const boardId = '1';
+      const options = {
+        boardId,
+        sprintName: 'Sprint 1',
+        status: 'active' as const,
+        limit: 10
+      };
+      
+      // Create a more specific mock to verify query parameters
+      mockAxios.onGet(`${baseUrl}/agiles/${boardId}/sprints`).reply((config) => {
+        expect(config.params.name).toBe(options.sprintName);
+        expect(config.params.archived).toBe('false'); // Active sprints aren't archived
+        expect(config.params.$top).toBe(options.limit);
+        
+        const filteredSprints = sprintFixtures.sprintsByBoard[boardId].filter(
+          s => s.name.includes(options.sprintName) && !s.archived
+        );
+        return [200, filteredSprints];
+      });
+      
+      const sprints = await youtrackClient.findSprints(options);
+      
+      expect(sprints.length).toBeGreaterThan(0);
+      expect(sprints.every(s => s.name.includes(options.sprintName))).toBe(true);
+      expect(sprints.every(s => !s.archived)).toBe(true);
+      expect(mockAxios.history.get.length).toBe(1);
+    });
+    
+    it('should handle sprint not found errors', async () => {
+      const boardId = '1';
+      const sprintId = 'nonexistent';
+      
+      // Mock a 404 error response
+      mockAxios.onGet(`${baseUrl}/agiles/${boardId}/sprints/${sprintId}`).reply(404, { error: 'Sprint not found' });
+      
+      await expect(youtrackClient.getSprint(boardId, sprintId)).rejects.toThrow(/Sprint not found/);
     });
   });
 

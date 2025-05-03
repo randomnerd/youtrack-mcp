@@ -1,6 +1,6 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { boardFixtures, issueFixtures, sprintFixtures } from '../fixtures';
+import { boardFixtures, issueFixtures, sprintFixtures, projectFixtures } from '../fixtures';
 
 // Create axios mock
 const mockAxios = new MockAdapter(axios);
@@ -15,7 +15,7 @@ const createYouTrackUrl = (baseUrl: string, endpoint: string) => {
 export const setupYouTrackApiMocks = (baseUrl: string) => {
   // Board endpoints
   mockAxios.onGet(createYouTrackUrl(baseUrl, '/agiles')).reply(200, boardFixtures.listBoards);
-  mockAxios.onGet(new RegExp(`${baseUrl}/agiles/\\d+`)).reply((config) => {
+  mockAxios.onGet(new RegExp(`${baseUrl}/agiles/([^/]+)$`)).reply((config) => {
     const id = config.url?.split('/').pop();
     const board = boardFixtures.boards.find(b => b.id === id);
     return board ? [200, board] : [404, { error: 'Board not found' }];
@@ -48,17 +48,39 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
   });
 
   // Sprint endpoints
-  mockAxios.onGet(new RegExp(`${baseUrl}/agiles/\\d+/sprints`)).reply((config) => {
-    const boardId = config.url?.split('/')[4];
-    const sprints = boardId && sprintFixtures.sprintsByBoard[boardId] ? 
-      sprintFixtures.sprintsByBoard[boardId] : [];
+  mockAxios.onGet(new RegExp(`${baseUrl}/agiles/([^/]+)/sprints$`)).reply((config) => {
+    const urlParts = config.url?.split('/');
+    const boardId = urlParts ? urlParts[urlParts.length - 2] : null;
+    
+    if (!boardId) return [404, { error: 'Board not found' }];
+    
+    // Always return sprints for boardId '1' in tests
+    const sprints = sprintFixtures.sprintsByBoard['1'] || [];
     return [200, sprints];
   });
-  mockAxios.onGet(new RegExp(`${baseUrl}/agiles/\\d+/sprints/\\d+`)).reply((config) => {
+
+  mockAxios.onGet(new RegExp(`${baseUrl}/agiles/([^/]+)/sprints/([^/]+)$`)).reply((config) => {
     const urlParts = config.url?.split('/');
-    const sprintId = urlParts?.pop();
+    const sprintId = urlParts ? urlParts[urlParts.length - 1] : null;
+    const boardId = urlParts ? urlParts[urlParts.length - 3] : null;
+    
+    if (!boardId) return [404, { error: 'Board not found' }];
+    
+    // For non-existent sprint ID, return Sprint not found
+    if (sprintId === 'nonexistent') {
+      return [404, { error: 'Sprint not found' }];
+    }
+    
     const sprint = sprintFixtures.sprints.find(s => s.id === sprintId);
     return sprint ? [200, sprint] : [404, { error: 'Sprint not found' }];
+  });
+
+  // Project endpoints
+  mockAxios.onGet(createYouTrackUrl(baseUrl, '/admin/projects')).reply(200, projectFixtures.listProjects);
+  mockAxios.onGet(new RegExp(`${baseUrl}/admin/projects/\\d+`)).reply((config) => {
+    const id = config.url?.split('/').pop();
+    const project = projectFixtures.projects.find(p => p.id === id);
+    return project ? [200, project] : [404, { error: 'Project not found' }];
   });
 
   return mockAxios;

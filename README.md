@@ -1,87 +1,118 @@
-# YouTrack MCP Server
+# YouTrack MCP
 
-An MCP (Model Context Protocol) server for interacting with YouTrack issue tracker.
+An MCP (Model-Context Protocol) server for managing YouTrack agile boards and tasks.
+
+## Description
+
+This MCP server provides an interface to interact with a YouTrack instance via the MCP protocol. It allows querying and managing various YouTrack entities like agile boards, sprints, issues, and projects.
 
 ## Features
 
-- View and manage YouTrack agile boards
-- View and manage sprints
-- View, create, and update issues
-- Add comments to issues
-- List projects
+- List and query agile boards
+- View sprint details and status
+- Search and update issues
+- Work with projects
 
 ## Installation
 
-1. Clone the repository:
-```
-git clone <repository-url>
-cd youtrack-mcp
-```
-
-2. Install dependencies:
-```
+```bash
+# Install dependencies
 npm install
+
+# Build the project
+npm run build
 ```
 
-3. Create a `.env` file based on the `.env.example` file:
+## Configuration
+
+Create a `.env` file in the root directory with the following variables:
+
 ```
-cp .env.example .env
+# YouTrack API Configuration
+YOUTRACK_URL=https://your-youtrack-instance.example.com/api
+YOUTRACK_TOKEN=your-permanent-token-here
+
+# Server Configuration (optional)
+LOG_LEVEL=info
+DEBUG=false
 ```
 
-4. Edit the `.env` file and add your YouTrack URL and API token:
-```
-YOUTRACK_API_URL=https://youtrack.your-company.com
-YOUTRACK_API_TOKEN=your-permanent-token
-```
+You can obtain a permanent token from your YouTrack instance in your profile settings.
 
 ## Usage
 
-### Running the server
+Start the server:
 
-```
+```bash
 npm start
 ```
 
-Or you can use the provided start script:
+For development with live reloading:
 
+```bash
+npm run dev
 ```
-./start.sh
-```
 
-### Configuration
-
-The server requires the following environment variables:
-
-- `YOUTRACK_API_URL` - The base URL of your YouTrack instance
-- `YOUTRACK_API_TOKEN` - Your permanent API token for accessing YouTrack
-
-You can generate a permanent token from your YouTrack profile settings.
-
-## Development
-
-The server uses the `youtrack-rest-client` library to interact with the YouTrack API. You can explore the library's documentation for more information on available methods and functionality.
-
-## API Documentation
-
-The server provides the following MCP tools and resources:
+Use an MCP client to connect to the server. The following tools are available:
 
 ### Tools
 
-- `youtrack_list_boards` - List all agile boards
-- `youtrack_get_board` - Get details of a specific agile board
+- `youtrack_list_boards` - List all available agile boards
+- `youtrack_get_board` - Get details of a specific board by ID
 - `youtrack_get_sprint` - Get details of a specific sprint
-- `youtrack_get_issue` - Get issue details in an AI-friendly format
-- `youtrack_get_issue_old` - Get raw issue details
-- `youtrack_create_issue` - Create a new issue
+- `youtrack_list_projects` - List all available projects
+- `youtrack_find_projects_by_name` - Find projects by name
+- `youtrack_get_issue` - Get details of a specific issue
 - `youtrack_update_issue` - Update an existing issue
-- `youtrack_add_comment` - Add a comment to an issue
-- `youtrack_list_projects` - List all projects
+- `youtrack_search_issues` - Search for issues using YouTrack query syntax
+- `youtrack_find_issues_by_criteria` - Find issues by specific criteria
+- `youtrack_find_sprints` - Find sprints by board, name, or status
 
 ### Resources
 
-- `youtrack://boards/{boardId?}` - View all boards or a specific board
-- `youtrack://boards/{boardId}/sprints/{sprintId?}` - View sprints for a board or a specific sprint
-- `youtrack://issues/{issueId?}` - View a specific issue
+The server also provides the following resource templates:
+
+- `youtrack://boards/{boardId?}` - Access board information
+- `youtrack://boards/{boardId}/sprints/{sprintId?}` - Access sprint information
+- `youtrack://issues/{issueId?}` - Access issue information
+- `youtrack://projects/{projectId?}` - Access project information
+
+## Development
+
+### Project Structure
+
+```
+├── src/
+│   ├── controllers/      # Business logic for handling requests
+│   ├── models/           # Data models for interacting with YouTrack API
+│   ├── routes/           # Route definitions for MCP tools
+│   ├── types/            # TypeScript type definitions
+│   ├── utils/            # Utility functions and helpers
+│   ├── views/            # Response formatters
+│   ├── index.ts          # Application entry point
+│   ├── server.ts         # MCP server setup
+│   └── youtrack-client.ts # YouTrack API client
+├── __tests__/            # Test files
+│   ├── fixtures/         # Test data fixtures
+│   ├── helpers/          # Test helper functions
+│   ├── integration/      # Integration tests
+│   ├── mocks/            # API mocks
+│   └── unit/             # Unit tests
+```
+
+### Testing
+
+Run all tests:
+
+```bash
+npm test
+```
+
+Run tests with coverage:
+
+```bash
+npm run test:coverage
+```
 
 ## License
 
