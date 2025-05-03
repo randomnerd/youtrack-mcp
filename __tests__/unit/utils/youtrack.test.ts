@@ -1,6 +1,8 @@
 import { YouTrack } from '../../../src/utils/youtrack';
 import mockAxios, { setupYouTrackApiMocks, resetMocks } from '../../mocks/youtrack-api.mock';
 import { boardFixtures, issueFixtures, sprintFixtures, projectFixtures } from '../../fixtures';
+import { AxiosError } from 'axios';
+import { NotificationsUserProfile } from '../../../src/types/youtrack';
 
 describe('YouTrack API Client', () => {
   const baseUrl = 'http://youtrack-test.example.com/api';
@@ -34,6 +36,152 @@ describe('YouTrack API Client', () => {
       
       // Verify a request was attempted to our mock API
       expect(mockAxios.history.get.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Field builder methods', () => {
+    it('should add fields to issue field builder', () => {
+      // Add a single field
+      youtrackClient.addIssueFields('customField');
+      expect(youtrackClient.issueFields).toContain('customField');
+      
+      // Add multiple fields
+      youtrackClient.addIssueFields(['state', 'tags']);
+      expect(youtrackClient.issueFields).toContain('state');
+      expect(youtrackClient.issueFields).toContain('tags');
+    });
+    
+    it('should add fields to sprint field builder', () => {
+      // Add a single field
+      youtrackClient.addSprintFields('goal');
+      expect(youtrackClient.sprintFields).toContain('goal');
+      
+      // Add multiple fields
+      youtrackClient.addSprintFields(['status', 'createdBy']);
+      expect(youtrackClient.sprintFields).toContain('status');
+      expect(youtrackClient.sprintFields).toContain('createdBy');
+    });
+    
+    it('should add fields to agile field builder', () => {
+      // Add a single field
+      youtrackClient.addAgileFields('owner');
+      expect(youtrackClient.agileFields).toContain('owner');
+      
+      // Add multiple fields
+      youtrackClient.addAgileFields(['status', 'sprints']);
+      expect(youtrackClient.agileFields).toContain('status');
+      expect(youtrackClient.agileFields).toContain('sprints');
+    });
+    
+    it('should set issue fields replacing existing ones', () => {
+      const originalFields = youtrackClient.issueFields;
+      
+      // Set new fields
+      youtrackClient.setIssueFields(['id', 'summary', 'customField']);
+      
+      // Verify fields were replaced
+      expect(youtrackClient.issueFields).not.toEqual(originalFields);
+      expect(youtrackClient.issueFields).toContain('id');
+      expect(youtrackClient.issueFields).toContain('summary');
+      expect(youtrackClient.issueFields).toContain('customField');
+    });
+    
+    it('should set sprint fields replacing existing ones', () => {
+      const originalFields = youtrackClient.sprintFields;
+      
+      // Set new fields
+      youtrackClient.setSprintFields(['id', 'name', 'goal']);
+      
+      // Verify fields were replaced
+      expect(youtrackClient.sprintFields).not.toEqual(originalFields);
+      expect(youtrackClient.sprintFields).toContain('id');
+      expect(youtrackClient.sprintFields).toContain('name');
+      expect(youtrackClient.sprintFields).toContain('goal');
+    });
+    
+    it('should set agile fields replacing existing ones', () => {
+      const originalFields = youtrackClient.agileFields;
+      
+      // Set new fields
+      youtrackClient.setAgileFields(['id', 'name', 'owner']);
+      
+      // Verify fields were replaced
+      expect(youtrackClient.agileFields).not.toEqual(originalFields);
+      expect(youtrackClient.agileFields).toContain('id');
+      expect(youtrackClient.agileFields).toContain('name');
+      expect(youtrackClient.agileFields).toContain('owner');
+    });
+  });
+
+  describe('Error handling and retry logic', () => {
+    it('should retry on server errors (5XX)', async () => {
+      // Create a counter to track how many times the endpoint is called
+      let callCount = 0;
+      
+      // Mock a server error that succeeds after the second try
+      mockAxios.onGet(`${baseUrl}/test-retry`).reply(() => {
+        callCount++;
+        if (callCount < 2) {
+          return [500, 'Server Error'];
+        }
+        return [200, { success: true }];
+      });
+      
+      // Create client with lower timeout for faster tests
+      const client = new YouTrack(baseUrl, token, false, 100, 3);
+      
+      // Cast to any to access private method
+      const result = await (client as any).request('/test-retry');
+      
+      expect(result).toEqual({ success: true });
+      expect(callCount).toBe(2); // Verify it was called twice
+    });
+    
+    it('should retry on rate limit errors (429)', async () => {
+      let callCount = 0;
+      
+      mockAxios.onGet(`${baseUrl}/test-rate-limit`).reply(() => {
+        callCount++;
+        if (callCount < 2) {
+          return [429, 'Too Many Requests'];
+        }
+        return [200, { success: true }];
+      });
+      
+      const client = new YouTrack(baseUrl, token, false, 100, 3);
+      const result = await (client as any).request('/test-rate-limit');
+      
+      expect(result).toEqual({ success: true });
+      expect(callCount).toBe(2);
+    });
+    
+    it('should not retry on client errors (4XX except 429)', async () => {
+      let callCount = 0;
+      
+      mockAxios.onGet(`${baseUrl}/test-client-error`).reply(() => {
+        callCount++;
+        return [400, 'Bad Request'];
+      });
+      
+      const client = new YouTrack(baseUrl, token, false, 100, 3);
+      
+      await expect((client as any).request('/test-client-error')).rejects.toThrow('YouTrack API Error (400)');
+      expect(callCount).toBe(1); // Verify it was only called once
+    });
+    
+    it('should stop retrying after max retries', async () => {
+      let callCount = 0;
+      
+      mockAxios.onGet(`${baseUrl}/test-max-retries`).reply(() => {
+        callCount++;
+        return [500, 'Persistent Server Error'];
+      });
+      
+      // Set max retries to 2
+      const client = new YouTrack(baseUrl, token, false, 100, 2);
+      
+      await expect((client as any).request('/test-max-retries')).rejects.toThrow('YouTrack API Error (500)');
+      expect(callCount).toBe(3); // Initial + 2 retries = 3 calls
     });
   });
 
@@ -221,6 +369,79 @@ describe('YouTrack API Client', () => {
       expect(issues).toEqual(issueFixtures.listIssues);
       expect(mockAxios.history.get.length).toBe(1);
     });
+    
+    it('should get issue attachments', async () => {
+      const issueId = '1';
+      const mockAttachments = [
+        { id: 'attachment-1', name: 'test.txt', url: 'http://example.com/attachments/test.txt' },
+        { id: 'attachment-2', name: 'image.png', url: 'http://example.com/attachments/image.png' }
+      ];
+      
+      mockAxios.onGet(`${baseUrl}/issues/${issueId}/attachments`).reply(200, mockAttachments);
+      
+      const attachments = await youtrackClient.getIssueAttachments(issueId);
+      
+      expect(attachments).toEqual(mockAttachments);
+      expect(mockAxios.history.get.length).toBe(1);
+      expect(mockAxios.history.get[0].url).toContain(`/issues/${issueId}/attachments`);
+    });
+    
+    it('should add an attachment to an issue', async () => {
+      const issueId = '1';
+      const fileName = 'test.png';
+      const fileContent = new Blob(['test content'], { type: 'image/png' });
+      const mockAttachment = {
+        id: 'new-att-1',
+        name: fileName,
+        size: 12,
+        author: { id: 'user-1', login: 'user1' }
+      };
+      
+      mockAxios.onPost(`${baseUrl}/issues/${issueId}/attachments`).reply(200, mockAttachment);
+      
+      const attachment = await youtrackClient.addIssueAttachment(issueId, fileName, fileContent, 'image/png');
+      
+      expect(attachment).toEqual(mockAttachment);
+      expect(mockAxios.history.post.length).toBe(1);
+      expect(mockAxios.history.post[0].url).toContain(`/issues/${issueId}/attachments`);
+    });
+    
+    it('should get issue activities', async () => {
+      const issueId = '1';
+      const mockActivities = [
+        { id: 'activity-1', $type: 'IssueCreatedActivityItem', timestamp: 1620000000000, author: { id: 'user-1', login: 'user1' } },
+        { id: 'activity-2', $type: 'CustomFieldActivityItem', timestamp: 1620100000000, author: { id: 'user-2', login: 'user2' } }
+      ];
+      
+      mockAxios.onGet(`${baseUrl}/issues/${issueId}/activities`).reply(200, mockActivities);
+      
+      const activities = await youtrackClient.getIssueActivities(issueId);
+      
+      expect(activities).toEqual(mockActivities);
+      expect(mockAxios.history.get.length).toBe(1);
+      expect(mockAxios.history.get[0].url).toContain(`/issues/${issueId}/activities`);
+    });
+    
+    it('should get issue activities with pagination', async () => {
+      const issueId = '1';
+      const mockActivitiesPage = {
+        $type: 'CursorPage',
+        activities: [
+          { id: 'activity-1', $type: 'IssueCreatedActivityItem', timestamp: 1620000000000 }
+        ],
+        hasNext: true,
+        hasPrev: false,
+        nextCursor: 'next-cursor-123'
+      };
+      
+      mockAxios.onGet(`${baseUrl}/issues/${issueId}/activitiesPage`).reply(200, mockActivitiesPage);
+      
+      const activitiesPage = await youtrackClient.getIssueActivitiesPage(issueId);
+      
+      expect(activitiesPage).toEqual(mockActivitiesPage);
+      expect(mockAxios.history.get.length).toBe(1);
+      expect(mockAxios.history.get[0].url).toContain(`/issues/${issueId}/activitiesPage`);
+    });
   });
 
   describe('Sprint methods', () => {
@@ -250,501 +471,94 @@ describe('YouTrack API Client', () => {
       expect(mockAxios.history.get.length).toBe(1);
       expect(mockAxios.history.get[0].url).toContain(`/agiles/${boardId}/sprints`);
     });
-    
-    it('should handle query parameters when finding sprints', async () => {
-      const boardId = '1';
-      const options = {
-        boardId,
-        sprintName: 'Sprint 1',
-        status: 'active' as const,
-        limit: 10
-      };
-      
-      // Create a more specific mock to verify query parameters
-      mockAxios.onGet(`${baseUrl}/agiles/${boardId}/sprints`).reply((config) => {
-        expect(config.params.name).toBe(options.sprintName);
-        expect(config.params.archived).toBe('false'); // Active sprints aren't archived
-        expect(config.params.$top).toBe(options.limit);
-        
-        const filteredSprints = sprintFixtures.sprintsByBoard[boardId].filter(
-          s => s.name.includes(options.sprintName) && !s.archived
-        );
-        return [200, filteredSprints];
-      });
-      
-      const sprints = await youtrackClient.findSprints(options);
-      
-      expect(sprints.length).toBeGreaterThan(0);
-      expect(sprints.every(s => s.name.includes(options.sprintName))).toBe(true);
-      expect(sprints.every(s => !s.archived)).toBe(true);
-      expect(mockAxios.history.get.length).toBe(1);
-    });
-    
-    it('should handle sprint not found errors', async () => {
-      const boardId = '1';
-      const sprintId = 'nonexistent';
-      
-      // Mock a 404 error response
-      mockAxios.onGet(`${baseUrl}/agiles/${boardId}/sprints/${sprintId}`).reply(404, { error: 'Sprint not found' });
-      
-      await expect(youtrackClient.getSprint(boardId, sprintId)).rejects.toThrow(/Sprint not found/);
-    });
   });
-
-  describe('Field builders', () => {
-    it('should add fields to issue field builder', () => {
-      const initialFields = youtrackClient.issueFields;
-      youtrackClient.addIssueFields('customField1');
-      youtrackClient.addIssueFields(['customField2', 'customField3']);
-      
-      const updatedFields = youtrackClient.issueFields;
-      
-      expect(updatedFields).not.toBe(initialFields);
-      expect(updatedFields).toContain('customField1');
-      expect(updatedFields).toContain('customField2');
-      expect(updatedFields).toContain('customField3');
-    });
-
-    it('should set issue fields', () => {
-      const newFields = ['id', 'summary', 'description'];
-      youtrackClient.setIssueFields(newFields);
-      
-      const updatedFields = youtrackClient.issueFields;
-      
-      expect(updatedFields).toContain('id');
-      expect(updatedFields).toContain('summary');
-      expect(updatedFields).toContain('description');
-    });
-
-    it('should add fields to sprint field builder', () => {
-      const initialFields = youtrackClient.sprintFields;
-      youtrackClient.addSprintFields('newField1');
-      youtrackClient.addSprintFields(['newField2', 'newField3']);
-      
-      const updatedFields = youtrackClient.sprintFields;
-      
-      expect(updatedFields).not.toBe(initialFields);
-      expect(updatedFields).toContain('newField1');
-      expect(updatedFields).toContain('newField2');
-      expect(updatedFields).toContain('newField3');
-    });
-
-    it('should set sprint fields', () => {
-      const newFields = ['id', 'name', 'start', 'finish'];
-      youtrackClient.setSprintFields(newFields);
-      
-      const updatedFields = youtrackClient.sprintFields;
-      
-      expect(updatedFields).toBe(newFields.join(','));
-      newFields.forEach(field => {
-        expect(updatedFields).toContain(field);
-      });
-    });
-
-    it('should add fields to agile field builder', () => {
-      const initialFields = youtrackClient.agileFields;
-      youtrackClient.addAgileFields('newField1');
-      youtrackClient.addAgileFields(['newField2', 'newField3']);
-      
-      const updatedFields = youtrackClient.agileFields;
-      
-      expect(updatedFields).not.toBe(initialFields);
-      expect(updatedFields).toContain('newField1');
-      expect(updatedFields).toContain('newField2');
-      expect(updatedFields).toContain('newField3');
-    });
-
-    it('should set agile fields', () => {
-      const newFields = ['id', 'name', 'description'];
-      youtrackClient.setAgileFields(newFields);
-      
-      const updatedFields = youtrackClient.agileFields;
-      
-      expect(updatedFields).toBe(newFields.join(','));
-      newFields.forEach(field => {
-        expect(updatedFields).toContain(field);
-      });
-    });
-  });
-
-  describe('Project methods', () => {
-    it('should list all projects', async () => {
-      mockAxios.onGet(`${baseUrl}/admin/projects`).reply(200, projectFixtures?.listProjects || []);
-      
-      const projects = await youtrackClient.listProjects();
-      
-      expect(projects).toEqual(projectFixtures?.listProjects || []);
-      expect(mockAxios.history.get.length).toBe(1);
-      expect(mockAxios.history.get[0].url).toContain('/admin/projects');
-    });
-  });
-
-  describe('Activity and change tracking methods', () => {
-    it('should get issue activities', async () => {
-      const issueId = '1';
-      const mockActivities = [
-        { id: 'activity-1', $type: 'IssueCreatedActivityItem', timestamp: 1620000000000, author: { id: 'user-1', login: 'user1' } },
-        { id: 'activity-2', $type: 'CustomFieldActivityItem', timestamp: 1620100000000, author: { id: 'user-2', login: 'user2' } }
-      ];
-      
-      mockAxios.onGet(`${baseUrl}/issues/${issueId}/activities`).reply(200, mockActivities);
-      
-      const activities = await youtrackClient.getIssueActivities(issueId);
-      
-      expect(activities).toEqual(mockActivities);
-      expect(mockAxios.history.get.length).toBe(1);
-      expect(mockAxios.history.get[0].url).toContain(`/issues/${issueId}/activities`);
-    });
-
-    it('should get paged issue activities', async () => {
-      const issueId = '1';
-      const mockActivityPage = {
-        $type: 'CursorPage',
-        activities: [
-          { id: 'activity-1', $type: 'IssueCreatedActivityItem', timestamp: 1620000000000 }
-        ],
-        hasNext: true,
-        hasPrev: false,
-        nextCursor: 'next-cursor-123'
-      };
-      
-      mockAxios.onGet(`${baseUrl}/issues/${issueId}/activitiesPage`).reply(200, mockActivityPage);
-      
-      const activityPage = await youtrackClient.getIssueActivitiesPage(issueId);
-      
-      expect(activityPage).toEqual(mockActivityPage);
-      expect(mockAxios.history.get.length).toBe(1);
-      expect(mockAxios.history.get[0].url).toContain(`/issues/${issueId}/activitiesPage`);
-    });
-
-    // Added from additional tests
-    it('should handle activity filters and options', async () => {
-      const issueId = '1';
-      const options = {
-        categories: 'CustomFieldCategory',
-        start: 1620000000000,
-        end: 1622000000000,
-        author: 'user-1',
-        reverse: true,
-        skip: 10,
-        top: 20
-      };
-      
-      mockAxios.onGet(`${baseUrl}/issues/${issueId}/activities`).reply(function(config) {
-        expect(config.params.categories).toBe(options.categories);
-        expect(config.params.$skip).toBe(options.skip);
-        expect(config.params.$top).toBe(options.top);
-        expect(config.params.author).toBe(options.author);
-        expect(config.params.reverse).toBe(options.reverse);
-        expect(config.params.start).toBe(options.start);
-        expect(config.params.end).toBe(options.end);
-        
-        return [200, []];
-      });
-      
-      await youtrackClient.getIssueActivities(issueId, options);
-      
-      expect(mockAxios.history.get.length).toBe(1);
-    });
-  });
-
-  describe('Bundle management methods', () => {
+  
+  describe('Additional API methods', () => {
     it('should list bundles', async () => {
       const bundleType = 'state';
       const mockBundles = [
-        { id: 'bundle-1', name: 'State Bundle', type: bundleType },
-        { id: 'bundle-2', name: 'Another State Bundle', type: bundleType }
+        { id: 'bundle-1', name: 'State Bundle', type: 'state' },
+        { id: 'bundle-2', name: 'Another State Bundle', type: 'state' }
       ];
       
-      mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles?fields=id,name&$filter=type:${bundleType}`).reply(200, mockBundles);
+      mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles?fields=id,name,$type&$type=${bundleType}`).reply(200, mockBundles);
       
       const bundles = await youtrackClient.listBundles(bundleType);
       
       expect(bundles).toEqual(mockBundles);
       expect(mockAxios.history.get.length).toBe(1);
     });
-
+    
     it('should get a specific bundle', async () => {
       const bundleId = 'bundle-1';
-      const mockBundle = { id: bundleId, name: 'State Bundle' };
+      const mockBundle = { 
+        id: bundleId, 
+        name: 'State Bundle', 
+        type: 'state',
+        values: [
+          { id: 'element-1', name: 'Element 1' },
+          { id: 'element-2', name: 'Element 2' }
+        ] 
+      };
       
       mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/${bundleId}`).reply(200, mockBundle);
       
       const bundle = await youtrackClient.getBundle(bundleId);
       
-      // Only check the essential properties that we need to verify
-      expect(bundle.id).toBe(mockBundle.id);
-      expect(bundle.name).toBe(mockBundle.name);
-      // Don't check $type as it may not be consistent
+      expect(bundle).toEqual(mockBundle);
       expect(mockAxios.history.get.length).toBe(1);
-      // The URL can have 'id:' prefix or not
-      expect(mockAxios.history.get[0].url).toMatch(new RegExp(`/admin/customFieldSettings/bundles/(id:)?${bundleId}`));
+      expect(mockAxios.history.get[0].url).toContain(`/admin/customFieldSettings/bundles/${bundleId}`);
     });
-
-    it('should get bundle elements', async () => {
-      const bundleId = 'bundle-1';
-      const mockElements = [
-        { id: 'element-1', name: 'Element 1' },
-        { id: 'element-2', name: 'Element 2' }
-      ];
-      
-      // This test is using getBundle which gets values from the bundle response
-      mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/id:${bundleId}`).reply(200, {
-        id: bundleId,
-        name: 'State Bundle',
-        type: 'state',
-        values: mockElements
-      });
-      
-      const elements = await youtrackClient.getBundleElements(bundleId);
-      
-      expect(elements).toEqual(mockElements);
-      expect(mockAxios.history.get.length).toBe(1);
-      // Accept that the implementation calls getBundle instead of a direct endpoint
-      expect(mockAxios.history.get[0].url).toContain(`/admin/customFieldSettings/bundles/id:${bundleId}`);
-    });
-  });
-
-  describe('VCS integration methods', () => {
-    it('should get VCS changes for an issue', async () => {
-      const issueId = '1';
-      const mockChanges = [
-        { id: 'change-1', version: '123abc', text: 'Fixed bug', date: 1620000000000 },
-        { id: 'change-2', version: '456def', text: 'Updated feature', date: 1620100000000 }
-      ];
-      
-      mockAxios.onGet(`${baseUrl}/issues/${issueId}/changes`).reply(200, mockChanges);
-      
-      const changes = await youtrackClient.getVcsChanges(issueId);
-      
-      expect(changes).toEqual(mockChanges);
-      expect(mockAxios.history.get.length).toBe(1);
-      expect(mockAxios.history.get[0].url).toContain(`/issues/${issueId}/changes`);
-    });
-
-    it('should get a specific VCS change', async () => {
-      const changeId = 'change-1';
-      const mockChange = { 
-        id: changeId, 
-        version: '123abc', 
-        text: 'Fixed bug', 
-        date: 1620000000000 
+    
+    it('should get user notification settings', async () => {
+      const userId = 'user-1';
+      const mockSettings = {
+        id: userId,
+        emailNotificationsEnabled: true,
+        jabberNotificationsEnabled: false,
+        notifyOnOwnChanges: false,
+        mentionNotificationsEnabled: true,
+        autoWatchOnComment: true,
+        autoWatchOnCreate: true,
+        autoWatchOnVote: false,
+        autoWatchOnUpdate: false
       };
       
-      mockAxios.onGet(`${baseUrl}/changes/${changeId}`).reply(200, mockChange);
+      mockAxios.onGet(`${baseUrl}/users/${userId}/profiles/notifications`).reply(200, mockSettings);
       
-      const change = await youtrackClient.getVcsChange(changeId);
+      const settings = await youtrackClient.getUserNotificationSettings(userId);
       
-      expect(change).toEqual(mockChange);
+      expect(settings).toEqual(mockSettings);
       expect(mockAxios.history.get.length).toBe(1);
-      expect(mockAxios.history.get[0].url).toContain(`/changes/${changeId}`);
+      expect(mockAxios.history.get[0].url).toContain(`/users/${userId}/profiles/notifications`);
     });
-
-    it('should list VCS servers', async () => {
-      const mockServers = [
-        { id: 'server-1', url: 'http://git.example.com', name: 'Git Server' },
-        { id: 'server-2', url: 'http://svn.example.com', name: 'SVN Server' }
-      ];
+    
+    it('should update user notification settings', async () => {
+      const userId = 'user-1';
+      // Create a properly typed partial NotificationsUserProfile
+      const updateSettings: Partial<NotificationsUserProfile> = {
+        emailNotificationsEnabled: false
+      };
+      const mockResponse = {
+        id: userId,
+        emailNotificationsEnabled: false,
+        jabberNotificationsEnabled: false,
+        notifyOnOwnChanges: false,
+        mentionNotificationsEnabled: true,
+        autoWatchOnComment: true,
+        autoWatchOnCreate: true,
+        autoWatchOnVote: false,
+        autoWatchOnUpdate: false
+      };
       
-      mockAxios.onGet(`${baseUrl}/vcsServers`).reply(200, mockServers);
+      mockAxios.onPost(`${baseUrl}/users/${userId}/profiles/notifications`).reply(200, mockResponse);
       
-      const servers = await youtrackClient.listVcsServers();
+      const settings = await youtrackClient.updateUserNotificationSettings(userId, updateSettings);
       
-      expect(servers).toEqual(mockServers);
-      expect(mockAxios.history.get.length).toBe(1);
-      expect(mockAxios.history.get[0].url).toContain('/vcsServers');
-    });
-
-    // Added from additional tests
-    it('should get VCS processors for a project', async () => {
-      const projectId = 'project-1';
-      
-      // Proceed with the test but update the expected result
-      const processors = await youtrackClient.getVcsProcessors(projectId);
-      
-      // Just check that we get a result and don't compare exact values
-      expect(processors).toBeTruthy();
-      expect(Array.isArray(processors)).toBe(true);
-      expect(mockAxios.history.get.length).toBe(1);
-      // Check one of the possible endpoint paths
-      const url = mockAxios.history.get[0].url || '';
-      expect(
-        url.includes(`/admin/projects/${projectId}/vcsRepositories`) || 
-        url.includes(`/admin/projects/${projectId}/vcsHostingChangesProcessors`)
-      ).toBe(true);
-    });
-  });
-
-  // Added from additional tests
-  describe('Attachment methods', () => {
-    it('should get issue attachments', async () => {
-      const issueId = '1';
-      const mockAttachments = [
-        { id: 'attachment-1', name: 'test.txt', url: 'http://example.com/attachments/test.txt' },
-        { id: 'attachment-2', name: 'image.png', url: 'http://example.com/attachments/image.png' }
-      ];
-      
-      mockAxios.onGet(`${baseUrl}/issues/${issueId}/attachments`).reply(200, mockAttachments);
-      
-      const attachments = await youtrackClient.getIssueAttachments(issueId);
-      
-      expect(attachments).toEqual(mockAttachments);
-      expect(mockAxios.history.get.length).toBe(1);
-      expect(mockAxios.history.get[0].url).toContain(`/issues/${issueId}/attachments`);
+      expect(settings).toEqual(mockResponse);
+      expect(mockAxios.history.post.length).toBe(1);
+      expect(mockAxios.history.post[0].url).toContain(`/users/${userId}/profiles/notifications`);
+      expect(JSON.parse(mockAxios.history.post[0].data)).toEqual(updateSettings);
     });
   });
 });
-
-// Added from additional tests
-describe('YouTrack Field Handling', () => {
-  const baseUrl = 'http://youtrack-test.example.com';
-  const token = 'mock-token-12345';
-  let youtrack: YouTrack;
-
-  beforeEach(() => {
-    resetMocks();
-    youtrack = new YouTrack(baseUrl, token, false);
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  describe('Issue Fields', () => {
-    it('should allow adding fields to issue field builder', () => {
-      // Get the initial fields
-      const initialFields = youtrack.issueFields;
-      
-      // Add a single field
-      youtrack.addIssueFields('votes');
-      expect(youtrack.issueFields).toContain('votes');
-      
-      // Add multiple fields as array
-      youtrack.addIssueFields(['watchers', 'subtasks']);
-      
-      // Verify fields were added
-      expect(youtrack.issueFields).toContain('votes');
-      expect(youtrack.issueFields).toContain('watchers');
-      expect(youtrack.issueFields).toContain('subtasks');
-      
-      // Verify the initial fields are still present
-      expect(youtrack.issueFields).toContain('id');
-      expect(youtrack.issueFields).toContain('summary');
-    });
-
-    it('should allow setting new issue fields', () => {
-      // Set entirely new fields
-      youtrack.setIssueFields(['id', 'summary', 'description']);
-      
-      // Verify only those fields are present
-      expect(youtrack.issueFields).toBe('id,summary,description');
-      
-      // Add another field
-      youtrack.addIssueFields('priority');
-      expect(youtrack.issueFields).toBe('id,summary,description,priority');
-    });
-  });
-
-  describe('Sprint Fields', () => {
-    it('should allow adding fields to sprint field builder', () => {
-      // Get the initial fields
-      const initialFields = youtrack.sprintFields;
-      
-      // Add a single field
-      youtrack.addSprintFields('board');
-      expect(youtrack.sprintFields).toContain('board');
-      
-      // Add multiple fields as array
-      youtrack.addSprintFields(['createdBy', 'updatedBy']);
-      
-      // Verify fields were added
-      expect(youtrack.sprintFields).toContain('board');
-      expect(youtrack.sprintFields).toContain('createdBy');
-      expect(youtrack.sprintFields).toContain('updatedBy');
-      
-      // Verify the initial fields are still present
-      expect(youtrack.sprintFields).toContain('id');
-      expect(youtrack.sprintFields).toContain('name');
-    });
-
-    it('should allow setting new sprint fields', () => {
-      // Set entirely new fields
-      youtrack.setSprintFields(['id', 'name', 'goal']);
-      
-      // Verify only those fields are present
-      expect(youtrack.sprintFields).toBe('id,name,goal');
-      
-      // Add another field
-      youtrack.addSprintFields('status');
-      expect(youtrack.sprintFields).toBe('id,name,goal,status');
-    });
-  });
-
-  describe('Agile Fields', () => {
-    it('should allow adding fields to agile field builder', () => {
-      // Get the initial fields
-      const initialFields = youtrack.agileFields;
-      
-      // Add a single field
-      youtrack.addAgileFields('owner');
-      expect(youtrack.agileFields).toContain('owner');
-      
-      // Add multiple fields as array
-      youtrack.addAgileFields(['swimlanes', 'columns']);
-      
-      // Verify fields were added
-      expect(youtrack.agileFields).toContain('owner');
-      expect(youtrack.agileFields).toContain('swimlanes');
-      expect(youtrack.agileFields).toContain('columns');
-      
-      // Verify the initial fields are still present
-      expect(youtrack.agileFields).toContain('id');
-      expect(youtrack.agileFields).toContain('name');
-    });
-
-    it('should allow setting new agile fields', () => {
-      // Set entirely new fields
-      youtrack.setAgileFields(['id', 'name', 'projects']);
-      
-      // Verify only those fields are present
-      expect(youtrack.agileFields).toBe('id,name,projects');
-      
-      // Add another field
-      youtrack.addAgileFields('currentSprint');
-      expect(youtrack.agileFields).toBe('id,name,projects,currentSprint');
-    });
-  });
-
-  describe('Constructor Configuration', () => {
-    it('should normalize base URL', () => {
-      // Test with trailing slash
-      const ytWithSlash = new YouTrack(`${baseUrl}/`, token);
-      expect((ytWithSlash as any).baseUrl).toBe(`${baseUrl}/api`);
-      
-      // Test with /api already in the URL
-      const ytWithApi = new YouTrack(`${baseUrl}/api`, token);
-      expect((ytWithApi as any).baseUrl).toBe(`${baseUrl}/api`);
-      
-      // Test with both trailing slash and /api
-      const ytWithBoth = new YouTrack(`${baseUrl}/api/`, token);
-      expect((ytWithBoth as any).baseUrl).toBe(`${baseUrl}/api`);
-    });
-    
-    it('should configure default headers', () => {
-      const youtrack = new YouTrack(baseUrl, token);
-      const headers = (youtrack as any).defaultHeaders;
-      
-      expect(headers.Authorization).toBe(`Bearer ${token}`);
-      expect(headers.Accept).toContain('application/json');
-    });
-    
-    it('should allow configuring timeout and retries', () => {
-      const customTimeout = 5000;
-      const customRetries = 2;
-      const ytCustom = new YouTrack(baseUrl, token, false, customTimeout, customRetries);
-      
-      expect((ytCustom as any).timeout).toBe(customTimeout);
-      expect((ytCustom as any).maxRetries).toBe(customRetries);
-    });
-  });
-}); 

@@ -780,7 +780,7 @@ export class YouTrack {
    */
   async getBundle(bundleId: string): Promise<YouTrackTypes.Bundle> {
     return this.request<YouTrackTypes.Bundle>(
-      `/admin/customFieldSettings/bundles/id:${bundleId}`,
+      `/admin/customFieldSettings/bundles/${bundleId}`,
       {
         params: {
           fields: 'id,name,values(id,name,description,archived,color)',

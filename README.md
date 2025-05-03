@@ -16,6 +16,10 @@ This MCP server provides an interface to interact with a YouTrack instance via t
 ## Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/randomnerd/youtrack-mcp.git
+cd youtrack-mcp
+
 # Install dependencies
 npm install
 
@@ -53,22 +57,30 @@ For development with live reloading:
 npm run dev
 ```
 
-Use an MCP client to connect to the server. The following tools are available:
+To inspect MCP server with the MCP inspector:
 
-### Tools
+```bash
+npm run inspect
+```
 
-- `youtrack_list_boards` - List all available agile boards
-- `youtrack_get_board` - Get details of a specific board by ID
-- `youtrack_get_sprint` - Get details of a specific sprint
-- `youtrack_list_projects` - List all available projects
-- `youtrack_find_projects_by_name` - Find projects by name
-- `youtrack_get_issue` - Get details of a specific issue
-- `youtrack_update_issue` - Update an existing issue
-- `youtrack_search_issues` - Search for issues using YouTrack query syntax
-- `youtrack_find_issues_by_criteria` - Find issues by specific criteria
-- `youtrack_find_sprints` - Find sprints by board, name, or status
+### Available Tools
 
-### Resources
+The MCP server provides the following tools for interacting with YouTrack:
+
+| Tool | Description |
+|------|-------------|
+| `youtrack_list_boards` | List all available agile boards |
+| `youtrack_get_board` | Get details of a specific board by ID |
+| `youtrack_get_sprint` | Get details of a specific sprint |
+| `youtrack_find_sprints` | Find sprints by board, name, status, or time period |
+| `youtrack_get_issue` | Get details of a specific issue |
+| `youtrack_update_issue` | Update an existing issue (summary, description, resolved status) |
+| `youtrack_search_issues` | Search for issues using YouTrack query syntax |
+| `youtrack_find_issues_by_criteria` | Find issues by specific criteria (assignee, sprint, type, status) |
+| `youtrack_list_projects` | List all available projects |
+| `youtrack_find_projects_by_name` | Find projects by name |
+
+### Resource Templates
 
 The server also provides the following resource templates:
 
@@ -108,11 +120,39 @@ Run all tests:
 npm test
 ```
 
+Run tests with watch mode:
+
+```bash
+npm run test:watch
+```
+
 Run tests with coverage:
 
 ```bash
 npm run test:coverage
 ```
+
+Run tests without type checking (faster):
+
+```bash
+npm run test:no-types
+```
+
+## Dependencies
+
+- `@modelcontextprotocol/sdk`: MCP server SDK
+- `axios`: HTTP client for making API requests
+- `debug`: Debugging utility
+- `dotenv`: Environment variable management
+- `zod`: Schema validation
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 

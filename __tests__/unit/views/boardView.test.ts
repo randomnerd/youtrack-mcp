@@ -144,7 +144,7 @@ describe('BoardView', () => {
       const result = BoardView.renderError(errorMessage);
       
       expect(result).toHaveProperty('content');
-      expect(result.content[0].text).toBe(errorMessage);
+      expect(result.content[0].text).toBe(`Error: ${errorMessage}`);
       expect(result.isError).toBe(true);
     });
   });

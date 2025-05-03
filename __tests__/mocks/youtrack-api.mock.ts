@@ -5,6 +5,10 @@ import { boardFixtures, issueFixtures, sprintFixtures, projectFixtures } from '.
 // Create axios mock
 const mockAxios = new MockAdapter(axios);
 
+// Counters for testing retry logic
+let retryCallCount = 0;
+let rateLimitCallCount = 0;
+
 // Helper to create YouTrack API URL
 const createYouTrackUrl = (baseUrl: string, endpoint: string) => {
   const url = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
@@ -138,6 +142,23 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
     { id: 'attachment-1', name: 'test.txt', url: 'http://example.com/attachments/test.txt' },
     { id: 'attachment-2', name: 'image.png', url: 'http://example.com/attachments/image.png' }
   ]);
+  
+  // Add mock for adding an attachment to an issue
+  mockAxios.onPost(new RegExp(`${baseUrl}/issues/([^/]+)/attachments$`)).reply(function(config) {
+    const matches = config.url?.match(/\/issues\/([^/]+)\/attachments$/);
+    const issueId = matches?.[1] || '1';
+    
+    // In a real API, the filename would be extracted from the FormData
+    // For the purpose of the test, we'll use a hardcoded value or try to parse it from the headers
+    const fileName = config.headers?.['X-File-Name'] || 'test.png';
+    
+    return [200, {
+      id: 'new-att-1',
+      name: fileName,
+      size: 12,
+      author: { id: 'user-1', login: 'user1' }
+    }];
+  });
 
   // Add mocks for issue activities
   mockAxios.onGet(new RegExp(`${baseUrl}/issues/([^/]+)/activities$`)).reply(200, [
@@ -251,14 +272,14 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
       ]
     }];
   });
-
-  // Add regular version without id: prefix
+  
+  // Add mock for non-prefixed bundle URL
   mockAxios.onGet(new RegExp(`${baseUrl}/admin/customFieldSettings/bundles/([^/]+)$`)).reply(function(config) {
     const matches = config.url?.match(/\/bundles\/([^/]+)$/);
     const bundleId = matches?.[1] || 'bundle-1';
     
-    // Skip if it has the id: prefix, as it will be caught by the more specific matcher above
-    if (bundleId.startsWith('id:')) {
+    // Skip if this is a bundle type (handled by another mock)
+    if (['state', 'version', 'enum'].includes(bundleId)) {
       return [404, { error: 'Not found' }];
     }
     
@@ -311,6 +332,82 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
     issues: 500
   });
 
+  // Add user notification settings endpoints
+  mockAxios.onGet(new RegExp(`${baseUrl}/users/([^/]+)/profiles/notifications$`)).reply(function(config) {
+    const matches = config.url?.match(/\/users\/([^/]+)\/profiles\/notifications$/);
+    const userId = matches?.[1] || 'user-1';
+    
+    return [200, {
+      id: userId,
+      emailNotificationsEnabled: true,
+      jabberNotificationsEnabled: false,
+      notifyOnOwnChanges: false,
+      mentionNotificationsEnabled: true,
+      autoWatchOnComment: true,
+      autoWatchOnCreate: true,
+      autoWatchOnVote: false,
+      autoWatchOnUpdate: false
+    }];
+  });
+
+  mockAxios.onPost(new RegExp(`${baseUrl}/users/([^/]+)/profiles/notifications$`)).reply(function(config) {
+    const matches = config.url?.match(/\/users\/([^/]+)\/profiles\/notifications$/);
+    const userId = matches?.[1] || 'user-1';
+    
+    // Get the updated settings from the request body
+    const updateSettings = JSON.parse(config.data);
+    
+    // Return the updated notification settings
+    return [200, {
+      id: userId,
+      emailNotificationsEnabled: updateSettings.emailNotificationsEnabled !== undefined 
+        ? updateSettings.emailNotificationsEnabled 
+        : true,
+      jabberNotificationsEnabled: updateSettings.jabberNotificationsEnabled !== undefined 
+        ? updateSettings.jabberNotificationsEnabled 
+        : false,
+      notifyOnOwnChanges: updateSettings.notifyOnOwnChanges !== undefined 
+        ? updateSettings.notifyOnOwnChanges 
+        : false,
+      mentionNotificationsEnabled: updateSettings.mentionNotificationsEnabled !== undefined 
+        ? updateSettings.mentionNotificationsEnabled 
+        : true,
+      autoWatchOnComment: updateSettings.autoWatchOnComment !== undefined 
+        ? updateSettings.autoWatchOnComment 
+        : true,
+      autoWatchOnCreate: updateSettings.autoWatchOnCreate !== undefined 
+        ? updateSettings.autoWatchOnCreate 
+        : true,
+      autoWatchOnVote: updateSettings.autoWatchOnVote !== undefined 
+        ? updateSettings.autoWatchOnVote 
+        : false,
+      autoWatchOnUpdate: updateSettings.autoWatchOnUpdate !== undefined 
+        ? updateSettings.autoWatchOnUpdate 
+        : false
+    }];
+  });
+
+  // Add mocks for error handling test endpoints
+  mockAxios.onGet(createYouTrackUrl(baseUrl, '/test-retry')).reply(() => {
+    retryCallCount++;
+    if (retryCallCount < 2) {
+      return [500, 'Server Error'];
+    }
+    return [200, { success: true }];
+  });
+  
+  mockAxios.onGet(createYouTrackUrl(baseUrl, '/test-rate-limit')).reply(() => {
+    rateLimitCallCount++;
+    if (rateLimitCallCount < 2) {
+      return [429, 'Too Many Requests'];
+    }
+    return [200, { success: true }];
+  });
+  
+  mockAxios.onGet(createYouTrackUrl(baseUrl, '/test-client-error')).reply(400, 'Bad Request');
+  
+  mockAxios.onGet(createYouTrackUrl(baseUrl, '/test-max-retries')).reply(500, 'Persistent Server Error');
+
   // Add a catch-all mock for unmocked endpoints - will return 404 with more information
   mockAxios.onAny(new RegExp(`${baseUrl}/.*`)).reply((config) => {
     // Don't log warning for our explicitly non-existent test endpoint
@@ -329,6 +426,9 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
 
 export const resetMocks = () => {
   mockAxios.reset();
+  // Reset any counters used in mocks
+  retryCallCount = 0;
+  rateLimitCallCount = 0;
 };
 
 export default mockAxios; 

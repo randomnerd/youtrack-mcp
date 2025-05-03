@@ -34,7 +34,7 @@ export class CommonView {
 
   static renderError(message: string): McpResponse {
     return {
-      content: [{ type: 'text', text: message }],
+      content: [{ type: 'text', text: `Error: ${message}` }],
       isError: true
     };
   }
