@@ -107,7 +107,7 @@ describe('Project Routes', () => {
       const result = await routeHandler(params);
       
       // Check if controller method was called with correct parameters
-      expect(ProjectController.findProjectsByName).toHaveBeenCalledWith(params.name);
+      expect(ProjectController.findProjectsByName).toHaveBeenCalledWith(params.name, { limit: undefined, skip: undefined });
       expect(ProjectView.renderList).toHaveBeenCalledWith(controllerResult);
       expect(result).toEqual({
         content: [{ type: 'text', text: 'Rendered project list' }]

@@ -2,6 +2,7 @@ import { IssueModel } from '../models/issue';
 import { McpResponse, ResourceResponse } from '../views/common';
 import { extractParam, createResourceErrorResponse, withErrorHandling } from '../utils/controller-utils';
 import { ControllerResult, IssueDetailResult, IssueListResult, IssueUpdateResult, Request } from '../types/controllerResults';
+import { PAGINATION_LIMITS, DEFAULT_PAGINATION } from '../utils/constants';
 
 interface UpdateIssueOptions {
   summary?: string;
@@ -11,6 +12,7 @@ interface UpdateIssueOptions {
 
 interface SearchOptions {
   limit?: number;
+  skip?: number;
   sortBy?: string;
 }
 
@@ -21,6 +23,14 @@ interface FindIssuesByCriteriaOptions {
   type?: string;
   status?: string;
   limit?: number;
+  skip?: number;
+}
+
+interface GetActivitiesOptions {
+  limit?: number;
+  skip?: number;
+  categories?: string;
+  reverse?: boolean;
 }
 
 export class IssueController {
@@ -47,6 +57,70 @@ export class IssueController {
     'Error fetching issue details'
   );
   
+  static getIssueComments = withErrorHandling(
+    async (issueId: string, options?: { limit?: number; skip?: number }): Promise<ControllerResult<any>> => {
+      const comments = await IssueModel.getIssueComments(issueId, options);
+      
+      return {
+        success: true,
+        data: {
+          comments,
+          total: comments.length,
+          issueId
+        }
+      };
+    },
+    'Error fetching issue comments'
+  );
+  
+  static getIssueAttachments = withErrorHandling(
+    async (issueId: string, options?: { limit?: number; skip?: number }): Promise<ControllerResult<any>> => {
+      const attachments = await IssueModel.getIssueAttachments(issueId, options);
+      
+      return {
+        success: true,
+        data: {
+          attachments,
+          total: attachments.length,
+          issueId
+        }
+      };
+    },
+    'Error fetching issue attachments'
+  );
+  
+  static getIssueLinks = withErrorHandling(
+    async (issueId: string, options?: { limit?: number; skip?: number }): Promise<ControllerResult<any>> => {
+      const links = await IssueModel.getIssueLinks(issueId, options);
+      
+      return {
+        success: true,
+        data: {
+          links,
+          total: links.length,
+          issueId
+        }
+      };
+    },
+    'Error fetching issue links'
+  );
+  
+  static getIssueActivities = withErrorHandling(
+    async (issueId: string, options?: GetActivitiesOptions): Promise<ControllerResult<any>> => {
+      const activities = await IssueModel.getIssueActivities(issueId, options);
+      
+      return {
+        success: true,
+        data: {
+          activities,
+          total: activities.length,
+          issueId
+        }
+      };
+    },
+    'Error fetching issue activities'
+  );
+  
   static updateIssue = withErrorHandling(
     async (issueId: string, updateData: UpdateIssueOptions): Promise<ControllerResult<IssueUpdateResult>> => {
       await IssueModel.updateIssue(issueId, updateData);
@@ -67,22 +141,20 @@ export class IssueController {
       // Search for issues with the provided query and options
       const issues = await IssueModel.searchIssues(query || '', options);
       
-      // Ensure limit is a valid number
-      const safeLimit = typeof options?.limit === 'number' && options.limit > 0 ? options.limit : 10;
-      
-      // Limit the number of results
-      const limitedIssues = issues.slice(0, safeLimit);
-      
       // Create title for the list
-      const title = `Found ${issues.length} issues matching query: "${query}"\nShowing ${limitedIssues.length} results.`;
+      const title = `Found ${issues.length} issues matching query: "${query}"${options?.limit ? `\nShowing ${Math.min(issues.length, options.limit)} results starting from ${options.skip || 0}.` : ''}`;
       
       return {
         success: true,
         data: {
-          issues: limitedIssues,
+          issues,
           total: issues.length,
           query,
-          title
+          title,
+          pagination: {
+            limit: options?.limit,
+            skip: options?.skip || 0
+          }
         }
       };
     },
@@ -94,17 +166,17 @@ export class IssueController {
       // Call the dedicated method for finding issues by criteria
       const issues = await IssueModel.findIssuesByCriteria(options);
       
-      // Ensure limit is a valid number
-      const safeLimit = typeof options.limit === 'number' && options.limit > 0 ? options.limit : 10;
-      
-      // Limit the number of results
-      const limitedIssues = issues.slice(0, safeLimit);
-      
       // Build query string for display purposes
       const queryParts: string[] = [];
       
       if (options.project) queryParts.push(`project: {${options.project}}`);
-      if (options.assignee) queryParts.push(`assignee: ${options.assignee}`);
+      if (options.assignee) {
+        if (options.assignee.toLowerCase() === 'me') {
+          queryParts.push('for: me');
+        } else {
+          queryParts.push(`for: ${options.assignee}`);
+        }
+      }
       if (options.sprint) queryParts.push(`sprint: {${options.sprint}}`);
       if (options.type) queryParts.push(`Type: {${options.type}}`);
       if (options.status) {
@@ -118,15 +190,19 @@ export class IssueController {
       }
       
       const queryDisplay = queryParts.length > 0 ? queryParts.join(' ') : 'All issues';
-      const title = `Found ${issues.length} issues matching criteria.\nUsed query: "${queryDisplay}"\nShowing ${limitedIssues.length} results.`;
+      const title = `Found ${issues.length} issues matching criteria.\nUsed query: "${queryDisplay}"${options?.limit ? `\nShowing ${Math.min(issues.length, options.limit)} results starting from ${options.skip || 0}.` : ''}`;
       
       return {
         success: true,
         data: {
-          issues: limitedIssues,
+          issues,
           total: issues.length,
           query: queryDisplay,
-          title
+          title,
+          pagination: {
+            limit: options?.limit,
+            skip: options?.skip || 0
+          }
         }
       };
     },
@@ -136,6 +212,10 @@ export class IssueController {
   static async handleResourceRequest(uri: URL, req: Request): Promise<ResourceResponse> {
     // Extract issueId parameter
     const issueId = extractParam(req.params, 'issueId');
+    const limit = req.query && typeof req.query.limit === 'string' ? 
+      Math.min(Number(req.query.limit), PAGINATION_LIMITS.ISSUES) : DEFAULT_PAGINATION.LIMIT;
+    const skip = req.query && typeof req.query.skip === 'string' ? 
+      Number(req.query.skip) : DEFAULT_PAGINATION.SKIP;
     
     try {
       if (issueId) {

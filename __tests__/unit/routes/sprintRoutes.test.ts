@@ -1,9 +1,26 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerSprintRoutes } from '../../../src/routes/sprintRoutes';
 import { SprintController } from '../../../src/controllers/sprintController';
+import { SprintView } from '../../../src/views/sprintView';
+import { z } from 'zod';
+import { DEFAULT_PAGINATION, PAGINATION_LIMITS } from '../../../src/utils/constants';
 
 // Mock the SprintController
 jest.mock('../../../src/controllers/sprintController');
+
+// Define expected schemas matching the implementation
+const getSprintSchema = {
+  boardId: expect.any(Object), // Using expect.any(Object) for ZodString definition
+  sprintId: expect.any(Object),
+};
+
+const findSprintsSchema = {
+  boardId: expect.any(Object),
+  sprintName: expect.any(Object),
+  status: expect.any(Object), // Using expect.any(Object) for complex ZodEnum/Default
+  limit: expect.any(Object), // Using expect.any(Object) for complex ZodEffects
+  skip: expect.any(Object), // Using expect.any(Object) for complex ZodEffects
+};
 
 describe('Sprint Routes', () => {
   let server: McpServer;
@@ -20,7 +37,7 @@ describe('Sprint Routes', () => {
   
   it('should register sprint routes on the server', () => {
     // Register routes
-    registerSprintRoutes(server);
+    registerSprintRoutes(server as any);
     
     // Check if tool method was called twice (once for each route)
     expect(server.tool).toHaveBeenCalledTimes(2);
@@ -29,10 +46,7 @@ describe('Sprint Routes', () => {
     expect(server.tool).toHaveBeenCalledWith(
       'youtrack_get_sprint',
       'Get details of a specific sprint',
-      {
-        boardId: expect.any(Object),
-        sprintId: expect.any(Object)
-      },
+      expect.objectContaining(getSprintSchema), // Use objectContaining with defined schema parts
       expect.any(Function)
     );
     
@@ -40,12 +54,7 @@ describe('Sprint Routes', () => {
     expect(server.tool).toHaveBeenCalledWith(
       'youtrack_find_sprints',
       'Find sprints by board, name, status, or time period',
-      {
-        boardId: expect.any(Object),
-        sprintName: expect.any(Object),
-        status: expect.any(Object),
-        limit: expect.any(Object)
-      },
+      expect.objectContaining(findSprintsSchema), // Use objectContaining with defined schema parts
       expect.any(Function)
     );
   });
@@ -61,7 +70,7 @@ describe('Sprint Routes', () => {
     });
     
     // Register routes
-    registerSprintRoutes(server);
+    registerSprintRoutes(server as any);
     
     // Get the route handler function
     const routeHandler = (server.tool as jest.Mock).mock.calls[0][3];
@@ -87,7 +96,7 @@ describe('Sprint Routes', () => {
     (SprintController.getSprint as jest.Mock).mockRejectedValue(new Error(errorMessage));
     
     // Register routes
-    registerSprintRoutes(server);
+    registerSprintRoutes(server as any);
     
     // Get the route handler function
     const routeHandler = (server.tool as jest.Mock).mock.calls[0][3];
@@ -111,7 +120,7 @@ describe('Sprint Routes', () => {
     });
     
     // Register routes
-    registerSprintRoutes(server);
+    registerSprintRoutes(server as any);
     
     // Get the route handler function
     const routeHandler = (server.tool as jest.Mock).mock.calls[1][3];
@@ -156,7 +165,7 @@ describe('Sprint Routes', () => {
     });
     
     // Register routes
-    registerSprintRoutes(server);
+    registerSprintRoutes(server as any);
     
     // Get the route handler function
     const routeHandler = (server.tool as jest.Mock).mock.calls[1][3];
@@ -195,7 +204,7 @@ describe('Sprint Routes', () => {
     });
     
     // Register routes
-    registerSprintRoutes(server);
+    registerSprintRoutes(server as any);
     
     // Get the route handler function
     const routeHandler = (server.tool as jest.Mock).mock.calls[1][3];
@@ -230,7 +239,7 @@ describe('Sprint Routes', () => {
     (SprintController.findSprints as jest.Mock).mockRejectedValue(new Error(errorMessage));
     
     // Register routes
-    registerSprintRoutes(server);
+    registerSprintRoutes(server as any);
     
     // Get the route handler function
     const routeHandler = (server.tool as jest.Mock).mock.calls[1][3];

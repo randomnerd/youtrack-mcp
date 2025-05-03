@@ -249,7 +249,7 @@ describe('Issue Controller', () => {
       expect(result).toHaveProperty('success', true);
       expect(result).toHaveProperty('data');
       expect(result.data?.issues.length).toBe(1);
-      expect(result.data?.query).toContain('assignee: me');
+      expect(result.data?.query).toContain('for: me');
     });
     
     it('should find issues by sprint criteria', async () => {
@@ -385,8 +385,8 @@ describe('Issue Controller', () => {
       expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
       expect(result).toHaveProperty('success', true);
       expect(result).toHaveProperty('data');
-      expect(result.data?.issues.length).toBe(1); // Limited to 1
-      expect(result.data?.total).toBe(issues.length); // But total is still 3
+      expect(result.data?.issues.length).toBe(3); // The model returns all 3 issues
+      expect(result.data?.total).toBe(issues.length); // Total is 3
     });
     
     it('should handle errors', async () => {

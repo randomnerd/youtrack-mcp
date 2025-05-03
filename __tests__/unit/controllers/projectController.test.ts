@@ -109,9 +109,9 @@ describe('Project Controller', () => {
       const matchingProjects = [projectFixtures.projects[0]];
       (ProjectModel.findByName as jest.Mock).mockResolvedValue(matchingProjects);
       
-      const result = await ProjectController.findProjectsByName(projectName);
+      const result = await ProjectController.findProjectsByName(projectName, undefined);
       
-      expect(ProjectModel.findByName).toHaveBeenCalledWith(projectName);
+      expect(ProjectModel.findByName).toHaveBeenCalledWith(projectName, undefined);
       expect(result).toHaveProperty('success', true);
       expect(result).toHaveProperty('data');
       expect(result.data).toHaveProperty('projects');
@@ -122,9 +122,9 @@ describe('Project Controller', () => {
       const projectName = 'NonExistent';
       (ProjectModel.findByName as jest.Mock).mockResolvedValue([]);
       
-      const result = await ProjectController.findProjectsByName(projectName);
+      const result = await ProjectController.findProjectsByName(projectName, undefined);
       
-      expect(ProjectModel.findByName).toHaveBeenCalledWith(projectName);
+      expect(ProjectModel.findByName).toHaveBeenCalledWith(projectName, undefined);
       expect(result).toHaveProperty('success', true);
       expect(result).toHaveProperty('data');
       expect(result.data).toHaveProperty('projects');
@@ -136,9 +136,9 @@ describe('Project Controller', () => {
       const errorMessage = 'Failed to search projects';
       (ProjectModel.findByName as jest.Mock).mockRejectedValue(new Error(errorMessage));
       
-      const result = await ProjectController.findProjectsByName(projectName);
+      const result = await ProjectController.findProjectsByName(projectName, undefined);
       
-      expect(ProjectModel.findByName).toHaveBeenCalledWith(projectName);
+      expect(ProjectModel.findByName).toHaveBeenCalledWith(projectName, undefined);
       expect(result).toHaveProperty('success', false);
       expect(result).toHaveProperty('error');
       expect(result.error).toContain(errorMessage);

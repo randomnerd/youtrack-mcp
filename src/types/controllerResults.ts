@@ -1,5 +1,12 @@
 import * as YouTrackTypes from './youtrack';
 
+// Pagination interface for list results
+export interface Pagination {
+  limit?: number;
+  skip?: number;
+  totalItems?: number;
+}
+
 // Common result interface for all controllers
 export interface ControllerResult<T> {
   success: boolean;
@@ -28,6 +35,7 @@ export interface IssueListResult {
   total: number;
   query?: string;
   title?: string;
+  pagination?: Pagination;
 }
 
 export interface IssueUpdateResult {
@@ -43,6 +51,7 @@ export interface ProjectDetailResult {
 export interface ProjectListResult {
   projects: YouTrackTypes.Project[];
   total: number;
+  pagination?: Pagination;
 }
 
 // Sprint Controller Result Types
@@ -54,6 +63,7 @@ export interface SprintDetailResult {
 export interface SprintListResult {
   sprints: YouTrackTypes.Sprint[];
   total: number;
+  pagination?: Pagination;
 }
 
 // Board Controller Result Types
@@ -66,4 +76,5 @@ export interface BoardDetailResult {
 export interface BoardListResult {
   boards: YouTrackTypes.Board[];
   total: number;
+  pagination?: Pagination;
 } 

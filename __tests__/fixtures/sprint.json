@@ -1,0 +1,57 @@
+{
+  "id": "120-1",
+  "name": "Sprint 42",
+  "goal": "Complete the authentication feature and improve mobile experience",
+  "start": 1682892000000,
+  "finish": 1685570400000,
+  "isCompleted": false,
+  "isStarted": true,
+  "archived": false,
+  "isDefault": false,
+  "unresolvedIssuesCount": 5,
+  "issues": [
+    {
+      "id": "31-123",
+      "idReadable": "PROJ-123",
+      "summary": "Fix the login button on mobile",
+      "resolved": false,
+      "$type": "Issue"
+    },
+    {
+      "id": "31-124",
+      "idReadable": "PROJ-124",
+      "summary": "Implement responsive design",
+      "resolved": false,
+      "$type": "Issue"
+    },
+    {
+      "id": "31-125",
+      "idReadable": "PROJ-125",
+      "summary": "Update CSS framework",
+      "resolved": true,
+      "$type": "Issue"
+    },
+    {
+      "id": "31-126",
+      "idReadable": "PROJ-126",
+      "summary": "Add password reset functionality",
+      "resolved": false,
+      "$type": "Issue"
+    },
+    {
+      "id": "31-127",
+      "idReadable": "PROJ-127",
+      "summary": "Implement two-factor authentication",
+      "resolved": false,
+      "$type": "Issue"
+    },
+    {
+      "id": "31-128",
+      "idReadable": "PROJ-128",
+      "summary": "Optimize authentication flow",
+      "resolved": false,
+      "$type": "Issue"
+    }
+  ],
+  "$type": "Sprint"
+} 

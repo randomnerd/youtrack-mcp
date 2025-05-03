@@ -35,6 +35,7 @@ export class SprintController {
       sprintName?: string;
       status?: 'active' | 'archived' | 'all';
       limit?: number;
+      skip?: number;
     }): Promise<ControllerResult<SprintListResult>> => {
       const sprints = await SprintModel.findSprints(options);
       
@@ -54,6 +55,11 @@ export class SprintController {
         data: {
           sprints,
           total: sprints.length,
+          pagination: {
+            limit: options.limit,
+            skip: options.skip || 0,
+            totalItems: sprints.length
+          }
         }
       };
     },

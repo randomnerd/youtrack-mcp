@@ -321,6 +321,8 @@ export interface IssueRef {
   id: string;
   idReadable: string;
   $type: 'Issue';
+  created?: number;
+  updated?: number;
 }
 
 export interface Issue {
@@ -340,6 +342,7 @@ export interface Issue {
   votes?: number;
   voters?: IssueVoters;
   commentsCount?: number;
+  comments?: IssueComment[];
   tags?: IssueTag[];
   links?: IssueLink[];
   attachments?: IssueAttachment[];
@@ -744,7 +747,6 @@ export type Activity = ActivityItem | CommentActivityItem | IssueCreatedActivity
 
 /**
  * Extended issue type that includes activities
- * Note: Comments are obtained exclusively from CommentActivityItem entries in the activities array
- * as the Issue type no longer has a direct comments property
+ * Comments are now directly attached to the issue through the comments property
  */
 export type IssueWithActivities = Issue & { activities?: Activity[] }; 

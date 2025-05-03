@@ -1,0 +1,130 @@
+{
+  "id": "110-1",
+  "name": "Development Team Board",
+  "description": "Main development board for the development team",
+  "projects": [
+    {
+      "id": "0-1",
+      "name": "Project Name",
+      "shortName": "PROJ",
+      "$type": "Project"
+    }
+  ],
+  "sprints": [
+    {
+      "id": "120-1",
+      "name": "Sprint 42",
+      "goal": "Complete the authentication feature and improve mobile experience",
+      "start": 1682892000000,
+      "finish": 1685570400000,
+      "isCompleted": false,
+      "isStarted": true,
+      "archived": false,
+      "isDefault": false,
+      "unresolvedIssuesCount": 5,
+      "$type": "Sprint"
+    },
+    {
+      "id": "120-2",
+      "name": "Sprint 41",
+      "goal": "Implement core functionality",
+      "start": 1680214000000,
+      "finish": 1682892000000,
+      "isCompleted": true,
+      "isStarted": true,
+      "archived": true,
+      "isDefault": false,
+      "unresolvedIssuesCount": 0,
+      "$type": "Sprint"
+    },
+    {
+      "id": "120-3",
+      "name": "Sprint 43",
+      "goal": "Enhance user experience",
+      "start": 1685570400000,
+      "finish": 1688162400000,
+      "isCompleted": false,
+      "isStarted": false,
+      "archived": false,
+      "isDefault": false,
+      "unresolvedIssuesCount": 8,
+      "$type": "Sprint"
+    }
+  ],
+  "currentSprint": {
+    "id": "120-1",
+    "name": "Sprint 42",
+    "goal": "Complete the authentication feature and improve mobile experience",
+    "start": 1682892000000,
+    "finish": 1685570400000,
+    "isCompleted": false,
+    "isStarted": true,
+    "archived": false,
+    "isDefault": false,
+    "unresolvedIssuesCount": 5,
+    "$type": "Sprint"
+  },
+  "owner": {
+    "id": "1-1",
+    "name": "John Smith",
+    "fullName": "John Smith",
+    "login": "jsmith",
+    "email": "john.smith@example.com",
+    "$type": "User"
+  },
+  "columnSettings": {
+    "columns": [
+      {
+        "fieldValues": [
+          {
+            "name": "Open",
+            "isResolved": false,
+            "presentation": "Open",
+            "id": "10-3-1-1-2"
+          }
+        ],
+        "id": "c1"
+      },
+      {
+        "fieldValues": [
+          {
+            "name": "In Progress",
+            "isResolved": false,
+            "presentation": "In Progress",
+            "id": "10-3-1-1-1"
+          }
+        ],
+        "id": "c2"
+      },
+      {
+        "fieldValues": [
+          {
+            "name": "Ready for Review",
+            "isResolved": false,
+            "presentation": "Ready for Review",
+            "id": "10-3-1-1-3"
+          }
+        ],
+        "id": "c3"
+      },
+      {
+        "fieldValues": [
+          {
+            "name": "Done",
+            "isResolved": true,
+            "presentation": "Done",
+            "id": "10-3-1-1-4"
+          }
+        ],
+        "id": "c4"
+      }
+    ],
+    "field": {
+      "id": "10-3-1-1",
+      "name": "Stage",
+      "$type": "CustomField"
+    },
+    "id": "cs1"
+  },
+  "$type": "Agile"
+} 

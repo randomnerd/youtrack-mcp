@@ -1,0 +1,179 @@
+[
+  {
+    "id": "31-123",
+    "idReadable": "PROJ-123",
+    "numberInProject": 123,
+    "summary": "Fix the login button on mobile",
+    "description": "The login button doesn't appear correctly on mobile devices.",
+    "created": 1683726645000,
+    "updated": 1684146753000,
+    "resolved": null,
+    "reporter": {
+      "id": "1-1",
+      "name": "John Smith",
+      "login": "jsmith",
+      "$type": "User"
+    },
+    "customFields": [
+      {
+        "id": "10-1",
+        "name": "Type",
+        "value": {
+          "id": "10-1-1-1-1",
+          "name": "Bug",
+          "color": {
+            "background": "#ff0000"
+          },
+          "$type": "EnumBundleElement"
+        },
+        "$type": "SingleEnumIssueCustomField"
+      },
+      {
+        "id": "10-3",
+        "name": "Stage",
+        "value": {
+          "id": "10-3-1-1-1",
+          "name": "In Progress",
+          "isResolved": false,
+          "$type": "StateBundleElement"
+        },
+        "$type": "StateIssueCustomField"
+      },
+      {
+        "id": "10-5",
+        "name": "Sprint",
+        "value": {
+          "id": "10-5-1-1-1",
+          "name": "Sprint 42",
+          "$type": "EnumBundleElement"
+        },
+        "$type": "SingleEnumIssueCustomField"
+      }
+    ],
+    "project": {
+      "id": "0-1",
+      "name": "Project Name",
+      "shortName": "PROJ",
+      "$type": "Project"
+    },
+    "$type": "Issue"
+  },
+  {
+    "id": "31-124",
+    "idReadable": "PROJ-124",
+    "numberInProject": 124,
+    "summary": "Implement responsive design",
+    "description": "Make the UI responsive for different screen sizes.",
+    "created": 1683726800000,
+    "updated": 1684150000000,
+    "resolved": null,
+    "reporter": {
+      "id": "1-1",
+      "name": "John Smith",
+      "login": "jsmith",
+      "$type": "User"
+    },
+    "customFields": [
+      {
+        "id": "10-1",
+        "name": "Type",
+        "value": {
+          "id": "10-1-1-1-2",
+          "name": "Feature",
+          "color": {
+            "background": "#00ff00"
+          },
+          "$type": "EnumBundleElement"
+        },
+        "$type": "SingleEnumIssueCustomField"
+      },
+      {
+        "id": "10-3",
+        "name": "Stage",
+        "value": {
+          "id": "10-3-1-1-2",
+          "name": "Open",
+          "isResolved": false,
+          "$type": "StateBundleElement"
+        },
+        "$type": "StateIssueCustomField"
+      },
+      {
+        "id": "10-5",
+        "name": "Sprint",
+        "value": {
+          "id": "10-5-1-1-1",
+          "name": "Sprint 42",
+          "$type": "EnumBundleElement"
+        },
+        "$type": "SingleEnumIssueCustomField"
+      }
+    ],
+    "project": {
+      "id": "0-1",
+      "name": "Project Name",
+      "shortName": "PROJ",
+      "$type": "Project"
+    },
+    "$type": "Issue"
+  },
+  {
+    "id": "31-125",
+    "idReadable": "PROJ-125",
+    "numberInProject": 125,
+    "summary": "Update CSS framework",
+    "description": "Update to the latest version of the CSS framework.",
+    "created": 1683730000000,
+    "updated": 1684000000000,
+    "resolved": 1684000000000,
+    "reporter": {
+      "id": "1-2",
+      "name": "Jane Doe",
+      "login": "jdoe",
+      "$type": "User"
+    },
+    "customFields": [
+      {
+        "id": "10-1",
+        "name": "Type",
+        "value": {
+          "id": "10-1-1-1-3",
+          "name": "Task",
+          "color": {
+            "background": "#0000ff"
+          },
+          "$type": "EnumBundleElement"
+        },
+        "$type": "SingleEnumIssueCustomField"
+      },
+      {
+        "id": "10-3",
+        "name": "Stage",
+        "value": {
+          "id": "10-3-1-1-4",
+          "name": "Done",
+          "isResolved": true,
+          "$type": "StateBundleElement"
+        },
+        "$type": "StateIssueCustomField"
+      },
+      {
+        "id": "10-5",
+        "name": "Sprint",
+        "value": {
+          "id": "10-5-1-1-1",
+          "name": "Sprint 42",
+          "$type": "EnumBundleElement"
+        },
+        "$type": "SingleEnumIssueCustomField"
+      }
+    ],
+    "project": {
+      "id": "0-1",
+      "name": "Project Name",
+      "shortName": "PROJ",
+      "$type": "Project"
+    },
+    "$type": "Issue"
+  }
+] 

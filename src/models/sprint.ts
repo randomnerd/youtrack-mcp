@@ -6,6 +6,13 @@ interface FindSprintsOptions {
   sprintName?: string;
   status?: 'active' | 'archived' | 'all';
   limit?: number;
+  skip?: number;
+}
+
+interface SprintIssuesOptions {
+  limit?: number;
+  skip?: number;
+  sortBy?: string;
 }
 
 export class SprintModel {
@@ -17,7 +24,10 @@ export class SprintModel {
     return youtrackClient.findSprints(options);
   }
   
-  static async getSprintIssues(sprintName: string): Promise<YouTrackTypes.Issue[]> {
-    return youtrackClient.searchIssues(`sprint: {${sprintName}}`);
+  static async getSprintIssues(
+    sprintName: string, 
+    options?: SprintIssuesOptions
+  ): Promise<YouTrackTypes.Issue[]> {
+    return youtrackClient.searchIssues(`sprint: {${sprintName}}`, options);
   }
 } 

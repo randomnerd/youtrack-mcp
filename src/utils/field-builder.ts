@@ -279,4 +279,4 @@ export class FieldBuilder {
 export const parseFieldString = FieldBuilder.parseFieldString;
 export const serializeFieldStructure = FieldBuilder.serializeFieldStructure;
 export const addField = FieldBuilder.addField;
-export const removeField = FieldBuilder.removeField; 
+export const removeField = FieldBuilder.removeField;

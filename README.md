@@ -12,6 +12,7 @@ This MCP server provides an interface to interact with a YouTrack instance via t
 - View sprint details and status
 - Search and update issues
 - Work with projects
+- Format YouTrack API responses as simplified JSON objects
 
 ## Installation
 
@@ -145,6 +146,68 @@ npm run test:no-types
 - `debug`: Debugging utility
 - `dotenv`: Environment variable management
 - `zod`: Schema validation
+
+## JSON Formatter
+
+The package includes a JSON formatter utility that simplifies YouTrack API responses by reducing nesting and only including essential data. This makes the data much easier to work with in applications.
+
+### Using the Formatter
+
+```typescript
+import { YouTrack, YouTrackJsonFormatter } from '@randomnerd/youtrack-mcp';
+
+// Initialize YouTrack client
+const ytClient = new YouTrack('https://your-youtrack-instance.example.com/api', 'your-token');
+
+// Fetch an issue
+const issue = await ytClient.getIssue('ISSUE-123');
+
+// Format the issue to a simplified JSON structure
+const formattedIssue = YouTrackJsonFormatter.formatIssue(issue, {
+  includeComments: true,
+  includeLinks: true,
+  topLevelFields: ['State', 'Priority', 'Assignee']
+});
+
+console.log(formattedIssue);
+```
+
+### Formatter Options
+
+The JSON formatter accepts the following options:
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `includeActivities` | boolean | false | Include activity history in the output |
+| `maxActivities` | number | 10 | Maximum number of activities to include |
+| `includeAttachments` | boolean | false | Include attachments information |
+| `includeComments` | boolean | true | Include comments |
+| `includeLinks` | boolean | true | Include links between issues |
+| `topLevelFields` | string[] | [] | Names of custom fields to include at the top level |
+
+### Available Formatters
+
+| Formatter | Description |
+|-----------|-------------|
+| `formatIssue` | Format a single YouTrack issue |
+| `formatIssues` | Format an array of YouTrack issues |
+| `formatBoard` | Format a YouTrack agile board |
+| `formatSprint` | Format a YouTrack sprint |
+| `formatProject` | Format a YouTrack project |
+
+### Testing the Formatter
+
+To test the JSON formatter, run:
+
+```bash
+npm run test-json-formatter
+```
+
+Or run the example:
+
+```bash
+npm run example:format-issue
+```
 
 ## Contributing
 

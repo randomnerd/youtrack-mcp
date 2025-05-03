@@ -3,24 +3,26 @@ import { CommonView, McpResponse, ResourceResponse } from './common';
 import { formatIssueForAI, formatIssuesForAI } from '../utils/issue-formatter';
 import { createSeparator } from '../utils/view-utils';
 import { ControllerResult, IssueDetailResult, IssueListResult, IssueUpdateResult } from '../types/controllerResults';
+import { formatYouTrackData } from '../utils/youtrack-json-formatter';
 
 export class IssueView {
-  static renderDetail(result: ControllerResult<IssueDetailResult>): McpResponse {
+  static renderDetail(result: ControllerResult<IssueDetailResult>, json = true): McpResponse {
     if (!result.success || !result.data) {
       return this.renderError(result.error || 'Failed to fetch issue details');
     }
     
     const { issue, activities } = result.data;
+    const data = activities ? {...issue, activities} : issue;
     
     return {
       content: [{ 
         type: "text", 
-        text: formatIssueForAI(activities ? {...issue, activities} : issue), 
+        text: json ? formatYouTrackData(data, { stringify: true }) : formatIssueForAI(data), 
       }]
     };
   }
   
-  static renderList(result: ControllerResult<IssueListResult>): McpResponse {
+  static renderList(result: ControllerResult<IssueListResult>, json = true): McpResponse {
     if (!result.success || !result.data) {
       return this.renderError(result.error || 'Failed to fetch issues');
     }
@@ -31,27 +33,19 @@ export class IssueView {
       return this.renderEmpty('No issues found matching the criteria.');
     }
     
-    // Provide a summary
-    const summaryContent = {
-      type: "text" as const,
-      text: title || `Found ${issues.length} issues`
-    };
-    
     try {
       // Format all issues together using the new formatter
-      const formattedIssues = formatIssuesForAI(issues);
+      const data = json ? formatYouTrackData(issues, { stringify: true }) : formatIssuesForAI(issues);
       
       return {
         content: [
-          summaryContent, 
-          { type: "text" as const, text: formattedIssues }
+          { type: "text" as const, text: data }
         ]
       };
     } catch (error) {
       // Handle formatting errors
       return {
         content: [
-          summaryContent,
           { 
             type: "text" as const, 
             text: `Error processing issue: ${(error as Error).message}`
@@ -83,7 +77,7 @@ export class IssueView {
     }
     
     try {
-      return CommonView.createResourceResponse(uri, formatIssueForAI(issue));
+      return CommonView.createResourceResponse(uri, formatYouTrackData(issue, { stringify: true }));
     } catch (error) {
       return CommonView.createResourceResponse(uri, `Error processing issue: ${(error as Error).message}`);
     }

@@ -3,6 +3,7 @@ import { McpResponse, CommonView, ResourceResponse } from '../views/common';
 import { URL } from 'url';
 import { ControllerResult, ProjectDetailResult, ProjectListResult, Request } from '../types/controllerResults';
 import { withErrorHandling } from '../utils/controller-utils';
+import { PAGINATION_LIMITS, DEFAULT_PAGINATION } from '../utils/constants';
 
 export class ProjectController {
   /**
@@ -64,17 +65,23 @@ export class ProjectController {
 
   /**
    * List all available projects
+   * @param options - Pagination options
    * @returns Controller result with project list
    */
   static listProjects = withErrorHandling(
-    async (): Promise<ControllerResult<ProjectListResult>> => {
-      const projects = await ProjectModel.getAll();
+    async (options?: { limit?: number; skip?: number }): Promise<ControllerResult<ProjectListResult>> => {
+      const projects = await ProjectModel.getAll(options);
       
       return {
         success: true,
         data: {
           projects,
-          total: projects.length
+          total: projects.length,
+          pagination: {
+            limit: options?.limit,
+            skip: options?.skip || 0,
+            totalItems: projects.length
+          }
         }
       };
     },
@@ -110,17 +117,23 @@ export class ProjectController {
   /**
    * Find projects by name
    * @param name - Name to search for
+   * @param options - Pagination options
    * @returns Controller result with matching projects
    */
   static findProjectsByName = withErrorHandling(
-    async (name: string): Promise<ControllerResult<ProjectListResult>> => {
-      const projects = await ProjectModel.findByName(name);
+    async (name: string, options?: { limit?: number; skip?: number }): Promise<ControllerResult<ProjectListResult>> => {
+      const projects = await ProjectModel.findByName(name, options);
       
       return {
         success: true,
         data: {
           projects,
-          total: projects.length
+          total: projects.length,
+          pagination: {
+            limit: options?.limit,
+            skip: options?.skip || 0,
+            totalItems: projects.length
+          }
         }
       };
     },

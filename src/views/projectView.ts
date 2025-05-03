@@ -1,6 +1,7 @@
 import * as YouTrackTypes from '../types/youtrack';
 import { CommonView, McpResponse } from './common';
 import { ControllerResult, ProjectDetailResult, ProjectListResult } from '../types/controllerResults';
+import { formatYouTrackData } from '../utils/youtrack-json-formatter';
 
 export class ProjectView {
   static renderList(result: ControllerResult<ProjectListResult>): McpResponse {
@@ -14,14 +15,10 @@ export class ProjectView {
       return this.renderEmpty("No projects found.");
     }
     
-    const projectsText = projects.map(project => 
-      `ID: ${project.id}\nName: ${project.name}\nShort Name: ${project.shortName}`
-    ).join('\n\n');
-    
     return {
       content: [{ 
         type: "text", 
-        text: `Found ${total} projects:\n\n${projectsText}` 
+        text: formatYouTrackData(projects, { stringify: true }) 
       }]
     };
   }
@@ -41,17 +38,11 @@ export class ProjectView {
     if (!project) {
       return this.renderEmpty("Project not found.");
     }
-    
-    const detailText = `Project Details:
-ID: ${project.id}
-Name: ${project.name}
-Short Name: ${project.shortName || 'N/A'}
-Description: ${project.description || 'No description provided'}`;
-    
+
     return {
       content: [{ 
         type: "text", 
-        text: detailText 
+        text: formatYouTrackData(project, { stringify: true }) 
       }]
     };
   }

@@ -14,11 +14,9 @@ describe('ProjectView', () => {
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(1);
-      expect(result.content[0].text).toContain(`Found ${projects.length} projects:`);
-      
       projects.forEach(project => {
-        expect(result.content[0].text).toContain(`ID: ${project.id}`);
-        expect(result.content[0].text).toContain(`Name: ${project.name}`);
+        expect(result.content[0].text).toContain(project.id);
+        expect(result.content[0].text).toContain(project.name);
       });
     });
     
@@ -29,7 +27,7 @@ describe('ProjectView', () => {
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(1);
-      expect(result.content[0].text).toContain('No projects found.');
+      expect(result.content[0].text).toContain('No projects found');
     });
     
     it('should handle null projects input', () => {
@@ -52,29 +50,27 @@ describe('ProjectView', () => {
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(1);
-      expect(result.content[0].text).toContain('Project Details:');
-      expect(result.content[0].text).toContain(`ID: ${project.id}`);
-      expect(result.content[0].text).toContain(`Name: ${project.name}`);
+      expect(result.content[0].text).toContain(project.id);
+      expect(result.content[0].text).toContain(project.name);
     });
     
     it('should handle project with missing optional fields', () => {
       const project = {
         id: 'test-1',
         name: 'Test Project',
-        // shortName and description are missing
-      } as YouTrackTypes.Project;
-      
-      const controllerResult = createProjectDetailResult(project);
+        $type: 'Project'
+      };
+      const controllerResult = createProjectDetailResult(project as any);
       
       const result = ProjectView.renderDetail(controllerResult);
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(1);
-      expect(result.content[0].text).toContain('Short Name: N/A');
-      expect(result.content[0].text).toContain('Description: No description provided');
+      expect(result.content[0].text).toContain(project.id);
+      expect(result.content[0].text).toContain(project.name);
     });
     
-    it('should handle null project input', () => {
+    it('should handle missing project', () => {
       const controllerResult = createErrorResult<ProjectDetailResult>('Project not found');
       
       const result = ProjectView.renderDetail(controllerResult);

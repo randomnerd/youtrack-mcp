@@ -1,32 +1,19 @@
 import { IssueView } from '../../../src/views/issueView';
-import { formatIssueForAI, formatIssuesForAI } from '../../../src/utils/issue-formatter';
-import { createSeparator } from '../../../src/utils/view-utils';
 import { URL } from 'url';
 import * as YouTrackTypes from '../../../src/types/youtrack';
+import { formatYouTrackData } from '../../../src/utils/youtrack-json-formatter';
 import { createIssueDetailResult, createIssueListResult, createIssueUpdateResult, createErrorResult } from '../../helpers/testHelpers';
 import { ControllerResult, IssueDetailResult, IssueListResult, IssueUpdateResult } from '../../../src/types/controllerResults';
 
-// Mock the dependencies more carefully with implementations that won't throw
-jest.mock('../../../src/utils/issue-formatter', () => ({
-  formatIssueForAI: jest.fn().mockImplementation((issue) => {
-    // This implementation needs to work for all test cases
-    try {
-      return `Issue: ${issue.id} - ${issue.summary}`;
-    } catch (error) {
-      return `Formatted issue details`;
+// Mock the correct dependency
+jest.mock('../../../src/utils/youtrack-json-formatter', () => ({
+  formatYouTrackData: jest.fn().mockImplementation((data, options) => {
+    // Simple mock for testing purposes
+    if (Array.isArray(data)) {
+      return `Formatted ${data.length} issues`;
     }
-  }),
-  formatIssuesForAI: jest.fn().mockImplementation((issues) => {
-    try {
-      return issues.map(issue => `Issue: ${issue.id} - ${issue.summary}`).join('\n\n');
-    } catch (error) {
-      throw error; // For the error test
-    }
+    return `Formatted issue ${data?.id || 'unknown'}`;
   })
-}));
-
-jest.mock('../../../src/utils/view-utils', () => ({
-  createSeparator: jest.fn().mockReturnValue('---------------')
 }));
 
 describe('IssueView', () => {
@@ -54,34 +41,55 @@ describe('IssueView', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Ensure the mock implementation is reset if modified in a test
+    (formatYouTrackData as jest.Mock).mockImplementation((data, options) => {
+      if (Array.isArray(data)) {
+        return `Formatted ${data.length} issues`;
+      }
+      return `Formatted issue ${data?.id || 'unknown'}`;
+    });
   });
 
   describe('renderDetail', () => {
     it('should render issue details', () => {
-      const controllerResult = createIssueDetailResult(mockIssue as YouTrackTypes.IssueWithActivities);
+      const mockIssue = {
+        id: 'issue-1',
+        idReadable: 'PROJ-1',
+        summary: 'Test Issue',
+        description: 'This is a test issue',
+        $type: 'Issue',
+        customFields: []
+      };
+      
+      const controllerResult = createIssueDetailResult(mockIssue as any);
       
       const result = IssueView.renderDetail(controllerResult);
       
       expect(result).toHaveProperty('content');
       expect(result.content).toHaveLength(1);
-      expect(result.content[0].text).toContain(`Issue: ${mockIssue.id} - ${mockIssue.summary}`);
-      expect(formatIssueForAI).toHaveBeenCalledWith(mockIssue);
+      expect(result.content[0].text).toBe(`Formatted issue ${mockIssue.id}`);
+      expect(formatYouTrackData).toHaveBeenCalledWith(mockIssue, { stringify: true });
     });
 
     it('should render issue details with activities', () => {
+      const issueWithActivities = {
+        ...mockIssue,
+        activities: mockActivities
+      };
       const controllerResult = createIssueDetailResult(
-        mockIssue as YouTrackTypes.IssueWithActivities, 
-        mockActivities
+        issueWithActivities as YouTrackTypes.IssueWithActivities, 
+        mockActivities // Pass activities separately to helper, view combines them
       );
       
       const result = IssueView.renderDetail(controllerResult);
       
       expect(result).toHaveProperty('content');
       expect(result.content).toHaveLength(1);
-      expect(formatIssueForAI).toHaveBeenCalledWith(expect.objectContaining({
+      expect(result.content[0].text).toBe(`Formatted issue ${mockIssue.id}`);
+      expect(formatYouTrackData).toHaveBeenCalledWith(expect.objectContaining({
         ...mockIssue,
         activities: mockActivities
-      }));
+      }), { stringify: true });
     });
   });
 
@@ -98,9 +106,9 @@ describe('IssueView', () => {
       const result = IssueView.renderList(controllerResult);
       
       expect(result).toHaveProperty('content');
-      expect(result.content).toHaveLength(2); // title + formatted issues text
-      expect(result.content[0].text).toBe(title);
-      expect(formatIssuesForAI).toHaveBeenCalledWith(issues);
+      expect(result.content).toHaveLength(1);
+      expect(result.content[0].text).toBe(`Formatted ${issues.length} issues`);
+      expect(formatYouTrackData).toHaveBeenCalledWith(issues, { stringify: true });
     });
 
     it('should handle empty issues list', () => {
@@ -110,7 +118,7 @@ describe('IssueView', () => {
       
       expect(result).toHaveProperty('content');
       expect(result.content[0].text).toContain('No issues found');
-      expect(formatIssuesForAI).not.toHaveBeenCalled();
+      expect(formatYouTrackData).not.toHaveBeenCalled();
     });
 
     it('should handle error during issue mapping', () => {
@@ -119,23 +127,19 @@ describe('IssueView', () => {
       
       const controllerResult = createIssueListResult(issues, title);
       
-      // Mock the mapper to throw an error for this test
-      (formatIssueForAI as jest.Mock).mockImplementationOnce(() => {
-        throw new Error('Mapping error');
-      });
-      
-      // Mock formatIssuesForAI to rethrow the error from formatIssueForAI
-      (formatIssuesForAI as jest.Mock).mockImplementationOnce(() => {
-        throw new Error('Mapping error');
+      // Mock the formatter to throw an error for this test
+      const mappingError = new Error('Mapping error');
+      (formatYouTrackData as jest.Mock).mockImplementationOnce(() => {
+        throw mappingError;
       });
       
       const result = IssueView.renderList(controllerResult);
       
       expect(result).toHaveProperty('content');
-      expect(result.content).toHaveLength(2); // title + 1 issue with error
-      expect(result.content[1].text).toContain('Error processing issue');
-      expect(result.content[1].text).toContain('Mapping error');
-      expect(formatIssuesForAI).toHaveBeenCalledTimes(1);
+      expect(result.content).toHaveLength(1);
+      expect(result.content[0].text).toContain('Error processing issue');
+      expect(result.content[0].text).toContain('Mapping error');
+      expect(formatYouTrackData).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -187,22 +191,6 @@ describe('IssueView', () => {
     it('should handle a single issue successfully', () => {
       jest.clearAllMocks();
       
-      // Replace the entire implementation of handleResourceRequest for this test
-      const originalHandleResourceRequest = IssueView.handleResourceRequest;
-      
-      // Mock the entire method to avoid any problems with formatIssueForAI
-      IssueView.handleResourceRequest = jest.fn().mockImplementation((uri, issue) => {
-        return {
-          contents: [
-            {
-              uri: uri.href,
-              text: 'Formatted issue details',
-              highlights: []
-            }
-          ]
-        };
-      });
-      
       const uri = new URL('http://example.com/issues/test-1');
       const testIssue = {
         id: 'test-1',
@@ -218,10 +206,8 @@ describe('IssueView', () => {
       
       expect(result).toHaveProperty('contents');
       expect(result.contents[0].uri).toBe(uri.href);
-      expect((result.contents[0] as { uri: string, text: string }).text).toBe('Formatted issue details');
-      
-      // Restore original method after test
-      IssueView.handleResourceRequest = originalHandleResourceRequest;
+      expect((result.contents[0] as { uri: string, text: string }).text).toBe(`Formatted issue ${testIssue.id}`);
+      expect(formatYouTrackData).toHaveBeenCalledWith(testIssue, { stringify: true });
     });
   });
 }); 

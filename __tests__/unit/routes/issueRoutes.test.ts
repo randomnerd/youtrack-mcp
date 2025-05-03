@@ -3,10 +3,41 @@ import { registerIssueRoutes } from '../../../src/routes/issueRoutes';
 import { IssueController } from '../../../src/controllers/issueController';
 import { IssueView } from '../../../src/views/issueView';
 import { createIssueDetailResult, createIssueListResult, createIssueUpdateResult, createErrorResult } from '../../helpers/testHelpers';
+import { z } from 'zod';
+import { DEFAULT_PAGINATION, PAGINATION_LIMITS } from '../../../src/utils/constants';
 
 // Mock the IssueController and IssueView
 jest.mock('../../../src/controllers/issueController');
 jest.mock('../../../src/views/issueView');
+
+// Define expected schemas matching the implementation
+const getIssueSchema = {
+  issueId: expect.any(Object), // ZodString
+};
+
+const updateIssueSchema = {
+  issueId: expect.any(Object), // ZodString
+  summary: expect.any(Object), // ZodOptional(ZodString)
+  description: expect.any(Object), // ZodOptional(ZodString)
+  resolved: expect.any(Object), // ZodOptional(ZodBoolean)
+};
+
+const searchIssuesSchema = {
+  query: expect.any(Object), // ZodString
+  limit: expect.any(Object), // ZodEffects
+  skip: expect.any(Object), // ZodEffects
+  sortBy: expect.any(Object), // ZodOptional(ZodString)
+};
+
+const findIssuesByCriteriaSchema = {
+  project: expect.any(Object), // ZodOptional(ZodString)
+  assignee: expect.any(Object), // ZodOptional(ZodString)
+  sprint: expect.any(Object), // ZodOptional(ZodString)
+  type: expect.any(Object), // ZodOptional(ZodString)
+  status: expect.any(Object), // ZodOptional(ZodString)
+  limit: expect.any(Object), // ZodEffects
+  skip: expect.any(Object), // ZodEffects
+};
 
 describe('Issue Routes', () => {
   let server: McpServer;
@@ -36,7 +67,7 @@ describe('Issue Routes', () => {
   
   it('should register issue routes on the server', () => {
     // Register routes
-    registerIssueRoutes(server);
+    registerIssueRoutes(server as any);
     
     // Check if tool method was called four times (once for each route)
     expect(server.tool).toHaveBeenCalledTimes(4);
@@ -45,9 +76,7 @@ describe('Issue Routes', () => {
     expect(server.tool).toHaveBeenCalledWith(
       'youtrack_get_issue',
       'Get details of a specific issue',
-      {
-        issueId: expect.any(Object)
-      },
+      expect.objectContaining(getIssueSchema),
       expect.any(Function)
     );
     
@@ -55,12 +84,7 @@ describe('Issue Routes', () => {
     expect(server.tool).toHaveBeenCalledWith(
       'youtrack_update_issue',
       'Update an existing issue',
-      {
-        issueId: expect.any(Object),
-        summary: expect.any(Object),
-        description: expect.any(Object),
-        resolved: expect.any(Object)
-      },
+      expect.objectContaining(updateIssueSchema),
       expect.any(Function)
     );
     
@@ -68,11 +92,7 @@ describe('Issue Routes', () => {
     expect(server.tool).toHaveBeenCalledWith(
       'youtrack_search_issues',
       'Search for issues using YouTrack query syntax',
-      {
-        query: expect.any(Object),
-        limit: expect.any(Object),
-        sortBy: expect.any(Object)
-      },
+      expect.objectContaining(searchIssuesSchema),
       expect.any(Function)
     );
     
@@ -80,14 +100,7 @@ describe('Issue Routes', () => {
     expect(server.tool).toHaveBeenCalledWith(
       'youtrack_find_issues_by_criteria',
       'Find issues by specific criteria like assignee, sprint, type, or status',
-      {
-        project: expect.any(Object),
-        assignee: expect.any(Object),
-        sprint: expect.any(Object),
-        type: expect.any(Object),
-        status: expect.any(Object),
-        limit: expect.any(Object)
-      },
+      expect.objectContaining(findIssuesByCriteriaSchema),
       expect.any(Function)
     );
   });

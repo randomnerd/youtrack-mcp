@@ -21,11 +21,11 @@ export class YouTrack {
   
   // Field builders
   public static readonly DEFAULT_AUTHOR_FIELDS = 'id,name,fullName,login,email';
-  public static readonly DEFAULT_ACTIVITY_CHANGE_FIELDS = `$type,id,idReadable,name,presentation,shortName,summary,text,url,author(${YouTrack.DEFAULT_AUTHOR_FIELDS}),date,created`;
+  public static readonly DEFAULT_ACTIVITY_CHANGE_FIELDS = `$type,id,idReadable,name,presentation,shortName,summary,text,url,author(${YouTrack.DEFAULT_AUTHOR_FIELDS}),date,created,attachments($type,id,name,size,thumbnailURL,url,mimeType,created,author(${YouTrack.DEFAULT_AUTHOR_FIELDS}))`;
   public static readonly DEFAULT_ACTIVITY_FIELDS = `id,$type,timestamp,added(${YouTrack.DEFAULT_ACTIVITY_CHANGE_FIELDS}),removed(${YouTrack.DEFAULT_ACTIVITY_CHANGE_FIELDS}),author(${YouTrack.DEFAULT_AUTHOR_FIELDS}),field(${YouTrack.DEFAULT_ACTIVITY_CHANGE_FIELDS})`;
-  public static readonly DEFAULT_ACTIVITY_CATEGORIES = `CustomFieldCategory,CommentsCategory`;
-  public static readonly DEFAULT_ISSUE_FIELDS = `id,idReadable,Stage,summary,description,created,updated,resolved,numberInProject,$type,project($type,id,name,shortName),reporter(${YouTrack.DEFAULT_AUTHOR_FIELDS}),updater(${YouTrack.DEFAULT_AUTHOR_FIELDS}),customFields($type,id,name,projectCustomField(id,field(id,name)),value($type,id,name,isResolved,fullName,login,avatarUrl,color(id))),links($type,direction,id,linkType($type,id,localizedName,sourceToTarget,targetToSource),issues(id,idReadable,summary,resolved),trimmedIssues(id,idReadable,summary,resolved),issuesSize,unresolvedIssuesSize)`;
-  public static readonly DEFAULT_SPRINT_FIELDS = `id,name,goal,start,finish,archived,isDefault,unresolvedIssuesCount,issues(id,idReadable,projectCustomField(id,field(id,name)))`;
+  public static readonly DEFAULT_ACTIVITY_CATEGORIES = `CustomFieldCategory`;
+  public static readonly DEFAULT_ISSUE_FIELDS = `id,idReadable,Stage,summary,description,created,updated,resolved,numberInProject,$type,project($type,id,name,shortName),reporter(${YouTrack.DEFAULT_AUTHOR_FIELDS}),updater(${YouTrack.DEFAULT_AUTHOR_FIELDS}),customFields($type,id,name,projectCustomField(id,field(id,name)),value($type,id,name,isResolved,fullName,login,avatarUrl,color(id))),links($type,direction,id,linkType($type,id,name,localizedName,sourceToTarget,targetToSource),issues(id,idReadable,summary,resolved),trimmedIssues(id,idReadable,summary,resolved),issuesSize,unresolvedIssuesSize),comments(id,text,created,updated,author(${YouTrack.DEFAULT_AUTHOR_FIELDS}),attachments($type,id,name,size,thumbnailURL,url,mimeType,created,author(${YouTrack.DEFAULT_AUTHOR_FIELDS})))`;
+  public static readonly DEFAULT_SPRINT_FIELDS = `id,name,goal,start,finish,archived,isDefault,unresolvedIssuesCount,issues(id,idReadable,created,updated,projectCustomField(id,field(id,name)))`;
   public static readonly DEFAULT_AGILE_FIELDS = `id,name,description,start,finish,isDefault,isCompleted,sprints(${YouTrack.DEFAULT_SPRINT_FIELDS})`;
   private issueFieldBuilder = new FieldBuilder(YouTrack.DEFAULT_ISSUE_FIELDS);
   private sprintFieldBuilder = new FieldBuilder(YouTrack.DEFAULT_SPRINT_FIELDS);
@@ -441,13 +441,14 @@ export class YouTrack {
    */
   async searchIssues(
     query: string,
-    options: { limit?: number; sortBy?: string } = {}
+    options: { limit?: number; skip?: number; sortBy?: string } = {}
   ): Promise<YouTrackTypes.IssueWithActivities[]> {
-    const { limit = 50, sortBy } = options;
+    const { limit = 100, skip = 0, sortBy } = options;
 
     const params: Record<string, string> = {
       query,
       $top: limit.toString(),
+      $skip: skip.toString(),
       fields: this.issueFields,
     };
 
@@ -474,8 +475,9 @@ export class YouTrack {
     status?: string;
     type?: string;
     limit?: number;
+    skip?: number;
   }): Promise<YouTrackTypes.IssueWithActivities[]> {
-    const { project, assignee, sprint, status, type, limit = 50 } = criteria;
+    const { project, assignee, sprint, status, type, limit = 50, skip = 0 } = criteria;
 
     // Build query from criteria
     let query = '';
@@ -492,19 +494,26 @@ export class YouTrack {
     if (status) query += `State: ${status} `;
     if (type) query += `Type: ${type} `;
 
-    return this.searchIssues(query.trim(), { limit });
+    return this.searchIssues(query.trim(), { limit, skip });
   }
 
   /**
    * Get issue attachments
    * @param issueId - The ID of the issue
+   * @param options - Pagination options
    * @returns The issue attachments
    */
-  async getIssueAttachments(issueId: string): Promise<YouTrackTypes.IssueAttachment[]> {
+  async getIssueAttachments(
+    issueId: string, 
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<YouTrackTypes.IssueAttachment[]> {
+    const { limit = 100, skip = 0 } = options;
+    
     return this.request<YouTrackTypes.IssueAttachment[]>(`/issues/${issueId}/attachments`, {
       params: {
-        fields:
-          'id,name,url,created,author(id,name),size,mimeType,thumbnailURL',
+        fields: 'id,name,url,created,author(id,name),size,mimeType,thumbnailURL',
+        $top: limit.toString(),
+        $skip: skip.toString(),
       },
     });
   }
@@ -552,24 +561,42 @@ export class YouTrack {
   /**
    * Get issue comments
    * @param issueId - The ID of the issue
+   * @param options - Pagination options
    * @returns The issue comments
    */
-  async getIssueComments(issueId: string): Promise<YouTrackTypes.IssueComment[]> {
+  async getIssueComments(
+    issueId: string,
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<YouTrackTypes.IssueComment[]> {
+    const { limit = 100, skip = 0 } = options;
+    
     return this.request<YouTrackTypes.IssueComment[]>(`/issues/${issueId}/comments`, {
-      params: { fields: 'id,text,created,updated,author(id,name)' },
+      params: { 
+        fields: 'id,text,created,updated,author(id,name)',
+        $top: limit.toString(),
+        $skip: skip.toString(),
+      },
     });
   }
 
   /**
    * Get issue links
    * @param issueId - The ID of the issue
+   * @param options - Pagination options
    * @returns The issue links
    */
-  async getIssueLinks(issueId: string): Promise<YouTrackTypes.IssueLink[]> {
+  async getIssueLinks(
+    issueId: string,
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<YouTrackTypes.IssueLink[]> {
+    const { limit = 100, skip = 0 } = options;
+    
     return this.request<YouTrackTypes.IssueLink[]>(`/issues/${issueId}/links`, {
       params: {
         fields:
           'id,direction,linkType(id,name,sourceToTarget,targetToSource),issues(id,idReadable,summary,resolved),trimmedIssues(id,idReadable,summary,resolved),issuesSize,unresolvedIssuesSize',
+        $top: limit.toString(),
+        $skip: skip.toString(),
       },
     });
   }
@@ -602,11 +629,42 @@ export class YouTrack {
 
   /**
    * List all available projects
+   * @param options - Pagination options
    * @returns Array of projects
    */
-  async listProjects(): Promise<YouTrackTypes.Project[]> {
+  async listProjects(
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<YouTrackTypes.Project[]> {
+    const { limit = 100, skip = 0 } = options;
+    
     return this.request<YouTrackTypes.Project[]>('/admin/projects', {
-      params: { fields: 'id,name,shortName,description' },
+      params: { 
+        fields: 'id,name,shortName,description',
+        $top: limit.toString(),
+        $skip: skip.toString(),
+      },
+    });
+  }
+
+  /**
+   * Find projects by name
+   * @param name - Project name to search for
+   * @param options - Pagination options
+   * @returns Array of matching projects
+   */
+  async findProjectsByName(
+    name: string,
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<YouTrackTypes.Project[]> {
+    const { limit = 100, skip = 0 } = options;
+    
+    return this.request<YouTrackTypes.Project[]>('/admin/projects', {
+      params: {
+        fields: 'id,name,shortName,description',
+        $top: limit.toString(),
+        $skip: skip.toString(),
+        name: name
+      },
     });
   }
 
@@ -614,12 +672,19 @@ export class YouTrack {
 
   /**
    * List all available agile boards
+   * @param options - Pagination options
    * @returns Array of agile boards
    */
-  async listBoards(): Promise<YouTrackTypes.Board[]> {
+  async listBoards(
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<YouTrackTypes.Board[]> {
+    const { limit = 100, skip = 0 } = options;
+    
     return this.request<YouTrackTypes.Board[]>('/agiles', {
       params: {
         fields: this.agileFields,
+        $top: limit.toString(),
+        $skip: skip.toString(),
       },
     });
   }
@@ -663,8 +728,9 @@ export class YouTrack {
     sprintName?: string;
     status?: 'active' | 'archived' | 'all';
     limit?: number;
+    skip?: number;
   }): Promise<YouTrackTypes.Sprint[]> {
-    const { boardId, sprintName, status = 'all', limit = 50 } = options;
+    const { boardId, sprintName, status = 'all', limit = 50, skip = 0 } = options;
 
     if (!boardId) {
       throw new Error('boardId is required to find sprints');
@@ -674,6 +740,7 @@ export class YouTrack {
       params: {
         fields: 'id,name,start,finish,isCompleted',
         $top: limit.toString(),
+        $skip: skip.toString(),
       },
     });
 
@@ -703,11 +770,21 @@ export class YouTrack {
   /**
    * Get VCS changes for an issue
    * @param issueId - The ID of the issue
+   * @param options - Pagination options
    * @returns Array of VCS changes
    */
-  async getVcsChanges(issueId: string): Promise<YouTrackTypes.VcsChange[]> {
+  async getVcsChanges(
+    issueId: string,
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<YouTrackTypes.VcsChange[]> {
+    const { limit = 100, skip = 0 } = options;
+    
     return this.request<YouTrackTypes.VcsChange[]>(`/issues/${issueId}/changes`, {
-      params: { fields: 'id,date,text,author(id,name),version' },
+      params: { 
+        fields: 'id,date,text,author(id,name),version',
+        $top: limit.toString(),
+        $skip: skip.toString(),
+      },
     });
   }
 
@@ -724,27 +801,42 @@ export class YouTrack {
 
   /**
    * List VCS servers configured in YouTrack
+   * @param options - Pagination options
    * @returns Array of VCS servers
    */
-  async listVcsServers(): Promise<YouTrackTypes.VcsServer[]> {
+  async listVcsServers(
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<YouTrackTypes.VcsServer[]> {
+    const { limit = 100, skip = 0 } = options;
+    
     return this.request<YouTrackTypes.VcsServer[]>('/admin/vcsServers', {
-      params: { fields: 'id,url,$type' },
+      params: { 
+        fields: 'id,url,$type',
+        $top: limit.toString(),
+        $skip: skip.toString(),
+      },
     });
   }
 
   /**
    * Get VCS hosting processors
    * @param projectId - The ID of the project
+   * @param options - Pagination options
    * @returns Array of VCS hosting processors
    */
   async getVcsProcessors(
-    projectId: string
+    projectId: string,
+    options: { limit?: number; skip?: number } = {}
   ): Promise<YouTrackTypes.VcsHostingChangesProcessor[]> {
+    const { limit = 100, skip = 0 } = options;
+    
     return this.request<YouTrackTypes.VcsHostingChangesProcessor[]>(
       `/admin/projects/${projectId}/vcsRepositories`,
       {
         params: {
           fields: 'id,server(id,url),path,branchSpecification,enabled',
+          $top: limit.toString(),
+          $skip: skip.toString(),
         },
       }
     );
@@ -824,13 +916,23 @@ export class YouTrack {
   /**
    * List bundles of a specific type
    * @param bundleType - The type of bundle to list
+   * @param options - Pagination options
    * @returns Array of bundles
    */
-  async listBundles(bundleType: string): Promise<YouTrackTypes.Bundle[]> {
+  async listBundles(
+    bundleType: string,
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<YouTrackTypes.Bundle[]> {
+    const { limit = 100, skip = 0 } = options;
+    
     return this.request<YouTrackTypes.Bundle[]>(
       `/admin/customFieldSettings/bundles/${bundleType}`,
       {
-        params: { fields: 'id,name' },
+        params: { 
+          fields: 'id,name',
+          $top: limit.toString(),
+          $skip: skip.toString(),
+        },
       }
     );
   }
@@ -854,11 +956,20 @@ export class YouTrack {
   /**
    * Get elements from a bundle
    * @param bundleId - The ID of the bundle
+   * @param options - Pagination options
    * @returns Array of bundle elements
    */
-  async getBundleElements(bundleId: string): Promise<YouTrackTypes.BundleElement[]> {
+  async getBundleElements(
+    bundleId: string,
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<YouTrackTypes.BundleElement[]> {
+    const { limit = 100, skip = 0 } = options;
+    
     const bundle = await this.getBundle(bundleId);
-    return bundle.values || [];
+    if (!bundle.values) return [];
+    
+    // Since we already have all values, implement pagination in memory
+    return bundle.values.slice(skip, skip + limit);
   }
 
   /**

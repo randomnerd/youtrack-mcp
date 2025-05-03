@@ -4,37 +4,42 @@ import { BoardController } from '../controllers/boardController';
 import { McpResponse } from '../views/common';
 import { BoardView } from '../views/boardView';
 import { ControllerResult, BoardListResult, BoardDetailResult } from '../types/controllerResults';
+import { PAGINATION_LIMITS, DEFAULT_PAGINATION } from '../utils/constants';
 
 export function registerBoardRoutes(server: McpServer) {
-  // Get all agile boards
+  // List all available agile boards
   server.tool(
     'youtrack_list_boards',
     'List all available agile boards',
-    {},
-    async () => {
-      const result = await BoardController.getBoards();
-      if (result.success && result.data) {
-        return BoardView.renderList((result.data as BoardListResult).boards);
-      } else {
-        return BoardView.renderError(String(result.error || 'Failed to fetch boards'));
-      }
+    {
+      limit: z.number().optional().transform(val => 
+        Math.min(Math.max(val || DEFAULT_PAGINATION.LIMIT, 1), PAGINATION_LIMITS.BOARDS)
+      ).describe(`Maximum number of boards to return (1-${PAGINATION_LIMITS.BOARDS})`),
+      skip: z.number().optional().transform(val => 
+        Math.max(val || DEFAULT_PAGINATION.SKIP, 0)
+      ).describe('Number of boards to skip (for pagination)')
+    },
+    async ({ limit, skip }): Promise<McpResponse> => {
+      // Call controller to get data
+      const result = await BoardController.listBoards({ limit, skip });
+      
+      // Pass result to view for rendering
+      return BoardView.renderList(result);
     }
   );
 
-  // Get board details
+  // Get details of a specific agile board
   server.tool(
     'youtrack_get_board',
     'Get details of a specific agile board',
     {
-      boardId: z.string().describe('ID of the agile board'),
+      boardId: z.string().describe('ID of the agile board')
     },
-    async ({ boardId }) => {
+    async ({ boardId }): Promise<McpResponse> => {
+      // Call controller to get data
       const result = await BoardController.getBoard(boardId);
-      if (result.success && result.data) {
-        return BoardView.renderDetail((result.data as BoardDetailResult).board);
-      } else {
-        return BoardView.renderError(String(result.error || 'Failed to fetch board'));
-      }
+      
+      return BoardView.renderDetail(result);
     }
   );
 } 

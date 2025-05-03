@@ -4,6 +4,7 @@ import { IssueController } from '../controllers/issueController';
 import { IssueView } from '../views/issueView';
 import { McpResponse } from '../views/common';
 import { ControllerResult, IssueDetailResult, IssueUpdateResult, IssueListResult } from '../types/controllerResults';
+import { PAGINATION_LIMITS, DEFAULT_PAGINATION } from '../utils/constants';
 
 export function registerIssueRoutes(server: McpServer) {
   // Get issue details
@@ -50,12 +51,17 @@ export function registerIssueRoutes(server: McpServer) {
     'Search for issues using YouTrack query syntax',
     {
       query: z.string().describe('YouTrack search query string (e.g., \'assignee: me #Unresolved\')'),
-      limit: z.number().optional().transform(val => Math.min(Math.max(val || 10, 1), 50)).describe('Maximum number of issues to return (1-50)'),
+      limit: z.number().optional().transform(val => 
+        Math.min(Math.max(val || DEFAULT_PAGINATION.LIMIT, 1), PAGINATION_LIMITS.ISSUES)
+      ).describe(`Maximum number of issues to return (1-${PAGINATION_LIMITS.ISSUES})`),
+      skip: z.number().optional().transform(val => 
+        Math.max(val || DEFAULT_PAGINATION.SKIP, 0)
+      ).describe('Number of issues to skip (for pagination)'),
       sortBy: z.string().optional().describe('Field to sort results by (e.g., \'created\', \'updated\', \'priority\')')
     },
-    async ({ query, limit, sortBy }): Promise<McpResponse> => {
+    async ({ query, limit, skip, sortBy }): Promise<McpResponse> => {
       // Call controller to search issues
-      const result = await IssueController.searchIssues(query, { limit, sortBy });
+      const result = await IssueController.searchIssues(query, { limit, skip, sortBy });
       
       // Pass result to view for rendering
       return IssueView.renderList(result as ControllerResult<IssueListResult>);
@@ -72,7 +78,12 @@ export function registerIssueRoutes(server: McpServer) {
       sprint: z.string().optional().describe('Sprint name'),
       type: z.string().optional().describe('Issue type (e.g., Bug, Task, Feature)'), 
       status: z.string().optional().describe('Issue status (e.g., Open, In Progress, Resolved)'),
-      limit: z.number().optional().transform(val => Math.min(Math.max(val || 10, 1), 50)).describe('Maximum number of issues to return (1-50)')
+      limit: z.number().optional().transform(val => 
+        Math.min(Math.max(val || DEFAULT_PAGINATION.LIMIT, 1), PAGINATION_LIMITS.ISSUES)
+      ).describe(`Maximum number of issues to return (1-${PAGINATION_LIMITS.ISSUES})`),
+      skip: z.number().optional().transform(val => 
+        Math.max(val || DEFAULT_PAGINATION.SKIP, 0)
+      ).describe('Number of issues to skip (for pagination)')
     },
     async (options): Promise<McpResponse> => {
       // Call controller to find issues by criteria

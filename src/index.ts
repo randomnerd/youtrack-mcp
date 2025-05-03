@@ -20,3 +20,5 @@ server
   });
 
 export { YouTrack } from './utils/youtrack';
+export * as YouTrackJsonFormatter from './utils/youtrack-json-formatter';
+export * as YouTrackTypes from './types/youtrack';

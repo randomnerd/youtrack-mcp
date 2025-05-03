@@ -15,8 +15,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:no-types": "TS_NODE_TRANSPILE_ONLY=1 jest",
-    "fetch-data": "ts-node __tests__/utils/fetch-real-data.ts",
-    "test-formatter": "ts-node __tests__/utils/test-formatter.ts"
+    "fetch-data": "ts-node __tests__/utils/fetch-real-data.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
