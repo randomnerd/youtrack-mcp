@@ -1,18 +1,21 @@
 import { SprintView } from '../../../src/views/sprintView';
 import { sprintFixtures, issueFixtures } from '../../fixtures';
 import * as YouTrackTypes from '../../../src/types/youtrack';
-import { mapIssueToAIReadableText } from '../../../src/utils/issue-mapper';
+import { formatIssueForAI, formatIssuesForAI } from '../../../src/utils/issue-formatter';
 
 // Mock test data
 const mockSprints = [
-  { id: 'sprint-1', name: 'Sprint 1', goal: 'Finish feature A' },
-  { id: 'sprint-2', name: 'Sprint 2', goal: 'Fix critical bugs' }
-];
+  { id: 'sprint-1', name: 'Sprint 1', goal: 'Finish feature A', $type: 'Sprint' },
+  { id: 'sprint-2', name: 'Sprint 2', goal: 'Fix critical bugs', $type: 'Sprint' }
+] as YouTrackTypes.Sprint[];
 
-// Mock the issue-mapper utility
-jest.mock('../../../src/utils/issue-mapper', () => ({
-  mapIssueToAIReadableText: jest.fn().mockImplementation((issue) => {
+// Mock the issue formatter utility
+jest.mock('../../../src/utils/issue-formatter', () => ({
+  formatIssueForAI: jest.fn().mockImplementation((issue) => {
     return `Issue ${issue.id}: ${issue.summary}`;
+  }),
+  formatIssuesForAI: jest.fn().mockImplementation((issues) => {
+    return issues.map(issue => `Issue ${issue.id}: ${issue.summary}`).join('\n\n');
   })
 }));
 
@@ -22,23 +25,20 @@ describe('SprintView', () => {
       const sprint = mockSprints[0];
       const boardId = 'board-1';
       const issues = [
-        { id: 'issue-1', summary: 'Test issue 1' },
-        { id: 'issue-2', summary: 'Test issue 2' }
+        { id: 'issue-1', summary: 'Test issue 1', $type: 'Issue', idReadable: 'PROJ-1', numberInProject: 1, customFields: [] },
+        { id: 'issue-2', summary: 'Test issue 2', $type: 'Issue', idReadable: 'PROJ-2', numberInProject: 2, customFields: [] }
       ] as YouTrackTypes.Issue[];
       
       const result = SprintView.renderDetail(sprint, boardId, issues);
       
       expect(result).toBeDefined();
-      expect(result.content).toHaveLength(2 + issues.length); // Summary + detail + issues
+      expect(result.content).toHaveLength(3); // Summary + detail + formatted issues
       expect(result.content[0].text).toContain(sprint.name);
       expect(result.content[1].text).toContain('Sprint Details');
       expect(result.content[1].text).toContain(`Issue Count: ${issues.length}`);
       
       // Check issue rendering
-      issues.forEach((issue, index) => {
-        expect(mapIssueToAIReadableText).toHaveBeenCalledWith(issue);
-        expect(result.content[2 + index].text).toContain(`Issue ${index + 1} of ${issues.length}`);
-      });
+      expect(formatIssuesForAI).toHaveBeenCalledWith(issues);
     });
     
     it('should handle rendering with no issues', () => {
@@ -54,29 +54,23 @@ describe('SprintView', () => {
       expect(result.content[2].text).toContain('No issues found');
     });
     
-    it('should handle errors in issue processing', () => {
+    it('should handle non-full issue objects', () => {
       const sprint = mockSprints[0];
       const boardId = 'board-1';
       const issues = [
-        { id: 'issue-1', summary: 'Test issue 1' },
-        { id: 'issue-2', summary: 'Test issue 2' }
-      ] as YouTrackTypes.Issue[];
-      
-      // Mock mapIssueToAIReadableText to throw an error for the second issue
-      (mapIssueToAIReadableText as jest.Mock).mockImplementation((issue) => {
-        if (issue.id === 'issue-2') {
-          throw new Error('Test error');
-        }
-        return `Issue ${issue.id}: ${issue.summary}`;
-      });
+        { id: 'issue-1' }, 
+        { id: 'issue-2' }
+      ] as YouTrackTypes.IssueRef[];
       
       const result = SprintView.renderDetail(sprint, boardId, issues);
       
       expect(result).toBeDefined();
-      expect(result.content).toHaveLength(4); // Summary + detail + 2 issues
-      expect(result.content[2].text).toContain('Issue 1 of 2');
-      expect(result.content[3].text).toContain('Issue 2 of 2');
-      expect(result.content[3].text).toContain('Error processing issue');
+      expect(result.content).toHaveLength(3); // Summary + detail + issue list
+      expect(result.content[0].text).toContain(sprint.name);
+      expect(result.content[1].text).toContain('Sprint Details');
+      expect(result.content[2].text).toContain('Issue ID: issue-1');
+      expect(result.content[2].text).toContain('Issue ID: issue-2');
+      expect(formatIssuesForAI).not.toHaveBeenCalled();
     });
   });
   
@@ -124,10 +118,10 @@ describe('SprintView', () => {
       const sprintWithIssues = {
         ...sprint,
         issues: [
-          { id: 'issue-1', summary: 'Test issue 1' },
-          { id: 'issue-2', summary: 'Test issue 2' }
+          { id: 'issue-1', summary: 'Test issue 1', $type: 'IssueRef' },
+          { id: 'issue-2', summary: 'Test issue 2', $type: 'IssueRef' }
         ]
-      } as YouTrackTypes.Sprint;
+      } as unknown as YouTrackTypes.Sprint;
       
       const result = SprintView.handleResourceRequest(uri, params, sprintWithIssues);
       

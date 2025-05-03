@@ -1,11 +1,13 @@
 import { IssueView } from '../../../src/views/issueView';
-import { mapIssueToAIReadableText } from '../../../src/utils/issue-mapper';
+import { formatIssueForAI, formatIssuesForAI } from '../../../src/utils/issue-formatter';
 import { createSeparator } from '../../../src/utils/view-utils';
 import { URL } from 'url';
+import * as YouTrackTypes from '../../../src/types/youtrack';
 
 // Mock the dependencies
-jest.mock('../../../src/utils/issue-mapper', () => ({
-  mapIssueToAIReadableText: jest.fn().mockImplementation((issue) => `Issue: ${issue.id} - ${issue.summary}`)
+jest.mock('../../../src/utils/issue-formatter', () => ({
+  formatIssueForAI: jest.fn().mockImplementation((issue) => `Issue: ${issue.id} - ${issue.summary}`),
+  formatIssuesForAI: jest.fn().mockImplementation((issues) => issues.map(issue => `Issue: ${issue.id} - ${issue.summary}`).join('\n\n'))
 }));
 
 jest.mock('../../../src/utils/view-utils', () => ({
@@ -13,15 +15,19 @@ jest.mock('../../../src/utils/view-utils', () => ({
 }));
 
 describe('IssueView', () => {
-  const mockIssue = {
+  const mockIssue: YouTrackTypes.Issue = {
     id: 'issue-1',
+    idReadable: 'PROJ-1',
+    numberInProject: 1,
     summary: 'Test Issue',
     description: 'This is a test issue',
-    resolved: false
+    resolved: false,
+    $type: 'Issue',
+    customFields: []
   };
 
   const mockActivities = [
-    { id: 'act-1', type: 'Comment', text: 'Test comment', author: { name: 'User 1' } }
+    { id: 'act-1', type: 'Comment', text: 'Test comment', author: { name: 'User 1' }, timestamp: Date.now() }
   ];
 
   beforeEach(() => {
@@ -35,7 +41,7 @@ describe('IssueView', () => {
       expect(result).toHaveProperty('content');
       expect(result.content).toHaveLength(1);
       expect(result.content[0].text).toContain(`Issue: ${mockIssue.id} - ${mockIssue.summary}`);
-      expect(mapIssueToAIReadableText).toHaveBeenCalledWith(mockIssue, undefined);
+      expect(formatIssueForAI).toHaveBeenCalledWith(mockIssue);
     });
 
     it('should render issue details with activities', () => {
@@ -43,25 +49,27 @@ describe('IssueView', () => {
       
       expect(result).toHaveProperty('content');
       expect(result.content).toHaveLength(1);
-      expect(mapIssueToAIReadableText).toHaveBeenCalledWith(mockIssue, mockActivities);
+      expect(formatIssueForAI).toHaveBeenCalledWith(expect.objectContaining({
+        ...mockIssue,
+        activities: mockActivities
+      }));
     });
   });
 
   describe('renderList', () => {
     it('should render a list of issues', () => {
-      const issues = [
+      const issues: YouTrackTypes.Issue[] = [
         mockIssue, 
-        { ...mockIssue, id: 'issue-2', summary: 'Another Issue' }
+        { ...mockIssue, id: 'issue-2', idReadable: 'PROJ-2', numberInProject: 2, summary: 'Another Issue' }
       ];
       const title = 'Found 2 issues';
       
       const result = IssueView.renderList(issues, title);
       
       expect(result).toHaveProperty('content');
-      expect(result.content).toHaveLength(3); // title + 2 issues
+      expect(result.content).toHaveLength(2); // title + formatted issues text
       expect(result.content[0].text).toBe(title);
-      expect(mapIssueToAIReadableText).toHaveBeenCalledTimes(2);
-      expect(createSeparator).toHaveBeenCalledTimes(2);
+      expect(formatIssuesForAI).toHaveBeenCalledWith(issues);
     });
 
     it('should handle empty issues list', () => {
@@ -69,7 +77,7 @@ describe('IssueView', () => {
       
       expect(result).toHaveProperty('content');
       expect(result.content[0].text).toContain('No issues found');
-      expect(mapIssueToAIReadableText).not.toHaveBeenCalled();
+      expect(formatIssuesForAI).not.toHaveBeenCalled();
     });
 
     it('should handle error during issue mapping', () => {
@@ -77,7 +85,7 @@ describe('IssueView', () => {
       const title = 'Found 1 issue';
       
       // Mock the mapper to throw an error for this test
-      (mapIssueToAIReadableText as jest.Mock).mockImplementationOnce(() => {
+      (formatIssueForAI as jest.Mock).mockImplementationOnce(() => {
         throw new Error('Mapping error');
       });
       
@@ -87,7 +95,7 @@ describe('IssueView', () => {
       expect(result.content).toHaveLength(2); // title + 1 issue with error
       expect(result.content[1].text).toContain('Error processing issue');
       expect(result.content[1].text).toContain('Mapping error');
-      expect(mapIssueToAIReadableText).toHaveBeenCalledTimes(1);
+      expect(formatIssueForAI).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -142,7 +150,7 @@ describe('IssueView', () => {
       expect(result).toHaveProperty('contents');
       expect(result.contents[0].uri).toBe(uri.href);
       expect((result.contents[0] as { uri: string, text: string }).text).toContain(`Issue: ${mockIssue.id} - ${mockIssue.summary}`);
-      expect(mapIssueToAIReadableText).toHaveBeenCalledWith(mockIssue);
+      expect(formatIssueForAI).toHaveBeenCalledWith(mockIssue);
     });
   });
 }); 

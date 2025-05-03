@@ -1,10 +1,10 @@
 import * as YouTrackTypes from '../types/youtrack';
 import { CommonView, McpResponse, ResourceResponse } from './common';
-import { mapIssueToAIReadableText } from '../utils/issue-mapper';
+import { formatIssueForAI, formatIssuesForAI } from '../utils/issue-formatter';
 import { formatSprintListItem, formatSprintPeriod, formatIssueStatus, createSeparator } from '../utils/view-utils';
 
 export class SprintView {
-  static renderDetail(sprint: YouTrackTypes.Sprint, boardId: string, issues: YouTrackTypes.Issue[] = []): McpResponse {
+  static renderDetail(sprint: YouTrackTypes.Sprint, boardId: string, issues: (YouTrackTypes.Issue | YouTrackTypes.IssueRef)[] = []): McpResponse {
     // Sprint summary for the overview
     const sprintSummary = {
       type: 'text' as const,
@@ -36,27 +36,33 @@ Issue Count: ${issues.length || 0}
       };
     }
 
-    // Process each issue and format with the mapIssueToAIReadableText function
-    const issueContents = issues.map((issue, index) => {
-      try {
-        return {
-          type: 'text' as const,
-          text: `--- Issue ${index + 1} of ${issues.length} ---\n${mapIssueToAIReadableText(issue)}\n${createSeparator()}`
-        };
-      } catch (error) {
-        return {
-          type: 'text' as const,
-          text: `--- Issue ${index + 1} of ${issues.length} ---\nError processing issue ${issue.id}: ${issue.summary || 'No summary'}\n${createSeparator()}`
-        };
-      }
-    });
+    // Format the issues using the new formatter
+    // Filter for full Issue objects (not just refs)
+    const fullIssues = issues.filter((issue): issue is YouTrackTypes.Issue => 'summary' in issue);
+    let issuesContent;
+    
+    if (fullIssues.length > 0) {
+      // If we have full issues, use the batch formatter
+      issuesContent = {
+        type: 'text' as const,
+        text: formatIssuesForAI(fullIssues)
+      };
+    } else {
+      // If we only have issue references, format them simply
+      issuesContent = {
+        type: 'text' as const,
+        text: issues.map(issue => 
+          `Issue ID: ${issue.id}${('summary' in issue) ? ` - ${issue.summary}` : ''}`
+        ).join('\n\n')
+      };
+    }
 
     // Return complete response with sprint summary, details and all formatted issues
     return {
       content: [
         sprintSummary,
         sprintDetails,
-        ...issueContents
+        issuesContent
       ],
     };
   }
@@ -95,7 +101,7 @@ Issue Count: ${issues.length || 0}
       // Single sprint
       const issuesText = sprint.issues && sprint.issues.length > 0
         ? sprint.issues.map(issue => 
-            `  - ${issue.summary} (ID: ${issue.id})\n    Status: ${formatIssueStatus(issue)}`
+            `  - ${('summary' in issue) ? issue.summary : `Issue ${issue.id}`} (ID: ${issue.id})\n    Status: ${formatIssueStatus(issue)}`
           ).join('\n')
         : '  No issues found';
       

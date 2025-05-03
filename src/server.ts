@@ -12,6 +12,9 @@ import { SprintController } from './controllers/sprintController';
 import { IssueController } from './controllers/issueController';
 import { ProjectController } from './controllers/projectController';
 
+// Import issue formatter utility
+import { formatIssueForAI, formatIssuesForAI } from './utils/issue-formatter';
+
 // Create an MCP server for YouTrack
 const server = new McpServer({
   name: 'YouTrack Manager',

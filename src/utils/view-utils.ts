@@ -49,11 +49,12 @@ export function formatBoardListItem(board: YouTrackTypes.Board): string {
 
 /**
  * Formats issue status (resolved/open)
- * @param issue The issue object
+ * @param issue The issue object (either full Issue or IssueRef)
  * @returns Status string
  */
-export function formatIssueStatus(issue: YouTrackTypes.Issue): string {
-  return issue.resolved ? 'Resolved' : 'Open';
+export function formatIssueStatus(issue: YouTrackTypes.Issue | YouTrackTypes.IssueRef): string {
+  // Check if the issue has a 'resolved' property (only full Issue objects have this)
+  return 'resolved' in issue && issue.resolved ? 'Resolved' : 'Open';
 }
 
 /**

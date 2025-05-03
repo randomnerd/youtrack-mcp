@@ -20,11 +20,11 @@ export class YouTrack {
   private maxRetries: number;
   
   // Field builders
-  public static readonly DEFAULT_AUTHOR_FIELDS = 'id,name,login';
+  public static readonly DEFAULT_AUTHOR_FIELDS = 'id,name,fullName,login,email';
   public static readonly DEFAULT_ACTIVITY_CHANGE_FIELDS = `$type,id,idReadable,name,presentation,shortName,summary,text,url,author(${YouTrack.DEFAULT_AUTHOR_FIELDS}),date,created`;
-  public static readonly DEFAULT_ACTIVITY_FIELDS = `id,$type,timestamp,added(${YouTrack.DEFAULT_ACTIVITY_CHANGE_FIELDS}),removed(${YouTrack.DEFAULT_ACTIVITY_CHANGE_FIELDS}),author(${YouTrack.DEFAULT_AUTHOR_FIELDS}),field(name)`;
+  public static readonly DEFAULT_ACTIVITY_FIELDS = `id,$type,timestamp,added(${YouTrack.DEFAULT_ACTIVITY_CHANGE_FIELDS}),removed(${YouTrack.DEFAULT_ACTIVITY_CHANGE_FIELDS}),author(${YouTrack.DEFAULT_AUTHOR_FIELDS}),field(${YouTrack.DEFAULT_ACTIVITY_CHANGE_FIELDS})`;
   public static readonly DEFAULT_ACTIVITY_CATEGORIES = `CustomFieldCategory`;
-  public static readonly DEFAULT_ISSUE_FIELDS = `id,idReadable,Stage,summary,description,created,updated,resolved,numberInProject,$type,project($type,id,name),reporter($type,id,login,ringId,name),updater($type,id,login),customFields($type,id,name,projectCustomField(id,field(id,name)),value($type,id,name,isResolved,fullName,login,avatarUrl,color(id))),links($type,direction,id,linkType($type,id,localizedName)),comments($type,id,text,author($type,id,login),created)`;
+  public static readonly DEFAULT_ISSUE_FIELDS = `id,idReadable,Stage,summary,description,created,updated,resolved,numberInProject,$type,project($type,id,name,shortName),reporter(${YouTrack.DEFAULT_AUTHOR_FIELDS}),updater(${YouTrack.DEFAULT_AUTHOR_FIELDS}),customFields($type,id,name,projectCustomField(id,field(id,name)),value($type,id,name,isResolved,fullName,login,avatarUrl,color(id))),links($type,direction,id,linkType($type,id,localizedName)),comments($type,id,text,author(${YouTrack.DEFAULT_AUTHOR_FIELDS}),created)`;
   public static readonly DEFAULT_SPRINT_FIELDS = `id,name,goal,start,finish,archived,isDefault,unresolvedIssuesCount,issues(id,idReadable,projectCustomField(id,field(id,name)))`;
   public static readonly DEFAULT_AGILE_FIELDS = `id,name,description,start,finish,isDefault,isCompleted,issues(id,idReadable,projectCustomField(id,field(id,name)))`;
   private issueFieldBuilder = new FieldBuilder(YouTrack.DEFAULT_ISSUE_FIELDS);
@@ -350,16 +350,45 @@ export class YouTrack {
   // ======= ISSUES =======
 
   /**
-   * Get an issue by ID
-   * @param issueId - The ID of the issue
-   * @returns The issue data
+   * Private helper method to add activities to issues
+   * @param issues - Single issue or array of issues
+   * @returns Issues with activities
    */
-  async getIssue(issueId: string): Promise<YouTrackTypes.Issue> {
-    return this.request<YouTrackTypes.Issue>(`/issues/${issueId}`, {
+  private async addActivitiesToIssues<T extends YouTrackTypes.Issue>(
+    issues: T | T[]
+  ): Promise<YouTrackTypes.IssueWithActivities[]> {
+    // Handle single issue or array
+    const issueArray = Array.isArray(issues) ? issues : [issues];
+    
+    // Fetch activities for each issue
+    const issuesWithActivities = await Promise.all(
+      issueArray.map(async (issue) => {
+        const activities = await this.getIssueActivities(issue.id);
+        return {
+          ...issue,
+          activities,
+        } as YouTrackTypes.IssueWithActivities;
+      })
+    );
+    
+    return issuesWithActivities;
+  }
+
+  /**
+   * Get an issue by ID with its activities
+   * @param issueId - The ID of the issue
+   * @returns The issue data with activities
+   */
+  async getIssue(issueId: string): Promise<YouTrackTypes.IssueWithActivities> {
+    const issue = await this.request<YouTrackTypes.Issue>(`/issues/${issueId}`, {
       params: {
         fields: this.issueFields,
       },
     });
+    
+    // Add activities to the issue
+    const issuesWithActivities = await this.addActivitiesToIssues(issue);
+    return issuesWithActivities[0];
   }
 
   /**
@@ -371,11 +400,15 @@ export class YouTrack {
   async updateIssue(
     issueId: string,
     data: { summary?: string; description?: string; resolved?: boolean }
-  ): Promise<YouTrackTypes.Issue> {
-    return this.request<YouTrackTypes.Issue>(`/issues/${issueId}`, {
+  ): Promise<YouTrackTypes.IssueWithActivities> {
+    const issue = await this.request<YouTrackTypes.Issue>(`/issues/${issueId}`, {
       method: 'POST',
       body: data,
     });
+    
+    // Add activities to the issue
+    const issuesWithActivities = await this.addActivitiesToIssues(issue);
+    return issuesWithActivities[0];
   }
 
   /**
@@ -387,7 +420,7 @@ export class YouTrack {
   async searchIssues(
     query: string,
     options: { limit?: number; sortBy?: string } = {}
-  ): Promise<YouTrackTypes.Issue[]> {
+  ): Promise<YouTrackTypes.IssueWithActivities[]> {
     const { limit = 50, sortBy } = options;
 
     const params: Record<string, string> = {
@@ -401,7 +434,10 @@ export class YouTrack {
       params.$orderBy = sortBy;
     }
 
-    return this.request<YouTrackTypes.Issue[]>('/issues', { params });
+    const issues = await this.request<YouTrackTypes.Issue[]>('/issues', { params });
+    
+    // Add activities to each issue
+    return this.addActivitiesToIssues(issues);
   }
 
   /**
@@ -416,7 +452,7 @@ export class YouTrack {
     status?: string;
     type?: string;
     limit?: number;
-  }): Promise<YouTrackTypes.Issue[]> {
+  }): Promise<YouTrackTypes.IssueWithActivities[]> {
     const { project, assignee, sprint, status, type, limit = 50 } = criteria;
 
     // Build query from criteria
@@ -529,11 +565,15 @@ export class YouTrack {
       description?: string;
       customFields?: Array<{ name: string; value: string | string[] }>;
     }
-  ): Promise<YouTrackTypes.Issue> {
-    return this.request<YouTrackTypes.Issue>('/issues', {
+  ): Promise<YouTrackTypes.IssueWithActivities> {
+    const issue = await this.request<YouTrackTypes.Issue>('/issues', {
       method: 'POST',
       body: { ...data, project: { id: projectId } },
     });
+    
+    // Add activities to the issue
+    const issuesWithActivities = await this.addActivitiesToIssues(issue);
+    return issuesWithActivities[0];
   }
 
   // ======= PROJECTS =======

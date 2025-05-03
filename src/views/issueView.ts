@@ -1,6 +1,6 @@
 import * as YouTrackTypes from '../types/youtrack';
 import { CommonView, McpResponse, ResourceResponse } from './common';
-import { mapIssueToAIReadableText } from '../utils/issue-mapper';
+import { formatIssueForAI, formatIssuesForAI } from '../utils/issue-formatter';
 import { createSeparator } from '../utils/view-utils';
 
 export class IssueView {
@@ -8,7 +8,7 @@ export class IssueView {
     return {
       content: [{ 
         type: "text", 
-        text: mapIssueToAIReadableText(issue, activities), 
+        text: formatIssueForAI(activities ? {...issue, activities} : issue), 
       }]
     };
   }
@@ -24,24 +24,14 @@ export class IssueView {
       text: title
     };
     
-    // Create content entries for each issue
-    const issueContents = issues.map((issue, index) => {
-      try {
-        return {
-          type: "text" as const,
-          text: `--- Issue ${index + 1} of ${issues.length} ---\n${mapIssueToAIReadableText(issue)}\n${createSeparator()}`
-        };
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        return {
-          type: "text" as const,
-          text: `--- Issue ${index + 1} of ${issues.length} ---\nError processing issue ${issue.id || 'unknown'}: ${issue.summary || 'No summary'}\nError: ${errorMessage}\n${createSeparator()}`
-        };
-      }
-    });
+    // Format all issues together using the new formatter
+    const formattedIssues = formatIssuesForAI(issues);
     
     return {
-      content: [summaryContent, ...issueContents]
+      content: [
+        summaryContent, 
+        { type: "text" as const, text: formattedIssues }
+      ]
     };
   }
   
@@ -62,6 +52,6 @@ export class IssueView {
       return CommonView.createResourceResponse(uri, "Please specify an issue ID or use a sprint resource to list issues.");
     }
     
-    return CommonView.createResourceResponse(uri, mapIssueToAIReadableText(issue));
+    return CommonView.createResourceResponse(uri, formatIssueForAI(issue));
   }
 } 

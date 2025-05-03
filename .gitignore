@@ -3,3 +3,7 @@ build
 .env
 .DS_Store
 coverage
+.env.test
+*sample*
+*example*
+output

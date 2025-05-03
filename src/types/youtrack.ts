@@ -16,7 +16,7 @@ export interface User {
   banBadge?: string | null;
   issueRelatedGroup?: UserGroup;
   profiles?: UserProfiles;
-  $type?: string;
+  $type: 'User';
 }
 
 export interface UserProfiles {
@@ -40,7 +40,7 @@ export interface Project {
   plugins?: ProjectPlugins;
   isDemo?: boolean;
   archived?: boolean;
-  $type?: string;
+  $type: 'Project';
 }
 
 export interface ProjectPlugins {
@@ -80,10 +80,17 @@ export interface BaseBundle {
   $type?: string;
 }
 
+export interface BaseCustomField {
+  id: string;
+  name: string;
+  $type: string;
+}
+
 export interface FieldStyle {
   id?: string;
   background?: string;
   foreground?: string;
+  $type: 'FieldStyle';
 }
 
 export interface BundleElement {
@@ -95,15 +102,17 @@ export interface BundleElement {
   ordinal?: number;
   color?: FieldStyle;
   hasRunningJob?: boolean;
-  $type?: string;
+  $type: string;
 }
 
 export interface StateBundleElement extends BundleElement {
-  isResolved?: boolean;
+  isResolved: boolean;
+  $type: 'StateBundleElement';
 }
 
 export interface EnumBundleElement extends BundleElement {
   localizedName?: string | null;
+  $type: 'EnumBundleElement';
 }
 
 export interface OwnedBundleElement extends BundleElement {
@@ -214,7 +223,7 @@ export interface CustomField {
   ordinal?: number;
   fieldDefaults?: any;
   instances?: any[];
-  $type?: string;
+  $type: 'CustomField';
 }
 
 export interface CustomFieldValue {
@@ -228,49 +237,76 @@ export interface CustomFieldValue {
   localizedName?: string | null;
 }
 
+export interface ProjectCustomField {
+  id: string;
+  field: CustomField;
+  $type: string;
+}
+
+export interface EnumProjectCustomField extends ProjectCustomField {
+  $type: 'EnumProjectCustomField';
+}
+
+export interface UserProjectCustomField extends ProjectCustomField {
+  $type: 'UserProjectCustomField';
+}
+
+export interface StateProjectCustomField extends ProjectCustomField {
+  $type: 'StateProjectCustomField';
+}
+
+export interface SimpleProjectCustomField extends ProjectCustomField {
+  $type: 'SimpleProjectCustomField';
+}
+
+export interface PeriodProjectCustomField extends ProjectCustomField {
+  $type: 'PeriodProjectCustomField';
+}
+
 export interface IssueCustomField {
   id: string;
   name: string;
-  value?: CustomFieldValue | CustomFieldValue[] | string | number | null;
-  isUpdatable?: boolean;
-  projectCustomField?: {
-    id: string;
-    field?: CustomField;
-    bundle?: BaseBundle;
-    emptyFieldText?: string;
-    canBeEmpty?: boolean;
-    isPublic?: boolean;
-    ordinal?: number;
-    isSpentTime?: boolean;
-    isEstimation?: boolean;
-    $type?: string;
-  };
-  $type?: string;
+  projectCustomField: ProjectCustomField;
+  $type: string;
 }
 
 export interface SingleEnumIssueCustomField extends IssueCustomField {
-  value?: EnumBundleElement | null;
+  value: EnumBundleElement;
+  $type: 'SingleEnumIssueCustomField';
 }
 
 export interface MultiUserIssueCustomField extends IssueCustomField {
-  value?: User[];
+  value: User[];
+  $type: 'MultiUserIssueCustomField';
 }
 
 export interface SingleUserIssueCustomField extends IssueCustomField {
-  value?: User | null;
+  value: User | null;
+  $type: 'SingleUserIssueCustomField';
 }
 
 export interface StateIssueCustomField extends IssueCustomField {
-  value?: StateBundleElement | null;
+  value: StateBundleElement;
+  $type: 'StateIssueCustomField';
 }
 
 export interface SimpleIssueCustomField extends IssueCustomField {
-  value?: string | number | null;
+  value: string | number | null;
+  $type: 'SimpleIssueCustomField';
 }
 
 export interface PeriodIssueCustomField extends IssueCustomField {
-  value?: string | null;
+  value: PeriodValue | null;
+  $type: 'PeriodIssueCustomField';
 }
+
+export type AnyIssueCustomField =
+  | SingleEnumIssueCustomField
+  | SingleUserIssueCustomField
+  | MultiUserIssueCustomField
+  | StateIssueCustomField
+  | SimpleIssueCustomField
+  | PeriodIssueCustomField;
 
 export interface EntityAction {
   executing?: boolean;
@@ -281,16 +317,22 @@ export interface EntityAction {
   $type?: string;
 }
 
+export interface IssueRef {
+  id: string;
+  idReadable: string;
+  $type: 'Issue';
+}
+
 export interface Issue {
   id: string;
-  idReadable?: string;
-  numberInProject?: number;
+  idReadable: string;
+  numberInProject: number;
   summary: string;
-  description?: string;
+  description?: string | null;
   usesMarkdown?: boolean;
   created?: number;
   updated?: number;
-  resolved?: boolean | null;
+  resolved?: number | boolean | null;
   reporter?: User;
   updater?: User;
   isDraft?: boolean;
@@ -305,10 +347,7 @@ export interface Issue {
   subtasks?: IssueLink;
   parent?: IssueLink;
   watchers?: IssueWatchers;
-  customFields?: Array<{
-    name: string;
-    value: CustomFieldValue | CustomFieldValue[];
-  }>;
+  customFields?: AnyIssueCustomField[];
   fields?: IssueCustomField[];
   visibility?: Visibility;
   project?: Project;
@@ -322,25 +361,28 @@ export interface Issue {
   canAddPublicComment?: boolean;
   externalIssue?: any | null;
   hiddenAttachmentsCount?: number;
-  $type?: string;
+  $type: 'Issue';
 }
 
 export interface Sprint {
   id: string;
   name: string;
+  goal?: string | null;
   start?: number;
   finish?: number;
   isCompleted?: boolean;
-  issues?: Issue[];
+  issues?: IssueRef[];
   archived?: boolean;
   isDefault?: boolean;
   isStarted?: boolean;
-  $type?: string;
+  unresolvedIssuesCount?: number;
+  $type: 'Sprint';
 }
 
 export interface Board {
   id: string;
   name: string;
+  description?: string;
   projects?: Project[];
   sprints?: Sprint[];
   currentSprint?: Sprint;
@@ -363,7 +405,21 @@ export interface Board {
   owner?: User;
   extensions?: AgileExtensions;
   status?: AgileStatus;
-  $type?: string;
+  $type: 'Agile';
+}
+
+export interface DetailedBoard extends Board {
+  description?: string;
+  owner?: User;
+  projects?: Project[];
+  sprints?: Sprint[];
+  currentSprint?: Sprint;
+  columnSettings?: ColumnSettings;
+  cardSettings?: CardSettings;
+  sprintsSettings?: SprintsSettings;
+  readSharingSettings?: AgileSharingSettings;
+  updateSharingSettings?: AgileSharingSettings;
+  isUpdatable?: boolean;
 }
 
 export interface ColumnSettings {
@@ -513,18 +569,18 @@ export interface IssueAttachment {
 
 export interface IssueComment {
   id: string;
-  text?: string;
+  text?: string | null;
   created?: number;
   updated?: number;
   author?: User;
   attachments?: IssueAttachment[];
   visibility?: Visibility;
   isPinned?: boolean;
-  $type?: string;
+  $type: 'IssueComment';
 }
 
 export interface IssueLinkType {
-  id?: string;
+  id: string;
   name: string;
   sourceToTarget: string;
   targetToSource: string;
@@ -535,7 +591,7 @@ export interface IssueLinkType {
   localizedSourceToTarget?: string;
   localizedTargetToSource?: string;
   uid?: number;
-  $type?: string;
+  $type: 'IssueLinkType';
 }
 
 export interface IssueLink {
@@ -546,7 +602,7 @@ export interface IssueLink {
   trimmedIssues?: Issue[];
   issuesSize?: number;
   unresolvedIssuesSize?: number;
-  $type?: string;
+  $type: 'IssueLink';
 }
 
 export interface IssueTag {
@@ -602,7 +658,7 @@ export interface ActivityItem {
     presentation?: string;
     customField?: CustomField;
     $type?: string;
-  };
+  } | CustomFilterField;
   category?: {
     id: string;
     $type: string;
@@ -667,4 +723,21 @@ export interface VisibilityGroupActivityItem extends ActivityItem {
     id: string;
     $type: 'Issue';
   };
-} 
+}
+
+export interface PeriodValue {
+  id: string;
+  $type: 'PeriodValue';
+}
+
+export interface CustomFilterField {
+  name: string;
+  presentation?: string;
+  id?: string;
+  $type: 'CustomFilterField';
+}
+
+/**
+ * Extended issue type that includes activities
+ */
+export type IssueWithActivities = Issue & { activities?: ActivityItem[] }; 
