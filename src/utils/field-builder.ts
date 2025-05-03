@@ -184,8 +184,14 @@ export class FieldBuilder {
     if (field.includes('.')) {
       this.addNestedField(field);
     } else {
-      // Simple field without children
-      this.rootFields.push({ name: field });
+      // Check if this field already exists at the root level
+      const exists = this.rootFields.some(node => node.name === field);
+      
+      // Only add if it doesn't already exist
+      if (!exists) {
+        // Simple field without children
+        this.rootFields.push({ name: field });
+      }
     }
     return this;
   }
@@ -207,7 +213,15 @@ export class FieldBuilder {
    */
   public addFieldString(fieldString: string): FieldBuilder {
     const parsedFields = FieldBuilder.parseFieldString(fieldString);
-    this.rootFields.push(...parsedFields);
+    
+    // Add each field individually to ensure deduplication
+    parsedFields.forEach(field => {
+      const exists = this.rootFields.some(node => node.name === field.name);
+      if (!exists) {
+        this.rootFields.push(field);
+      }
+    });
+    
     return this;
   }
 
