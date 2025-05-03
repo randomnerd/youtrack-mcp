@@ -61,7 +61,7 @@ describe('Issue Formatter - Private Function Tests', () => {
     });
 
     it('should handle large file sizes', () => {
-      expect(issueFormatterModule.formatFileSize(1099511627776)).toBe('1024.0 GB'); // 1 TB
+      expect(issueFormatterModule.formatFileSize(1099511627776)).toBe('1.0 TB'); // 1 TB
     });
   });
 

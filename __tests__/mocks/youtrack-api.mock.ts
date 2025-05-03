@@ -220,25 +220,87 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
   
   mockAxios.onGet(`${baseUrl}/test-max-retries`).reply(500, 'Persistent Server Error');
   
+  // Add mocks for network error and timeout error
+  mockAxios.onGet(`${baseUrl}/test-network-error`).reply(() => {
+    retryCallCount++;
+    if (retryCallCount < 2) {
+      // Simulate a network error
+      const error = new Error('Network Error');
+      error.name = 'NetworkError';
+      throw error;
+    }
+    return [200, { success: true }];
+  });
+  
+  mockAxios.onGet(`${baseUrl}/test-timeout-error`).reply(() => {
+    rateLimitCallCount++;
+    if (rateLimitCallCount < 2) {
+      // Simulate a timeout error
+      const error = new Error('timeout of 1000ms exceeded');
+      error.name = 'TimeoutError';
+      throw error;
+    }
+    return [200, { success: true }];
+  });
+  
   // Add mocks for bundle endpoints used in tests
   mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles?fields=id,name,$type&$type=state`).reply(200, [
     { id: 'bundle-1', name: 'State Bundle', type: 'state' },
     { id: 'bundle-2', name: 'Another State Bundle', type: 'state' }
   ]);
   
+  // Add both lowercase and uppercase state endpoint variations
   mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/state`).reply(200, [
-    { id: 'bundle-1', name: 'State Bundle', type: 'state' },
-    { id: 'bundle-2', name: 'Another State Bundle', type: 'state' }
+    { id: 'bundle-1', name: 'State Bundle', $type: 'StateBundle' },
+    { id: 'bundle-2', name: 'Another State Bundle', $type: 'StateBundle' }
+  ]);
+  
+  mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/State`).reply(200, [
+    { id: 'bundle-1', name: 'State Bundle', $type: 'StateBundle' },
+    { id: 'bundle-2', name: 'Another State Bundle', $type: 'StateBundle' }
   ]);
   
   mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/bundle-1`).reply(200, {
     id: 'bundle-1',
     name: 'State Bundle',
-    type: 'state',
+    $type: 'StateBundle',
     values: [
       { id: 'element-1', name: 'Element 1' },
       { id: 'element-2', name: 'Element 2' }
     ]
+  });
+  
+  // Add mocks for bundle values
+  mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/bundle-1/values`).reply(200, [
+    { id: 'value-1', name: 'Open', $type: 'StateBundleElement' },
+    { id: 'value-2', name: 'In Progress', $type: 'StateBundleElement' }
+  ]);
+  
+  // Add mock for creating bundle element
+  mockAxios.onPost(`${baseUrl}/admin/customFieldSettings/bundles/bundle-1/values`).reply(200, {
+    id: 'value-3',
+    name: 'New State',
+    $type: 'StateBundleElement'
+  });
+  
+  // Also handle id: prefix version
+  mockAxios.onPost(`${baseUrl}/admin/customFieldSettings/bundles/id:bundle-1/values`).reply(200, {
+    id: 'value-3',
+    name: 'New State',
+    $type: 'StateBundleElement'
+  });
+  
+  // Add mocks for version and owned bundles
+  mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/version/id:version-bundle-1`).reply(200, {
+    id: 'version-bundle-1',
+    name: 'Version Bundle',
+    $type: 'VersionBundle'
+  });
+  
+  mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/owned/id:owned-bundle-1`).reply(200, {
+    id: 'owned-bundle-1',
+    name: 'Owned Bundle',
+    $type: 'OwnedBundle'
   });
   
   // Add mock for user notifications
@@ -248,24 +310,40 @@ export const setupYouTrackApiMocks = (baseUrl: string) => {
     jabberNotificationsEnabled: false,
     notifyOnOwnChanges: false,
     mentionNotificationsEnabled: true,
-    autoWatchOnComment: true,
-    autoWatchOnCreate: true,
-    autoWatchOnVote: false,
-    autoWatchOnUpdate: false
   });
   
   mockAxios.onPost(`${baseUrl}/users/user-1/profiles/notifications`).reply(200, {
     id: 'user-1',
     emailNotificationsEnabled: true,
     jabberNotificationsEnabled: false,
-    notifyOnOwnChanges: true,
-    mentionNotificationsEnabled: true,
-    autoWatchOnComment: true,
-    autoWatchOnCreate: true,
-    autoWatchOnVote: false,
-    autoWatchOnUpdate: false
+    notifyOnOwnChanges: false,
+    mentionNotificationsEnabled: false,
   });
   
+  // Add mocks for VCS endpoints
+  mockAxios.onGet(`${baseUrl}/changes/change-1`).reply(200, {
+    id: 'change-1', 
+    version: 'sample123abc', 
+    text: 'Sample bug fix', 
+    date: 1620000000000
+  });
+
+  mockAxios.onGet(`${baseUrl}/admin/vcsServers`).reply(200, [
+    { id: 'vcs-1', url: 'https://github.com/example/repo' }
+  ]);
+
+  mockAxios.onGet(`${baseUrl}/admin/projects/TEST/vcsRepositories`).reply(200, [
+    { id: 'processor-1', enabled: true }
+  ]);
+  
+  // Add mock for telemetry endpoint
+  mockAxios.onGet(`${baseUrl}/admin/telemetry`).reply(200, {
+    instanceId: 'instance-1',
+    serverVersion: '2023.1.12345',
+    usersCount: 100,
+    projectsCount: 25
+  });
+
   // Add a catch-all mock for unmocked endpoints
   mockAxios.onAny(new RegExp(`${baseUrl}/.*`)).reply((config) => {
     // Don't log warning for our explicitly non-existent test endpoint

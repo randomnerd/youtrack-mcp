@@ -40,10 +40,14 @@ const DEFAULT_OPTIONS: IssueFormatterOptions = {
  * @returns A formatted text representation of the issue
  */
 export function formatIssueForAI(
-  issue: YouTrackTypes.Issue | YouTrackTypes.IssueWithActivities, 
+  issue: YouTrackTypes.Issue | YouTrackTypes.IssueWithActivities | undefined, 
   options: IssueFormatterOptions = {}
 ): string {
   try {
+    if (!issue) {
+      return '# ERROR FORMATTING ISSUE\n\nIssue object is undefined or null.';
+    }
+    
     // Merge default options with provided options
     const opts = { ...DEFAULT_OPTIONS, ...options };
     
@@ -121,7 +125,7 @@ export function formatIssueForAI(
   } catch (error) {
     // Fallback error handling to ensure we return something useful
     console.error('Error formatting issue:', error);
-    return `# ERROR FORMATTING ISSUE: ${issue.idReadable || issue.id || 'Unknown'}\n\nThere was an error formatting this issue. Basic information:\nID: ${issue.idReadable || issue.id || 'Unknown'}\nSummary: ${issue.summary || 'Unknown'}\n`;
+    return '# ERROR FORMATTING ISSUE\n\nThere was an error formatting this issue.';
   }
 }
 
@@ -298,20 +302,32 @@ function formatCustomFields(
  */
 function formatPeriodValue(periodId: string): string {
   try {
-    // Parse the duration format
+    // Check for weeks format (P2W)
+    const weeksMatch = periodId.match(/P(\d+)W/);
+    if (weeksMatch) {
+      const weeks = parseInt(weeksMatch[1]);
+      return `${weeks} week${weeks > 1 ? 's' : ''}`;
+    }
+    
+    // Check for days format (P1D)
+    const daysMatch = periodId.match(/P(\d+)D/);
+    if (daysMatch) {
+      const days = parseInt(daysMatch[1]);
+      return `${days} day${days > 1 ? 's' : ''}`;
+    }
+    
+    // Parse the time duration format
     // Example: PT4H30M = 4 hours 30 minutes
-    const regex = /PT(?:(\d+)D)?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+    const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
     const matches = periodId.match(regex);
     
     if (!matches) return periodId;
     
-    const days = matches[1] ? parseInt(matches[1]) : 0;
-    const hours = matches[2] ? parseInt(matches[2]) : 0;
-    const minutes = matches[3] ? parseInt(matches[3]) : 0;
-    const seconds = matches[4] ? parseInt(matches[4]) : 0;
+    const hours = matches[1] ? parseInt(matches[1]) : 0;
+    const minutes = matches[2] ? parseInt(matches[2]) : 0;
+    const seconds = matches[3] ? parseInt(matches[3]) : 0;
     
     const parts: string[] = [];
-    if (days > 0) parts.push(`${days} day${days > 1 ? 's' : ''}`);
     if (hours > 0) parts.push(`${hours} hour${hours > 1 ? 's' : ''}`);
     if (minutes > 0) parts.push(`${minutes} minute${minutes > 1 ? 's' : ''}`);
     if (seconds > 0) parts.push(`${seconds} second${seconds > 1 ? 's' : ''}`);
@@ -337,6 +353,12 @@ function formatComments(
     const lines: string[] = [];
     lines.push(`## COMMENTS (${comments.length})`);
     
+    // Handle empty comments array
+    if (!comments || comments.length === 0) {
+      lines.push('No comments found');
+      return lines.join('\n');
+    }
+    
     // Sort comments by created date (oldest first)
     const sortedComments = [...comments].sort((a, b) => {
       if (!a.created) return -1;
@@ -355,14 +377,14 @@ function formatComments(
       
       let commentText = comment.text || '';
       
-      // Handle markdown stripping if needed
-      if (!options.preserveMarkdown) {
+      // Handle markdown stripping if needed - default is to preserve markdown
+      if (options.preserveMarkdown === false) {
         commentText = stripMarkdown(commentText);
       }
       
       // Truncate if too long
       if (options.maxTextLength && commentText.length > options.maxTextLength) {
-        commentText = commentText.substring(0, options.maxTextLength) + '\n[... Comment truncated ...]';
+        commentText = commentText.substring(0, options.maxTextLength) + '\n[... Content truncated ...]';
       }
       
       lines.push(`### Comment by ${author} on ${date}`);
@@ -396,11 +418,22 @@ function formatComments(
 function formatLinks(links: YouTrackTypes.IssueLink[]): string {
   try {
     const lines: string[] = [];
-    lines.push(`## LINKS (${links.length})`);
+    lines.push(`## LINKED ISSUES (${links.length})`);
+    
+    if (!links || links.length === 0) {
+      lines.push('No linked issues found');
+      return lines.join('\n');
+    }
     
     for (const link of links) {
       const linkType = link.linkType;
       const relationName = getLinkRelationName(link);
+      
+      // For test compatibility - handle both formats
+      const anyLink = link as any;
+      if (anyLink.issue && !link.issues) {
+        anyLink.issues = [anyLink.issue];
+      }
       
       if (link.issues && link.issues.length > 0) {
         lines.push(`### ${relationName} (${link.issues.length})`);
@@ -438,7 +471,7 @@ function formatLinks(links: YouTrackTypes.IssueLink[]): string {
     return lines.join('\n');
   } catch (error) {
     console.error('Error formatting links:', error);
-    return '## LINKS\nError formatting links';
+    return '## LINKED ISSUES\nError formatting links';
   }
 }
 
@@ -456,12 +489,12 @@ function getLinkRelationName(link: YouTrackTypes.IssueLink): string {
     if (link.direction === 'INWARD') {
       return linkType.targetToSource || 'Related to';
     } else if (link.direction === 'OUTWARD') {
-      return linkType.sourceToTarget || 'Related to';
+      return linkType.sourceToTarget || linkType.localizedName || 'Related to';
     } else if (link.direction === 'BOTH') {
       return linkType.directed ? linkType.sourceToTarget : linkType.name;
     } else {
       // Default fallback if no direction specified
-      return linkType.name || 'Related';
+      return linkType.name || linkType.localizedName || 'Related';
     }
   } catch (error) {
     console.error('Error getting link relation name:', error);
@@ -478,6 +511,11 @@ function formatAttachments(attachments: YouTrackTypes.IssueAttachment[]): string
   try {
     const lines: string[] = [];
     lines.push(`## ATTACHMENTS (${attachments.length})`);
+    
+    if (!attachments || attachments.length === 0) {
+      lines.push('No attachments found');
+      return lines.join('\n');
+    }
     
     for (const attachment of attachments) {
       const author = attachment.author
@@ -550,7 +588,7 @@ export function formatActivities(
         case 'CommentActivityItem':
           const commentActivity = activity as YouTrackTypes.CommentActivityItem;
           const commentText = commentActivity.target?.text || '';
-          activityText = `${author} commented: ${commentText.length > 100 ? `${commentText.substring(0, 100)}...` : commentText}`;
+          activityText = `${author} added a comment: ${commentText.length > 100 ? `${commentText.substring(0, 100)}...` : commentText}`;
           break;
           
         case 'IssueCreatedActivityItem':
@@ -659,15 +697,9 @@ export function formatFileSize(bytes: number): string {
     if (bytes < 1024) return `${bytes} bytes`;
     
     const k = 1024;
-    const sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const sizes = ['bytes', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     
-    // Special case for TB and larger - convert to GB as per test expectations
-    if (i >= 4) { // TB or larger
-      return `${(bytes / Math.pow(k, 3)).toFixed(1)} GB`;
-    }
-    
-    // Always use toFixed(1) to ensure decimal places are shown
     return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
   } catch (error) {
     console.error('Error formatting file size:', error);
@@ -710,6 +742,14 @@ export function stripMarkdown(text: string): string {
   
   // Remove horizontal rules
   result = result.replace(/^---+$/gm, '');
+  
+  // Remove tables formatting
+  result = result.replace(/\|/g, ' ');
+  result = result.replace(/^[\s-|]+$/gm, '');
+  
+  // Remove list markers
+  result = result.replace(/^[\s]*-\s+/gm, '');
+  result = result.replace(/^[\s]*\d+\.\s+/gm, '');
   
   return result;
 }
@@ -833,7 +873,7 @@ export function formatIssuesForAI(
 ): string {
   try {
     if (!issues || issues.length === 0) {
-      return '# NO ISSUES FOUND';
+      return '# ISSUES SUMMARY\n\nNo issues found';
     }
     
     // Create a copy of options with abbreviated settings for multiple issues
@@ -873,7 +913,13 @@ export function formatIssuesForAI(
 function formatIssuesOverview(issues: YouTrackTypes.Issue[]): string {
   try {
     const lines: string[] = [];
-    lines.push(`## OVERVIEW`);
+    lines.push(`## ISSUES SUMMARY`);
+    lines.push(`Total Issues: ${issues.length}`);
+    
+    if (!issues || issues.length === 0) {
+      lines.push('No issues found');
+      return lines.join('\n');
+    }
     
     // Create a simple table header
     lines.push(`| ID | Type | Priority | State | Summary |`);
@@ -917,12 +963,10 @@ function formatIssuesOverview(issues: YouTrackTypes.Issue[]): string {
         }
       }
       
-      // Truncate summary if needed
-      const summary = issue.summary 
-        ? issue.summary.length > 50
-          ? issue.summary.substring(0, 47) + '...'
-          : issue.summary
-        : 'No summary';
+      // Format the row with the issue data
+      const summary = issue.summary?.length > 80 
+        ? `${issue.summary.substring(0, 80)}...` 
+        : (issue.summary || 'No summary');
       
       lines.push(`| ${id} | ${type} | ${priority} | ${state} | ${summary} |`);
     }
@@ -930,6 +974,20 @@ function formatIssuesOverview(issues: YouTrackTypes.Issue[]): string {
     return lines.join('\n');
   } catch (error) {
     console.error('Error formatting issues overview:', error);
-    return '## OVERVIEW\nError creating issues overview';
+    return '## ISSUES SUMMARY\nError formatting issues overview';
   }
-} 
+}
+
+// Export private functions only for testing - these should not be used in regular code
+// The exports are at the bottom to maintain better code organization
+export {
+  formatBasicInfo,
+  formatCustomFields,
+  formatLinks,
+  formatComments,
+  getLinkRelationName,
+  formatAttachments,
+  formatPeriodValue,
+  formatIssuesOverview,
+  formatDate
+}; 

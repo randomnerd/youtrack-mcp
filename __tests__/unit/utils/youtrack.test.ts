@@ -552,11 +552,12 @@ describe('YouTrack API Client', () => {
     it('should list bundles', async () => {
       const bundleType = 'state';
       const mockBundles = [
-        { id: 'bundle-1', name: 'State Bundle', type: 'state' },
-        { id: 'bundle-2', name: 'Another State Bundle', type: 'state' }
+        { id: 'bundle-1', name: 'State Bundle', $type: 'StateBundle' },
+        { id: 'bundle-2', name: 'Another State Bundle', $type: 'StateBundle' }
       ];
       
-      mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles?fields=id,name,$type&$type=${bundleType}`).reply(200, mockBundles);
+      // Set up mock response
+      mockAxios.onGet(`${baseUrl}/admin/customFieldSettings/bundles/${bundleType}`).reply(200, mockBundles);
       
       const bundles = await youtrackClient.listBundles(bundleType);
       
