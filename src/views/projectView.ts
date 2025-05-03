@@ -1,8 +1,15 @@
 import * as YouTrackTypes from '../types/youtrack';
 import { CommonView, McpResponse } from './common';
+import { ControllerResult, ProjectDetailResult, ProjectListResult } from '../types/controllerResults';
 
 export class ProjectView {
-  static renderList(projects: YouTrackTypes.Project[]): McpResponse {
+  static renderList(result: ControllerResult<ProjectListResult>): McpResponse {
+    if (!result.success || !result.data) {
+      return this.renderError(result.error || 'Failed to fetch projects');
+    }
+    
+    const { projects, total } = result.data;
+    
     if (!projects || projects.length === 0) {
       return this.renderEmpty("No projects found.");
     }
@@ -14,17 +21,23 @@ export class ProjectView {
     return {
       content: [{ 
         type: "text", 
-        text: `Found ${projects.length} projects:\n\n${projectsText}` 
+        text: `Found ${total} projects:\n\n${projectsText}` 
       }]
     };
   }
 
   /**
    * Render a single project detail view
-   * @param project - The project to render
+   * @param result - The controller result with project details
    * @returns Formatted MCP response with project details
    */
-  static renderDetail(project: YouTrackTypes.Project): McpResponse {
+  static renderDetail(result: ControllerResult<ProjectDetailResult>): McpResponse {
+    if (!result.success || !result.data) {
+      return this.renderError(result.error || 'Failed to fetch project details');
+    }
+    
+    const { project } = result.data;
+    
     if (!project) {
       return this.renderEmpty("Project not found.");
     }

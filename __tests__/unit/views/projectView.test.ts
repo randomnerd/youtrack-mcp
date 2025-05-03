@@ -1,13 +1,16 @@
 import { ProjectView } from '../../../src/views/projectView';
 import { projectFixtures } from '../../fixtures';
 import * as YouTrackTypes from '../../../src/types/youtrack';
+import { createProjectListResult, createProjectDetailResult, createErrorResult } from '../../helpers/testHelpers';
+import { ControllerResult, ProjectDetailResult, ProjectListResult } from '../../../src/types/controllerResults';
 
 describe('ProjectView', () => {
   describe('renderList', () => {
     it('should render a list of projects', () => {
       const projects = projectFixtures.projects;
+      const controllerResult = createProjectListResult(projects);
       
-      const result = ProjectView.renderList(projects);
+      const result = ProjectView.renderList(controllerResult);
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(1);
@@ -20,7 +23,9 @@ describe('ProjectView', () => {
     });
     
     it('should handle empty projects list', () => {
-      const result = ProjectView.renderList([]);
+      const controllerResult = createProjectListResult([]);
+      
+      const result = ProjectView.renderList(controllerResult);
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(1);
@@ -28,19 +33,22 @@ describe('ProjectView', () => {
     });
     
     it('should handle null projects input', () => {
-      const result = ProjectView.renderList(null as unknown as YouTrackTypes.Project[]);
+      const controllerResult = createErrorResult<ProjectListResult>('No projects found');
+      
+      const result = ProjectView.renderList(controllerResult);
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(1);
-      expect(result.content[0].text).toContain('No projects found.');
+      expect(result.content[0].text).toContain('No projects found');
     });
   });
   
   describe('renderDetail', () => {
     it('should render project details', () => {
       const project = projectFixtures.projects[0];
+      const controllerResult = createProjectDetailResult(project);
       
-      const result = ProjectView.renderDetail(project);
+      const result = ProjectView.renderDetail(controllerResult);
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(1);
@@ -56,7 +64,9 @@ describe('ProjectView', () => {
         // shortName and description are missing
       } as YouTrackTypes.Project;
       
-      const result = ProjectView.renderDetail(project);
+      const controllerResult = createProjectDetailResult(project);
+      
+      const result = ProjectView.renderDetail(controllerResult);
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(1);
@@ -65,11 +75,13 @@ describe('ProjectView', () => {
     });
     
     it('should handle null project input', () => {
-      const result = ProjectView.renderDetail(null as unknown as YouTrackTypes.Project);
+      const controllerResult = createErrorResult<ProjectDetailResult>('Project not found');
+      
+      const result = ProjectView.renderDetail(controllerResult);
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(1);
-      expect(result.content[0].text).toContain('Project not found.');
+      expect(result.content[0].text).toContain('Project not found');
     });
   });
   

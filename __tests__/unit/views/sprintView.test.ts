@@ -2,6 +2,7 @@ import { SprintView } from '../../../src/views/sprintView';
 import { sprintFixtures, issueFixtures } from '../../fixtures';
 import * as YouTrackTypes from '../../../src/types/youtrack';
 import { formatIssueForAI, formatIssuesForAI } from '../../../src/utils/issue-formatter';
+import { ControllerResult, SprintDetailResult, SprintListResult } from '../../../src/types/controllerResults';
 
 // Mock test data
 const mockSprints = [
@@ -22,30 +23,51 @@ jest.mock('../../../src/utils/issue-formatter', () => ({
 describe('SprintView', () => {
   describe('renderDetail', () => {
     it('should render sprint details with issues', () => {
-      const sprint = mockSprints[0];
+      const sprint = {
+        ...mockSprints[0],
+        issues: [
+          { id: 'issue-1', summary: 'Test issue 1', $type: 'Issue', idReadable: 'PROJ-1', numberInProject: 1, customFields: [] },
+          { id: 'issue-2', summary: 'Test issue 2', $type: 'Issue', idReadable: 'PROJ-2', numberInProject: 2, customFields: [] }
+        ] as YouTrackTypes.Issue[]
+      };
       const boardId = 'board-1';
-      const issues = [
-        { id: 'issue-1', summary: 'Test issue 1', $type: 'Issue', idReadable: 'PROJ-1', numberInProject: 1, customFields: [] },
-        { id: 'issue-2', summary: 'Test issue 2', $type: 'Issue', idReadable: 'PROJ-2', numberInProject: 2, customFields: [] }
-      ] as YouTrackTypes.Issue[];
       
-      const result = SprintView.renderDetail(sprint, boardId, issues);
+      const controllerResult: ControllerResult<SprintDetailResult> = {
+        success: true,
+        data: {
+          sprint,
+          boardId
+        }
+      };
+      
+      const result = SprintView.renderDetail(controllerResult);
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(3); // Summary + detail + formatted issues
       expect(result.content[0].text).toContain(sprint.name);
       expect(result.content[1].text).toContain('Sprint Details');
-      expect(result.content[1].text).toContain(`Issue Count: ${issues.length}`);
+      expect(result.content[1].text).toContain(`Issue Count: ${sprint.issues.length}`);
       
       // Check issue rendering
-      expect(formatIssuesForAI).toHaveBeenCalledWith(issues);
+      expect(formatIssuesForAI).toHaveBeenCalledWith(sprint.issues);
     });
     
     it('should handle rendering with no issues', () => {
-      const sprint = mockSprints[0];
+      const sprint = {
+        ...mockSprints[0],
+        issues: []
+      };
       const boardId = 'board-1';
       
-      const result = SprintView.renderDetail(sprint, boardId);
+      const controllerResult: ControllerResult<SprintDetailResult> = {
+        success: true,
+        data: {
+          sprint,
+          boardId
+        }
+      };
+      
+      const result = SprintView.renderDetail(controllerResult);
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(3); // Summary + detail + no issues message
@@ -55,18 +77,28 @@ describe('SprintView', () => {
     });
     
     it('should handle non-full issue objects', () => {
-      const sprint = mockSprints[0];
+      const sprint = {
+        ...mockSprints[0],
+        issues: [
+          // These are IssueRefs, not full Issue objects
+          { id: 'issue-1', idReadable: 'PROJ-1', $type: 'Issue' }, 
+          { id: 'issue-2', idReadable: 'PROJ-2', $type: 'Issue' }
+        ] as YouTrackTypes.IssueRef[]
+      };
       const boardId = 'board-1';
-      const issues = [
-        // These are IssueRefs, not full Issue objects
-        { id: 'issue-1', idReadable: 'PROJ-1', $type: 'Issue' }, 
-        { id: 'issue-2', idReadable: 'PROJ-2', $type: 'Issue' }
-      ] as YouTrackTypes.IssueRef[];
       
       // Clear any previous calls to the formatter
       (formatIssuesForAI as jest.Mock).mockClear();
       
-      const result = SprintView.renderDetail(sprint, boardId, issues);
+      const controllerResult: ControllerResult<SprintDetailResult> = {
+        success: true,
+        data: {
+          sprint,
+          boardId
+        }
+      };
+      
+      const result = SprintView.renderDetail(controllerResult);
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(3); // Summary + detail + issue list
@@ -76,39 +108,85 @@ describe('SprintView', () => {
       expect(result.content[2].text).toContain('Issue ID: issue-2');
       expect(formatIssuesForAI).not.toHaveBeenCalled();
     });
+    
+    it('should handle error case', () => {
+      const controllerResult: ControllerResult<SprintDetailResult> = {
+        success: false,
+        error: 'Failed to fetch sprint details'
+      };
+      
+      const result = SprintView.renderDetail(controllerResult);
+      
+      expect(result).toBeDefined();
+      expect(result.content).toHaveLength(1);
+      expect(result.content[0].text).toContain('Failed to fetch sprint details');
+    });
   });
   
   describe('renderList', () => {
     it('should render a list of sprints with board name', () => {
-      const sprints = mockSprints;
+      const controllerResult: ControllerResult<SprintListResult> = {
+        success: true,
+        data: {
+          sprints: mockSprints,
+          total: mockSprints.length
+        }
+      };
       const boardName = 'Test Board';
       
-      const result = SprintView.renderList(sprints, boardName);
+      const result = SprintView.renderList(controllerResult, boardName);
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(1);
       expect(result.content[0].text).toContain(`Sprints for board "${boardName}"`);
-      sprints.forEach(sprint => {
+      mockSprints.forEach(sprint => {
         expect(result.content[0].text).toContain(sprint.name);
       });
     });
     
     it('should render a list of sprints without board name', () => {
-      const sprints = mockSprints;
+      const controllerResult: ControllerResult<SprintListResult> = {
+        success: true,
+        data: {
+          sprints: mockSprints,
+          total: mockSprints.length
+        }
+      };
       
-      const result = SprintView.renderList(sprints);
+      const result = SprintView.renderList(controllerResult);
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(1);
-      expect(result.content[0].text).toContain(`Found ${sprints.length} sprints`);
+      expect(result.content[0].text).toContain(`Found ${mockSprints.length} sprints`);
     });
     
     it('should handle empty sprints list', () => {
-      const result = SprintView.renderList([]);
+      const controllerResult: ControllerResult<SprintListResult> = {
+        success: true,
+        data: {
+          sprints: [],
+          total: 0
+        }
+      };
+      
+      const result = SprintView.renderList(controllerResult);
       
       expect(result).toBeDefined();
       expect(result.content).toHaveLength(1);
       expect(result.content[0].text).toContain('Found 0 sprints');
+    });
+    
+    it('should handle error case', () => {
+      const controllerResult: ControllerResult<SprintListResult> = {
+        success: false,
+        error: 'Failed to fetch sprints'
+      };
+      
+      const result = SprintView.renderList(controllerResult);
+      
+      expect(result).toBeDefined();
+      expect(result.content).toHaveLength(1);
+      expect(result.content[0].text).toContain('Failed to fetch sprints');
     });
   });
   

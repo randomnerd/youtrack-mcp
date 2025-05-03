@@ -8,6 +8,25 @@ import {
   formatDate
 } from '../../../src/utils/controller-utils';
 
+// Define interfaces for response structures to avoid using 'any'
+interface ErrorResponseContent {
+  text: string;
+}
+
+interface ResourceErrorResponse {
+  contents: {
+    uri: string;
+    text: string;
+  }[];
+}
+
+interface ResourceResponse {
+  contents: {
+    uri: string;
+    text: string;
+  }[];
+}
+
 describe('Controller Utilities', () => {
   describe('extractParam', () => {
     it('should extract string parameter', () => {
@@ -26,7 +45,7 @@ describe('Controller Utilities', () => {
     });
 
     it('should return undefined for null params', () => {
-      expect(extractParam(null, 'id')).toBeUndefined();
+      expect(extractParam(null as unknown as Record<string, string | string[] | undefined>, 'id')).toBeUndefined();
     });
   });
 
@@ -68,20 +87,20 @@ describe('Controller Utilities', () => {
       const uri = new URL('https://example.com/resource');
       const error = new Error('Resource error');
       
-      const response = createResourceErrorResponse(uri, error);
+      const response = createResourceErrorResponse(uri, error) as ResourceErrorResponse;
       
       expect(response).toHaveProperty('contents');
       expect(response.contents).toHaveLength(1);
       expect(response.contents[0]).toHaveProperty('uri', uri.href);
-      expect((response.contents[0] as any).text).toContain('Error: Resource error');
+      expect(response.contents[0].text).toContain('Error: Resource error');
     });
 
     it('should handle non-Error objects', () => {
       const uri = new URL('https://example.com/resource');
-      const response = createResourceErrorResponse(uri, 'String error');
+      const response = createResourceErrorResponse(uri, 'String error') as ResourceErrorResponse;
       
       expect(response.contents[0]).toHaveProperty('uri', uri.href);
-      expect((response.contents[0] as any).text).toContain('Error: String error');
+      expect(response.contents[0].text).toContain('Error: String error');
     });
   });
 
@@ -90,12 +109,12 @@ describe('Controller Utilities', () => {
       const uri = new URL('https://example.com/resource');
       const text = 'Resource content';
       
-      const response = createResourceResponse(uri, text);
+      const response = createResourceResponse(uri, text) as ResourceResponse;
       
       expect(response).toHaveProperty('contents');
       expect(response.contents).toHaveLength(1);
       expect(response.contents[0]).toHaveProperty('uri', uri.href);
-      expect((response.contents[0] as any).text).toBe(text);
+      expect(response.contents[0].text).toBe(text);
     });
   });
 
@@ -118,7 +137,8 @@ describe('Controller Utilities', () => {
       const result = await wrappedFn('arg1');
       
       expect(mockFn).toHaveBeenCalledWith('arg1');
-      expect(result).toHaveProperty('isError', true);
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error', 'Test prefix: Function error');
       expect(JSON.stringify(result)).toContain('Test prefix: Function error');
     });
   });
@@ -140,11 +160,11 @@ describe('Controller Utilities', () => {
       const mockFn = jest.fn().mockRejectedValue(error);
       const wrappedFn = withResourceErrorHandling(mockFn);
       
-      const result = await wrappedFn(uri, 'arg2');
+      const result = await wrappedFn(uri, 'arg2') as ResourceErrorResponse;
       
       expect(mockFn).toHaveBeenCalledWith(uri, 'arg2');
       expect(result).toHaveProperty('contents');
-      expect((result as any).contents[0]).toHaveProperty('uri', uri.href);
+      expect(result.contents[0]).toHaveProperty('uri', uri.href);
       expect(JSON.stringify(result)).toContain('Resource function error');
     });
   });

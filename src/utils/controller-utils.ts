@@ -1,4 +1,5 @@
 import { McpResponse, ResourceResponse } from '../views/common';
+import { ControllerResult } from '../types/controllerResults';
 
 /**
  * Safely extracts a parameter value from request params
@@ -6,14 +7,16 @@ import { McpResponse, ResourceResponse } from '../views/common';
  * @param paramName Name of the parameter to extract
  * @returns The parameter value or undefined
  */
-export function extractParam(params: any, paramName: string): string | undefined {
+export function extractParam(params: Record<string, string | string[] | undefined>, paramName: string): string | undefined {
   if (!params) return undefined;
   
-  return typeof params[paramName] === 'string' 
-    ? params[paramName] 
-    : Array.isArray(params[paramName]) 
-      ? params[paramName][0] 
-      : undefined;
+  const param = params[paramName];
+  if (typeof param === 'string') {
+    return param;
+  } else if (Array.isArray(param)) {
+    return param[0];
+  }
+  return undefined;
 }
 
 /**
@@ -29,6 +32,22 @@ export function createErrorResponse(error: unknown, messagePrefix?: string): Mcp
   return {
     content: [{ type: 'text', text: `${prefix}${errorMessage}` }],
     isError: true
+  };
+}
+
+/**
+ * Creates a controller error result
+ * @param error Error object or string
+ * @param messagePrefix Optional prefix for the error message
+ * @returns ControllerResult with error information
+ */
+export function createErrorResult<T>(error: unknown, messagePrefix?: string): ControllerResult<T> {
+  const errorMessage = error instanceof Error ? error.message : String(error || 'Unknown error');
+  const prefix = messagePrefix ? `${messagePrefix}: ` : '';
+  
+  return {
+    success: false,
+    error: `${prefix}${errorMessage}`
   };
 }
 
@@ -71,14 +90,14 @@ export function createResourceResponse(uri: URL, text: string): ResourceResponse
  * @returns A function with standardized error handling
  */
 export function withErrorHandling<T extends any[], R>(
-  fn: (...args: T) => Promise<R>,
+  fn: (...args: T) => Promise<ControllerResult<R>>,
   errorPrefix?: string
-): (...args: T) => Promise<R | McpResponse> {
-  return async (...args: T): Promise<R | McpResponse> => {
+): (...args: T) => Promise<ControllerResult<R>> {
+  return async (...args: T): Promise<ControllerResult<R>> => {
     try {
       return await fn(...args);
     } catch (error) {
-      return createErrorResponse(error, errorPrefix);
+      return createErrorResult<R>(error, errorPrefix);
     }
   };
 }
@@ -103,10 +122,10 @@ export function withResourceErrorHandling<T extends any[], R>(
 
 /**
  * Formats a date consistently throughout the application
- * @param date Any value that might represent a date
+ * @param date Date string, number, or Date object
  * @returns Formatted date string or 'N/A' if date is invalid
  */
-export function formatDate(date: any): string {
+export function formatDate(date: string | number | Date | null | undefined): string {
   if (date === null || date === undefined) return 'N/A';
   try {
     return new Date(date).toLocaleDateString();

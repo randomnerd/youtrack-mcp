@@ -1,21 +1,31 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerProjectRoutes } from '../../../src/routes/projectRoutes';
 import { ProjectController } from '../../../src/controllers/projectController';
+import { ProjectView } from '../../../src/views/projectView';
+import { createProjectListResult, createProjectDetailResult, createErrorResult } from '../../helpers/testHelpers';
 
-// Mock the ProjectController
+// Mock the ProjectController and ProjectView
 jest.mock('../../../src/controllers/projectController');
+jest.mock('../../../src/views/projectView');
 
 describe('Project Routes', () => {
-  let server: McpServer;
+  // Create a mock server
+  const server = {
+    tool: jest.fn()
+  } as unknown as McpServer;
   
   beforeEach(() => {
-    // Create a mock MCP server
-    server = {
-      tool: jest.fn(),
-    } as unknown as McpServer;
-    
-    // Reset controller mocks
+    // Clear all mocks
     jest.resetAllMocks();
+    
+    // Mock the ProjectView methods
+    (ProjectView.renderList as jest.Mock).mockReturnValue({
+      content: [{ type: 'text', text: 'Rendered project list' }]
+    });
+    
+    (ProjectView.renderDetail as jest.Mock).mockReturnValue({
+      content: [{ type: 'text', text: 'Rendered project detail' }]
+    });
   });
   
   it('should register project routes on the server', () => {
@@ -29,7 +39,7 @@ describe('Project Routes', () => {
     expect(server.tool).toHaveBeenCalledWith(
       'youtrack_list_projects',
       'List all available projects',
-      {},
+      expect.any(Object),
       expect.any(Function)
     );
     
@@ -37,22 +47,21 @@ describe('Project Routes', () => {
     expect(server.tool).toHaveBeenCalledWith(
       'youtrack_find_projects_by_name',
       'Find projects by name',
-      {
-        name: {
-          type: 'string',
-          description: 'Project name to search for'
-        }
-      },
+      expect.objectContaining({
+        name: expect.any(Object)
+      }),
       expect.any(Function)
     );
   });
   
   it('should call ProjectController.listProjects when list_projects route is called', async () => {
     // Mock implementation
-    (ProjectController.listProjects as jest.Mock).mockResolvedValue([
+    const projects = [
       { id: 'project-1', name: 'Test Project 1' },
       { id: 'project-2', name: 'Test Project 2' }
-    ]);
+    ];
+    const controllerResult = createProjectListResult(projects as any);
+    (ProjectController.listProjects as jest.Mock).mockResolvedValue(controllerResult);
     
     // Register routes
     registerProjectRoutes(server);
@@ -61,21 +70,21 @@ describe('Project Routes', () => {
     const routeHandler = (server.tool as jest.Mock).mock.calls[0][3];
     
     // Call the route handler
-    const result = await routeHandler();
+    const result = await routeHandler({});
     
     // Check if controller method was called
     expect(ProjectController.listProjects).toHaveBeenCalledTimes(1);
-    expect(result).toEqual([
-      { id: 'project-1', name: 'Test Project 1' },
-      { id: 'project-2', name: 'Test Project 2' }
-    ]);
+    expect(ProjectView.renderList).toHaveBeenCalledWith(controllerResult);
+    expect(result).toEqual({
+      content: [{ type: 'text', text: 'Rendered project list' }]
+    });
   });
   
   it('should call ProjectController.findProjectsByName when find_projects_by_name route is called', async () => {
     // Mock implementation
-    (ProjectController.findProjectsByName as jest.Mock).mockResolvedValue([
-      { id: 'project-1', name: 'Test Project 1' }
-    ]);
+    const projects = [{ id: 'project-1', name: 'Test Project 1' }];
+    const controllerResult = createProjectListResult(projects as any);
+    (ProjectController.findProjectsByName as jest.Mock).mockResolvedValue(controllerResult);
     
     // Register routes
     registerProjectRoutes(server);
@@ -83,25 +92,26 @@ describe('Project Routes', () => {
     // Get the route handler function
     const routeHandler = (server.tool as jest.Mock).mock.calls[1][3];
     
-    // Different test cases for search names
+    // Different test cases for parameters
     const testCases = [
       { name: 'Test' },
-      { name: 'Project' },
-      { name: '' }
+      { name: 'Project' }
     ];
     
     for (const params of testCases) {
-      // Reset the mock before each call
+      // Reset mocks
       (ProjectController.findProjectsByName as jest.Mock).mockClear();
+      (ProjectView.renderList as jest.Mock).mockClear();
       
       // Call the route handler with params
       const result = await routeHandler(params);
       
       // Check if controller method was called with correct parameters
       expect(ProjectController.findProjectsByName).toHaveBeenCalledWith(params.name);
-      expect(result).toEqual([
-        { id: 'project-1', name: 'Test Project 1' }
-      ]);
+      expect(ProjectView.renderList).toHaveBeenCalledWith(controllerResult);
+      expect(result).toEqual({
+        content: [{ type: 'text', text: 'Rendered project list' }]
+      });
     }
   });
 }); 

@@ -1,7 +1,8 @@
 import { ProjectModel } from '../models/project';
-import { ProjectView } from '../views/projectView';
 import { McpResponse, CommonView, ResourceResponse } from '../views/common';
 import { URL } from 'url';
+import { ControllerResult, ProjectDetailResult, ProjectListResult, Request } from '../types/controllerResults';
+import { withErrorHandling } from '../utils/controller-utils';
 
 export class ProjectController {
   /**
@@ -10,74 +11,119 @@ export class ProjectController {
    * @param req - The request object
    * @returns ResourceResponse for MCP server
    */
-  static async handleResourceRequest(uri: URL, req: any): Promise<ResourceResponse> {
+  static async handleResourceRequest(uri: URL, req: Request): Promise<ResourceResponse> {
     try {
       const projectId = uri.pathname.split('/').pop();
-      let response: McpResponse;
       
       // If a specific project is requested
       if (projectId && projectId !== 'projects') {
-        response = await this.getProject(projectId);
+        const projectResult = await this.getProject(projectId);
+        if (projectResult.success && projectResult.data) {
+          return {
+            contents: [{
+              uri: uri.href,
+              text: JSON.stringify((projectResult.data as ProjectDetailResult).project, null, 2)
+            }]
+          };
+        } else {
+          return {
+            contents: [{
+              uri: uri.href,
+              text: `Error: ${projectResult.error || 'Project not found'}`
+            }]
+          };
+        }
       } else {
         // Otherwise list all projects
-        response = await this.listProjects();
+        const projectsResult = await this.listProjects();
+        if (projectsResult.success && projectsResult.data) {
+          return {
+            contents: [{
+              uri: uri.href,
+              text: JSON.stringify((projectsResult.data as ProjectListResult).projects, null, 2)
+            }]
+          };
+        } else {
+          return {
+            contents: [{
+              uri: uri.href,
+              text: `Error: ${projectsResult.error || 'Failed to fetch projects'}`
+            }]
+          };
+        }
       }
-      
-      return CommonView.mcpToResourceResponse(uri, response);
     } catch (error) {
-      const errorResponse = ProjectView.renderError(`Error handling project request: ${(error as Error).message}`);
-      return CommonView.mcpToResourceResponse(uri, errorResponse);
+      return {
+        contents: [{
+          uri: uri.href,
+          text: `Error handling project request: ${(error as Error).message}`
+        }]
+      };
     }
   }
 
   /**
    * List all available projects
-   * @returns MCP response with project list
+   * @returns Controller result with project list
    */
-  static async listProjects(): Promise<McpResponse> {
-    try {
+  static listProjects = withErrorHandling(
+    async (): Promise<ControllerResult<ProjectListResult>> => {
       const projects = await ProjectModel.getAll();
-      return ProjectView.renderList(projects);
-    } catch (error) {
-      return ProjectView.renderError(`Error fetching projects: ${(error as Error).message}`);
-    }
-  }
+      
+      return {
+        success: true,
+        data: {
+          projects,
+          total: projects.length
+        }
+      };
+    },
+    'Error fetching projects'
+  );
 
   /**
    * Get a specific project by ID
    * @param projectId - ID of the project to retrieve
-   * @returns MCP response with project details
+   * @returns Controller result with project details
    */
-  static async getProject(projectId: string): Promise<McpResponse> {
-    try {
+  static getProject = withErrorHandling(
+    async (projectId: string): Promise<ControllerResult<ProjectDetailResult>> => {
       const project = await ProjectModel.getById(projectId);
       
       if (!project) {
-        return ProjectView.renderEmpty(`No project found with ID: ${projectId}`);
+        return {
+          success: false,
+          error: `No project found with ID: ${projectId}`
+        };
       }
       
-      return ProjectView.renderDetail(project);
-    } catch (error) {
-      return ProjectView.renderError(`Error fetching project: ${(error as Error).message}`);
-    }
-  }
+      return {
+        success: true,
+        data: {
+          project
+        }
+      };
+    },
+    'Error fetching project'
+  );
 
   /**
    * Find projects by name
    * @param name - Name to search for
-   * @returns MCP response with matching projects
+   * @returns Controller result with matching projects
    */
-  static async findProjectsByName(name: string): Promise<McpResponse> {
-    try {
+  static findProjectsByName = withErrorHandling(
+    async (name: string): Promise<ControllerResult<ProjectListResult>> => {
       const projects = await ProjectModel.findByName(name);
       
-      if (projects.length === 0) {
-        return ProjectView.renderEmpty(`No projects found matching: ${name}`);
-      }
-      
-      return ProjectView.renderList(projects);
-    } catch (error) {
-      return ProjectView.renderError(`Error searching projects: ${(error as Error).message}`);
-    }
-  }
+      return {
+        success: true,
+        data: {
+          projects,
+          total: projects.length
+        }
+      };
+    },
+    'Error searching projects'
+  );
 } 

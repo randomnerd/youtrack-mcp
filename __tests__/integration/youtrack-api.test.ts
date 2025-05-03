@@ -49,7 +49,6 @@ describe('YouTrack API Integration Tests', () => {
       JSON.stringify(data, null, 2),
       'utf8'
     );
-    console.log(`Data saved to ${filePath}`);
   }
   
   // Helper function to anonymize and save data
@@ -79,7 +78,6 @@ describe('YouTrack API Integration Tests', () => {
     // Find a board to work with (use first board if available)
     const testBoard = boards[0];
     expect(testBoard).toBeDefined();
-    console.log(`Using board: ${testBoard.name} (ID: ${testBoard.id})`);
     
     // Save detailed test board
     const anonymizedBoard = await anonymizeAndSaveData(
@@ -95,7 +93,6 @@ describe('YouTrack API Integration Tests', () => {
     // Select a sprint
     const selectedSprint = sprints[0];
     expect(selectedSprint).toBeDefined();
-    console.log(`Using sprint: ${selectedSprint.name} (ID: ${selectedSprint.id})`);
     
     // Save anonymized sprint data
     const anonymizedSprint = await anonymizeAndSaveData(

@@ -3,6 +3,8 @@ import { formatIssueForAI, formatIssuesForAI } from '../../../src/utils/issue-fo
 import { createSeparator } from '../../../src/utils/view-utils';
 import { URL } from 'url';
 import * as YouTrackTypes from '../../../src/types/youtrack';
+import { createIssueDetailResult, createIssueListResult, createIssueUpdateResult, createErrorResult } from '../../helpers/testHelpers';
+import { ControllerResult, IssueDetailResult, IssueListResult, IssueUpdateResult } from '../../../src/types/controllerResults';
 
 // Mock the dependencies more carefully with implementations that won't throw
 jest.mock('../../../src/utils/issue-formatter', () => ({
@@ -39,8 +41,15 @@ describe('IssueView', () => {
     customFields: []
   };
 
-  const mockActivities = [
-    { id: 'act-1', type: 'Comment', text: 'Test comment', author: { name: 'User 1' }, timestamp: Date.now() }
+  const mockActivities: YouTrackTypes.Activity[] = [
+    {
+      id: 'act-1',
+      $type: 'CommentActivityItem',
+      text: 'Test comment',
+      author: { name: 'User 1', id: 'user-1', $type: 'User' },
+      timestamp: Date.now(),
+      target: { id: 'comment-1', $type: 'IssueComment' }
+    } as YouTrackTypes.CommentActivityItem
   ];
 
   beforeEach(() => {
@@ -49,7 +58,9 @@ describe('IssueView', () => {
 
   describe('renderDetail', () => {
     it('should render issue details', () => {
-      const result = IssueView.renderDetail(mockIssue);
+      const controllerResult = createIssueDetailResult(mockIssue as YouTrackTypes.IssueWithActivities);
+      
+      const result = IssueView.renderDetail(controllerResult);
       
       expect(result).toHaveProperty('content');
       expect(result.content).toHaveLength(1);
@@ -58,7 +69,12 @@ describe('IssueView', () => {
     });
 
     it('should render issue details with activities', () => {
-      const result = IssueView.renderDetail(mockIssue, mockActivities);
+      const controllerResult = createIssueDetailResult(
+        mockIssue as YouTrackTypes.IssueWithActivities, 
+        mockActivities
+      );
+      
+      const result = IssueView.renderDetail(controllerResult);
       
       expect(result).toHaveProperty('content');
       expect(result.content).toHaveLength(1);
@@ -77,7 +93,9 @@ describe('IssueView', () => {
       ];
       const title = 'Found 2 issues';
       
-      const result = IssueView.renderList(issues, title);
+      const controllerResult = createIssueListResult(issues, title);
+      
+      const result = IssueView.renderList(controllerResult);
       
       expect(result).toHaveProperty('content');
       expect(result.content).toHaveLength(2); // title + formatted issues text
@@ -86,7 +104,9 @@ describe('IssueView', () => {
     });
 
     it('should handle empty issues list', () => {
-      const result = IssueView.renderList([], 'Found 0 issues');
+      const controllerResult = createIssueListResult([], 'Found 0 issues');
+      
+      const result = IssueView.renderList(controllerResult);
       
       expect(result).toHaveProperty('content');
       expect(result.content[0].text).toContain('No issues found');
@@ -96,6 +116,8 @@ describe('IssueView', () => {
     it('should handle error during issue mapping', () => {
       const issues = [mockIssue];
       const title = 'Found 1 issue';
+      
+      const controllerResult = createIssueListResult(issues, title);
       
       // Mock the mapper to throw an error for this test
       (formatIssueForAI as jest.Mock).mockImplementationOnce(() => {
@@ -107,7 +129,7 @@ describe('IssueView', () => {
         throw new Error('Mapping error');
       });
       
-      const result = IssueView.renderList(issues, title);
+      const result = IssueView.renderList(controllerResult);
       
       expect(result).toHaveProperty('content');
       expect(result.content).toHaveLength(2); // title + 1 issue with error
@@ -119,7 +141,9 @@ describe('IssueView', () => {
 
   describe('renderUpdateSuccess', () => {
     it('should render update success message', () => {
-      const result = IssueView.renderUpdateSuccess('issue-1');
+      const controllerResult = createIssueUpdateResult('issue-1');
+      
+      const result = IssueView.renderUpdateSuccess(controllerResult);
       
       expect(result).toHaveProperty('content');
       expect(result.content).toHaveLength(1);

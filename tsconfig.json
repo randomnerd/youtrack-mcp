@@ -9,7 +9,7 @@
     "outDir": "./build",
     "incremental": true,
     "strict": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "alwaysStrict": true,
     "moduleResolution": "node",
     "sourceMap": true,

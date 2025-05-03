@@ -2,6 +2,7 @@ import { issueFixtures } from '../../fixtures';
 import { IssueController } from '../../../src/controllers/issueController';
 import { IssueModel } from '../../../src/models/issue';
 import { URL } from 'url';
+import { Issue, IssueWithActivities } from '../../../src/types/youtrack';
 
 // Mock the IssueModel with all required methods
 jest.mock('../../../src/models/issue', () => ({
@@ -23,7 +24,7 @@ describe('Issue Controller', () => {
     it('should return a specific issue', async () => {
       // Setup test data
       const issueId = '1';
-      const issue = issueFixtures.issues.find(i => i.id === issueId);
+      const issue = issueFixtures.issues.find(i => i.id === issueId) || createMockIssue(issueId);
       
       // Setup mock
       (IssueModel.getById as jest.Mock).mockResolvedValue(issue);
@@ -79,9 +80,9 @@ describe('Issue Controller', () => {
 
   describe('getIssue', () => {
     it('should return issue details', async () => {
-      // Setup test data
-      const issueId = '1';
-      const issue = issueFixtures.issues.find(i => i.id === issueId);
+      // Setup test data with a mock issue instead of using the fixture
+      const issueId = 'TEST-1';
+      const issue: IssueWithActivities = createMockIssue(issueId);
       const activities = [];
       
       // Setup mocks
@@ -94,7 +95,9 @@ describe('Issue Controller', () => {
       // Verify results
       expect(IssueModel.getById).toHaveBeenCalledWith(issueId);
       expect(IssueModel.getIssueActivities).toHaveBeenCalledWith(issueId);
-      expect(result).toHaveProperty('content');
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data).toHaveProperty('issue');
     });
     
     it('should handle issue not found', async () => {
@@ -110,8 +113,9 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.getById).toHaveBeenCalledWith(issueId);
-      expect(result).toHaveProperty('isError', true);
-      expect(JSON.stringify(result.content)).toContain('No issue found');
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain('No issue found');
     });
   });
 
@@ -130,7 +134,10 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.searchIssues).toHaveBeenCalledWith(query, options);
-      expect(result).toHaveProperty('content');
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data).toHaveProperty('issues');
+      expect(result.data?.issues.length).toBe(2);
     });
 
     it('should handle empty search results', async () => {
@@ -142,7 +149,9 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.searchIssues).toHaveBeenCalledWith('no matches', {});
-      expect(JSON.stringify(result.content)).toContain('No issues found');
+      expect(result).toHaveProperty('success', true);
+      expect(result.data?.issues.length).toBe(0);
+      expect(result.data?.total).toBe(0);
     });
 
     it('should handle search errors', async () => {
@@ -157,8 +166,9 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.searchIssues).toHaveBeenCalledWith('test', {});
-      expect(result).toHaveProperty('isError', true);
-      expect(JSON.stringify(result.content)).toContain(errorMessage);
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain(errorMessage);
     });
   });
 
@@ -177,7 +187,10 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.updateIssue).toHaveBeenCalledWith(issueId, updates);
-      expect(result).toHaveProperty('content');
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data?.issueId).toBe(issueId);
+      expect(result.data?.updated).toBe(true);
     });
 
     it('should handle update errors', async () => {
@@ -194,8 +207,9 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.updateIssue).toHaveBeenCalledWith(issueId, updates);
-      expect(result).toHaveProperty('isError', true);
-      expect(JSON.stringify(result.content)).toContain(errorMessage);
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain(errorMessage);
     });
   });
 
@@ -213,9 +227,10 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('content');
-      expect(JSON.stringify(result.content)).toContain('Found 2 issues');
-      expect(JSON.stringify(result.content)).toContain('project: {TEST}');
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data?.issues.length).toBe(2);
+      expect(result.data?.query).toContain('project: {TEST}');
     });
     
     it('should find issues by assignee criteria', async () => {
@@ -231,9 +246,10 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('content');
-      expect(JSON.stringify(result.content)).toContain('Found 1 issues');
-      expect(JSON.stringify(result.content)).toContain('assignee: me');
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data?.issues.length).toBe(1);
+      expect(result.data?.query).toContain('assignee: me');
     });
     
     it('should find issues by sprint criteria', async () => {
@@ -249,51 +265,15 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('content');
-      expect(JSON.stringify(result.content)).toContain('sprint: {Sprint 1}');
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data?.issues.length).toBe(2);
+      expect(result.data?.query).toContain('sprint: {Sprint 1}');
     });
     
     it('should find issues by type criteria', async () => {
       // Setup test data
       const options = { type: 'Bug' };
-      const issues = issueFixtures.issues.slice(0, 1);
-      
-      // Setup mock
-      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
-      
-      // Call controller method
-      const result = await IssueController.findIssuesByCriteria(options);
-      
-      // Verify results
-      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('content');
-      expect(JSON.stringify(result.content)).toContain('Type: {Bug}');
-    });
-    
-    it('should find issues by resolved status', async () => {
-      // Setup test data
-      const options = { status: 'resolved' };
-      const issues = issueFixtures.issues.slice(2, 3);
-      
-      // Setup mock
-      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
-      
-      // Call controller method
-      const result = await IssueController.findIssuesByCriteria(options);
-      
-      // Verify results
-      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('content');
-      if (issues.length > 0) {
-        expect(JSON.stringify(result.content)).toContain('#Resolved');
-      } else {
-        expect(JSON.stringify(result.content)).toContain('No issues found');
-      }
-    });
-    
-    it('should find issues by unresolved status', async () => {
-      // Setup test data
-      const options = { status: 'unresolved' };
       const issues = issueFixtures.issues.slice(0, 2);
       
       // Setup mock
@@ -304,14 +284,43 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('content');
-      expect(JSON.stringify(result.content)).toContain('#Unresolved');
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data?.query).toContain('Type: {Bug}');
     });
     
-    it('should find issues by specific status', async () => {
+    it('should find issues by resolved status criteria', async () => {
       // Setup test data
-      const options = { status: 'In Progress' };
-      const issues = issueFixtures.issues.slice(1, 2);
+      const options = { status: 'resolved' };
+      const issues = issueFixtures.issues.filter(issue => issue.resolved);
+      
+      if (issues.length > 0) {
+        // Setup mock for issues found
+        (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
+        
+        // Call controller method
+        const result = await IssueController.findIssuesByCriteria(options);
+        
+        // Verify results
+        expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+        expect(result.data?.query).toContain('#Resolved');
+      } else {
+        // Setup mock for no issues found
+        (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue([]);
+        
+        // Call controller method
+        const result = await IssueController.findIssuesByCriteria(options);
+        
+        // Verify results
+        expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+        expect(result.data?.total).toBe(0);
+      }
+    });
+    
+    it('should find issues by unresolved status criteria', async () => {
+      // Setup test data
+      const options = { status: 'unresolved' };
+      const issues = issueFixtures.issues.filter(issue => !issue.resolved);
       
       // Setup mock
       (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
@@ -321,13 +330,32 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('content');
-      expect(JSON.stringify(result.content)).toContain('State: {In Progress}');
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data?.query).toContain('#Unresolved');
+    });
+    
+    it('should find issues by custom status criteria', async () => {
+      // Setup test data
+      const options = { status: 'In Progress' };
+      const issues = issueFixtures.issues.slice(0, 1);
+      
+      // Setup mock
+      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
+      
+      // Call controller method
+      const result = await IssueController.findIssuesByCriteria(options);
+      
+      // Verify results
+      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data?.query).toContain('State: {In Progress}');
     });
     
     it('should handle empty results', async () => {
       // Setup test data
-      const options = { status: 'Cancelled' };
+      const options = { project: 'NONEXISTENT' };
       
       // Setup mock
       (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue([]);
@@ -337,14 +365,15 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('content');
-      expect(JSON.stringify(result.content)).toContain('No issues found');
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data?.issues.length).toBe(0);
     });
     
-    it('should respect limit parameter', async () => {
+    it('should limit results according to options', async () => {
       // Setup test data
-      const options = { limit: 1 };
-      const issues = issueFixtures.issues.slice(0, 3);
+      const options = { project: 'TEST', limit: 1 };
+      const issues = issueFixtures.issues.slice(0, 3); // More issues than the limit
       
       // Setup mock
       (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
@@ -354,14 +383,16 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('content');
-      expect(JSON.stringify(result.content)).toContain('Showing 1 results');
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data?.issues.length).toBe(1); // Limited to 1
+      expect(result.data?.total).toBe(issues.length); // But total is still 3
     });
     
-    it('should handle criteria error', async () => {
+    it('should handle errors', async () => {
       // Setup test data
-      const options = { project: 'INVALID' };
-      const errorMessage = 'Invalid criteria';
+      const options = { project: 'TEST' };
+      const errorMessage = 'Failed to find issues';
       
       // Setup mock
       (IssueModel.findIssuesByCriteria as jest.Mock).mockRejectedValue(new Error(errorMessage));
@@ -371,8 +402,39 @@ describe('Issue Controller', () => {
       
       // Verify results
       expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('isError', true);
-      expect(JSON.stringify(result.content)).toContain(errorMessage);
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain(errorMessage);
     });
   });
-}); 
+});
+
+// Helper function to create a mock issue
+function createMockIssue(id: string): IssueWithActivities {
+  return {
+    id,
+    summary: `Test Issue ${id}`,
+    description: 'This is a test issue created for unit tests',
+    resolved: false,
+    created: Date.now(),
+    updated: Date.now(),
+    idReadable: `TEST-${id}`,
+    numberInProject: parseInt(id, 10) || 1,
+    $type: 'Issue',
+    reporter: {
+      login: 'test-user',
+      fullName: 'Test User',
+      id: 'user-1',
+      name: 'Test User',
+      $type: 'User'
+    },
+    customFields: [],
+    project: {
+      id: 'project-1',
+      name: 'Test Project',
+      shortName: 'TEST',
+      $type: 'Project'
+    },
+    activities: []
+  };
+} 

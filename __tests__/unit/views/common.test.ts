@@ -1,5 +1,11 @@
-import { CommonView, McpResponse } from '../../../src/views/common';
+import { CommonView, McpResponse, ContentItem } from '../../../src/views/common';
 import { URL } from 'url';
+
+// Define a custom interface to represent non-standard content items for testing
+interface OtherContentItem {
+  type: string;
+  content: string;
+}
 
 describe('CommonView', () => {
   describe('renderEmpty', () => {
@@ -114,8 +120,8 @@ describe('CommonView', () => {
       const uri = new URL('http://example.com/resource');
       const mcpResponse: McpResponse = {
         content: [
-          { type: 'text', text: 'Text content' },
-          { type: 'other' as any, content: 'Other content' } as any
+          { type: 'text', text: 'Text content' } as ContentItem,
+          { type: 'other', content: 'Other content' } as unknown as ContentItem
         ]
       };
       

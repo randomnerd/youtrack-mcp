@@ -1,31 +1,30 @@
+import { URL } from 'url';
 import { SprintModel } from '../models/sprint';
-import { BoardModel } from '../models/board';
-import { SprintView } from '../views/sprintView';
 import { McpResponse, ResourceResponse } from '../views/common';
+import { SprintView } from '../views/sprintView';
+import { ControllerResult, SprintDetailResult, SprintListResult, Request } from '../types/controllerResults';
 import { extractParam, createResourceErrorResponse, withErrorHandling } from '../utils/controller-utils';
+import { BoardModel } from '../models/board';
 
 export class SprintController {
   static getSprint = withErrorHandling(
-    async (boardId: string, sprintId: string): Promise<McpResponse> => {
+    async (boardId: string, sprintId: string): Promise<ControllerResult<SprintDetailResult>> => {
       const sprint = await SprintModel.getById(boardId, sprintId);
 
       if (!sprint) {
-        return SprintView.renderError(`No sprint found with ID: ${sprintId} on board: ${boardId}`);
+        return {
+          success: false,
+          error: `No sprint found with ID: ${sprintId} on board: ${boardId}`
+        };
       }
 
-      // Get sprint issues if the sprint doesn't already have them
-      let issues = sprint.issues || [];
-      if (!issues.length) {
-        try {
-          // Get issues associated with this sprint
-          const sprintIssues = await SprintModel.getSprintIssues(sprint.name);
-          issues = sprintIssues;
-        } catch (err) {
-          console.error("Error fetching sprint issues:", err);
+      return {
+        success: true,
+        data: {
+          sprint,
+          boardId,
         }
-      }
-
-      return SprintView.renderDetail(sprint, boardId, issues);
+      };
     },
     'Error fetching sprint details'
   );
@@ -36,7 +35,7 @@ export class SprintController {
       sprintName?: string;
       status?: 'active' | 'archived' | 'all';
       limit?: number;
-    }): Promise<McpResponse> => {
+    }): Promise<ControllerResult<SprintListResult>> => {
       const sprints = await SprintModel.findSprints(options);
       
       // If a board ID was provided, try to get the board name for context
@@ -50,12 +49,18 @@ export class SprintController {
         }
       }
       
-      return SprintView.renderList(sprints, boardName);
+      return {
+        success: true,
+        data: {
+          sprints,
+          total: sprints.length,
+        }
+      };
     },
     'Error finding sprints'
   );
   
-  static async handleResourceRequest(uri: URL, req: any): Promise<ResourceResponse> {
+  static async handleResourceRequest(uri: URL, req: Request): Promise<ResourceResponse> {
     // Extract parameters
     const boardId = extractParam(req.params, 'boardId');
     const sprintId = extractParam(req.params, 'sprintId');

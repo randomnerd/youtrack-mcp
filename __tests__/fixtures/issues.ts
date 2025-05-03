@@ -4,9 +4,39 @@ import path from 'path';
 
 // Path to the real data
 const realIssuesPath = path.join(__dirname, '..', '..', 'output', 'tests', 'real-sprint-issues.json');
-const realIssue1Path = path.join(__dirname, '..', '..', 'output', 'tests', 'real-issue-1-with-activities.json');
-const realIssue2Path = path.join(__dirname, '..', '..', 'output', 'tests', 'real-issue-2-with-activities.json');
-const realIssue3Path = path.join(__dirname, '..', '..', 'output', 'tests', 'real-issue-3-with-activities.json');
+const TOTAL_ISSUES = 10; // Updated to handle 10 issue files
+
+/**
+ * Generates sample issues for testing
+ * @param count Number of sample issues to generate
+ * @returns Array of sample issues
+ */
+const generateSampleIssues = (count: number): Issue[] => {
+  const samples: Issue[] = [];
+  
+  // Sample prefixes to create more variety
+  const prefixes = ['SAMPLE', 'TEST', 'DEMO', 'MOCK'];
+  
+  for (let i = 0; i < count; i++) {
+    const prefix = prefixes[i % prefixes.length];
+    const num = 1000 + i;
+    
+    samples.push({
+      id: `sample-${i + 1}`,
+      idReadable: `${prefix}-${num}`,
+      numberInProject: num,
+      summary: `Sample issue ${i + 1} for testing purposes`,
+      description: `This is sample issue #${i + 1} for testing`,
+      created: Date.now() - (i + 1) * 86400000, // Each issue created a day apart
+      updated: Date.now() - (i + 1) * 43200000, // Each issue updated 12 hours apart
+      resolved: i % 3 === 0 ? Date.now() - (i + 1) * 21600000 : null, // Every third issue is resolved
+      customFields: [],
+      $type: 'Issue'
+    });
+  }
+  
+  return samples;
+};
 
 // Load real data if available, otherwise use sample data
 let issues: Issue[] = [];
@@ -21,89 +51,25 @@ try {
   // Base issues are the same as sprint issues
   issues = [...sprintIssues];
   
-  // Load detailed issues with activities
-  try {
-    const issue1Data = fs.readFileSync(realIssue1Path, 'utf8');
-    const issue1 = JSON.parse(issue1Data);
-    detailedIssues.push(issue1);
-    
+  // Load detailed issues with activities using a loop
+  for (let i = 1; i <= TOTAL_ISSUES; i++) {
+    const issueFilePath = path.join(__dirname, '..', '..', 'output', 'tests', `real-issue-${i}-with-activities.json`);
     try {
-      const issue2Data = fs.readFileSync(realIssue2Path, 'utf8');
-      const issue2 = JSON.parse(issue2Data);
-      detailedIssues.push(issue2);
-      
-      try {
-        const issue3Data = fs.readFileSync(realIssue3Path, 'utf8');
-        const issue3 = JSON.parse(issue3Data);
-        detailedIssues.push(issue3);
-      } catch (error) {
-        console.warn('Could not load issue 3 data');
-      }
+      const issueData = fs.readFileSync(issueFilePath, 'utf8');
+      const issue = JSON.parse(issueData);
+      detailedIssues.push(issue);
     } catch (error) {
-      console.warn('Could not load issue 2 data');
+      console.warn(`Could not load issue ${i} data`);
     }
-  } catch (error) {
-    console.warn('Could not load detailed issues data');
   }
 } catch (error) {
   console.warn('Could not load real issues data, using sample data instead');
-  // Sample issue data that matches YouTrack API structure
-  issues = [
-    {
-      id: 'sample-1',
-      idReadable: 'SAMPLE-1659',
-      numberInProject: 1659,
-      summary: "Sample issue for testing tracking features",
-      description: "This is a sample description for testing purposes",
-      created: 1743825363340, // Sample created date
-      updated: 1745825363340,
-      resolved: null,
-      customFields: [],
-      $type: 'Issue'
-    },
-    {
-      id: 'sample-2',
-      idReadable: 'SAMPLE-1983',
-      numberInProject: 1983,
-      summary: "Sample payment provider integration",
-      description: "This is a placeholder for payment provider integration task",
-      created: 1743925363340, // Sample created date
-      updated: 1745925363340,
-      resolved: null,
-      customFields: [],
-      $type: 'Issue'
-    },
-    {
-      id: '1',
-      idReadable: 'TEST-1',
-      numberInProject: 1,
-      summary: 'Test issue 1',
-      description: 'This is a test issue for unit tests',
-      created: Date.now() - 86400000, // 1 day ago
-      updated: Date.now() - 43200000, // 12 hours ago
-      resolved: null,
-      customFields: [],
-      $type: 'Issue'
-    },
-    {
-      id: '2',
-      idReadable: 'TEST-2',
-      numberInProject: 2,
-      summary: 'Test issue 2',
-      description: 'Another test issue',
-      created: Date.now() - 172800000, // 2 days ago
-      updated: Date.now() - 86400000, // 1 day ago
-      resolved: true, // Issue is resolved
-      customFields: [],
-      $type: 'Issue'
-    }
-  ];
+  
+  // Generate sample issues using TOTAL_ISSUES constant
+  issues = generateSampleIssues(TOTAL_ISSUES);
   
   // If no real data, sprint issues are just the first two sample issues
-  sprintIssues = [
-    issues[0],
-    issues[1]
-  ];
+  sprintIssues = issues.slice(0, Math.min(2, TOTAL_ISSUES));
   
   // Sample detailed issues with activities
   detailedIssues = issues.map(issue => ({

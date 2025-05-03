@@ -1,21 +1,36 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerBoardRoutes } from '../../../src/routes/boardRoutes';
 import { BoardController } from '../../../src/controllers/boardController';
+import { BoardView } from '../../../src/views/boardView';
+import { createBoardListResult, createBoardDetailResult, createErrorResult } from '../../helpers/testHelpers';
 
-// Mock the BoardController
+// Mock the BoardController and BoardView
 jest.mock('../../../src/controllers/boardController');
+jest.mock('../../../src/views/boardView');
 
 describe('Board Routes', () => {
-  let server: McpServer;
+  // Create a mock server
+  const server = {
+    tool: jest.fn()
+  } as unknown as McpServer;
   
   beforeEach(() => {
-    // Create a mock MCP server
-    server = {
-      tool: jest.fn(),
-    } as unknown as McpServer;
-    
-    // Reset controller mocks
+    // Clear all mocks
     jest.resetAllMocks();
+    
+    // Mock the BoardView methods
+    (BoardView.renderList as jest.Mock).mockReturnValue({
+      content: [{ type: 'text', text: 'Rendered board list' }]
+    });
+    
+    (BoardView.renderDetail as jest.Mock).mockReturnValue({
+      content: [{ type: 'text', text: 'Rendered board detail' }]
+    });
+    
+    (BoardView.renderError as jest.Mock).mockReturnValue({
+      content: [{ type: 'text', text: 'Error: Failed to fetch board' }],
+      isError: true
+    });
   });
   
   it('should register board routes on the server', () => {
@@ -29,7 +44,7 @@ describe('Board Routes', () => {
     expect(server.tool).toHaveBeenCalledWith(
       'youtrack_list_boards',
       'List all available agile boards',
-      {},
+      expect.anything(),
       expect.any(Function)
     );
     
@@ -37,43 +52,49 @@ describe('Board Routes', () => {
     expect(server.tool).toHaveBeenCalledWith(
       'youtrack_get_board',
       'Get details of a specific agile board',
-      {
-        boardId: expect.any(Object) // zod schema object
-      },
+      expect.objectContaining({
+        boardId: expect.anything()
+      }),
       expect.any(Function)
     );
   });
   
-  it('should call BoardController.listBoards when list_boards route is called', async () => {
+  it('should call BoardController.getBoards when list_boards route is called', async () => {
     // Mock implementation
-    (BoardController.listBoards as jest.Mock).mockResolvedValue([
-      { id: 'board-1', name: 'Test Board' }
-    ]);
+    const boards = [
+      { id: 'board-1', name: 'Test Board 1' },
+      { id: 'board-2', name: 'Test Board 2' }
+    ];
+    const controllerResult = createBoardListResult(boards as any);
+    (BoardController.getBoards as jest.Mock).mockResolvedValue(controllerResult);
     
     // Register routes
     registerBoardRoutes(server);
     
-    // Get the route handler function (first argument of the second call to server.tool)
+    // Get the route handler function
     const routeHandler = (server.tool as jest.Mock).mock.calls[0][3];
     
     // Call the route handler
-    const result = await routeHandler();
+    const result = await routeHandler({});
     
     // Check if controller method was called
-    expect(BoardController.listBoards).toHaveBeenCalledTimes(1);
-    expect(result).toEqual([{ id: 'board-1', name: 'Test Board' }]);
+    expect(BoardController.getBoards).toHaveBeenCalledTimes(1);
+    expect(BoardView.renderList).toHaveBeenCalledWith(boards);
+    expect(result).toEqual({
+      content: [{ type: 'text', text: 'Rendered board list' }]
+    });
   });
   
   it('should call BoardController.getBoard when get_board route is called', async () => {
     // Mock implementation
-    (BoardController.getBoard as jest.Mock).mockResolvedValue(
-      { id: 'board-1', name: 'Test Board' }
-    );
+    const board = { id: 'board-1', name: 'Test Board 1' };
+    const controllerResult = createBoardDetailResult(board as any);
+    (BoardController.getBoard as jest.Mock).mockResolvedValue(controllerResult);
     
     // Register routes
     registerBoardRoutes(server);
     
-    // Get the route handler function (first argument of the second call to server.tool)
+    // Get the route handler function
     const routeHandler = (server.tool as jest.Mock).mock.calls[1][3];
     
     // Call the route handler with boardId
@@ -81,6 +102,32 @@ describe('Board Routes', () => {
     
     // Check if controller method was called with correct parameters
     expect(BoardController.getBoard).toHaveBeenCalledWith('board-1');
-    expect(result).toEqual({ id: 'board-1', name: 'Test Board' });
+    expect(BoardView.renderDetail).toHaveBeenCalledWith(board);
+    expect(result).toEqual({
+      content: [{ type: 'text', text: 'Rendered board detail' }]
+    });
+  });
+  
+  it('should handle errors when getBoards fails', async () => {
+    // Mock implementation
+    const errorResult = createErrorResult('Failed to fetch boards');
+    (BoardController.getBoards as jest.Mock).mockResolvedValue(errorResult);
+    
+    // Register routes
+    registerBoardRoutes(server);
+    
+    // Get the route handler function
+    const routeHandler = (server.tool as jest.Mock).mock.calls[0][3];
+    
+    // Call the route handler
+    const result = await routeHandler({});
+    
+    // Check if controller method was called and error is handled
+    expect(BoardController.getBoards).toHaveBeenCalledTimes(1);
+    expect(BoardView.renderError).toHaveBeenCalledWith('Failed to fetch boards');
+    expect(result).toEqual({
+      content: [{ type: 'text', text: 'Error: Failed to fetch board' }],
+      isError: true
+    });
   });
 }); 

@@ -1,6 +1,9 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { BoardController } from '../controllers/boardController';
+import { McpResponse } from '../views/common';
+import { BoardView } from '../views/boardView';
+import { ControllerResult, BoardListResult, BoardDetailResult } from '../types/controllerResults';
 
 export function registerBoardRoutes(server: McpServer) {
   // Get all agile boards
@@ -9,7 +12,12 @@ export function registerBoardRoutes(server: McpServer) {
     'List all available agile boards',
     {},
     async () => {
-      return await BoardController.listBoards();
+      const result = await BoardController.getBoards();
+      if (result.success && result.data) {
+        return BoardView.renderList((result.data as BoardListResult).boards);
+      } else {
+        return BoardView.renderError(String(result.error || 'Failed to fetch boards'));
+      }
     }
   );
 
@@ -21,7 +29,12 @@ export function registerBoardRoutes(server: McpServer) {
       boardId: z.string().describe('ID of the agile board'),
     },
     async ({ boardId }) => {
-      return await BoardController.getBoard(boardId);
+      const result = await BoardController.getBoard(boardId);
+      if (result.success && result.data) {
+        return BoardView.renderDetail((result.data as BoardDetailResult).board);
+      } else {
+        return BoardView.renderError(String(result.error || 'Failed to fetch board'));
+      }
     }
   );
 } 

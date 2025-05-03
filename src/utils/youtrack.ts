@@ -24,7 +24,7 @@ export class YouTrack {
   public static readonly DEFAULT_ACTIVITY_CHANGE_FIELDS = `$type,id,idReadable,name,presentation,shortName,summary,text,url,author(${YouTrack.DEFAULT_AUTHOR_FIELDS}),date,created`;
   public static readonly DEFAULT_ACTIVITY_FIELDS = `id,$type,timestamp,added(${YouTrack.DEFAULT_ACTIVITY_CHANGE_FIELDS}),removed(${YouTrack.DEFAULT_ACTIVITY_CHANGE_FIELDS}),author(${YouTrack.DEFAULT_AUTHOR_FIELDS}),field(${YouTrack.DEFAULT_ACTIVITY_CHANGE_FIELDS})`;
   public static readonly DEFAULT_ACTIVITY_CATEGORIES = `CustomFieldCategory,CommentsCategory`;
-  public static readonly DEFAULT_ISSUE_FIELDS = `id,idReadable,Stage,summary,description,created,updated,resolved,numberInProject,$type,project($type,id,name,shortName),reporter(${YouTrack.DEFAULT_AUTHOR_FIELDS}),updater(${YouTrack.DEFAULT_AUTHOR_FIELDS}),customFields($type,id,name,projectCustomField(id,field(id,name)),value($type,id,name,isResolved,fullName,login,avatarUrl,color(id))),links($type,direction,id,linkType($type,id,localizedName))`;
+  public static readonly DEFAULT_ISSUE_FIELDS = `id,idReadable,Stage,summary,description,created,updated,resolved,numberInProject,$type,project($type,id,name,shortName),reporter(${YouTrack.DEFAULT_AUTHOR_FIELDS}),updater(${YouTrack.DEFAULT_AUTHOR_FIELDS}),customFields($type,id,name,projectCustomField(id,field(id,name)),value($type,id,name,isResolved,fullName,login,avatarUrl,color(id))),links($type,direction,id,linkType($type,id,localizedName,sourceToTarget,targetToSource),issues(id,idReadable,summary,resolved),trimmedIssues(id,idReadable,summary,resolved),issuesSize,unresolvedIssuesSize)`;
   public static readonly DEFAULT_SPRINT_FIELDS = `id,name,goal,start,finish,archived,isDefault,unresolvedIssuesCount,issues(id,idReadable,projectCustomField(id,field(id,name)))`;
   public static readonly DEFAULT_AGILE_FIELDS = `id,name,description,start,finish,isDefault,isCompleted,sprints(${YouTrack.DEFAULT_SPRINT_FIELDS})`;
   private issueFieldBuilder = new FieldBuilder(YouTrack.DEFAULT_ISSUE_FIELDS);
@@ -569,7 +569,7 @@ export class YouTrack {
     return this.request<YouTrackTypes.IssueLink[]>(`/issues/${issueId}/links`, {
       params: {
         fields:
-          'id,direction,linkType(id,name,sourceToTarget,targetToSource),issues(id,summary)',
+          'id,direction,linkType(id,name,sourceToTarget,targetToSource),issues(id,idReadable,summary,resolved),trimmedIssues(id,idReadable,summary,resolved),issuesSize,unresolvedIssuesSize',
       },
     });
   }

@@ -2,9 +2,16 @@ import * as YouTrackTypes from '../types/youtrack';
 import { CommonView, McpResponse, ResourceResponse } from './common';
 import { formatIssueForAI, formatIssuesForAI } from '../utils/issue-formatter';
 import { createSeparator } from '../utils/view-utils';
+import { ControllerResult, IssueDetailResult, IssueListResult, IssueUpdateResult } from '../types/controllerResults';
 
 export class IssueView {
-  static renderDetail(issue: YouTrackTypes.Issue, activities?: any[]): McpResponse {
+  static renderDetail(result: ControllerResult<IssueDetailResult>): McpResponse {
+    if (!result.success || !result.data) {
+      return this.renderError(result.error || 'Failed to fetch issue details');
+    }
+    
+    const { issue, activities } = result.data;
+    
     return {
       content: [{ 
         type: "text", 
@@ -13,7 +20,13 @@ export class IssueView {
     };
   }
   
-  static renderList(issues: YouTrackTypes.Issue[], title: string): McpResponse {
+  static renderList(result: ControllerResult<IssueListResult>): McpResponse {
+    if (!result.success || !result.data) {
+      return this.renderError(result.error || 'Failed to fetch issues');
+    }
+    
+    const { issues, title } = result.data;
+    
     if (issues.length === 0) {
       return this.renderEmpty('No issues found matching the criteria.');
     }
@@ -21,7 +34,7 @@ export class IssueView {
     // Provide a summary
     const summaryContent = {
       type: "text" as const,
-      text: title
+      text: title || `Found ${issues.length} issues`
     };
     
     try {
@@ -48,11 +61,15 @@ export class IssueView {
     }
   }
   
-  static renderUpdateSuccess(issueId: string): McpResponse {
+  static renderUpdateSuccess(result: ControllerResult<IssueUpdateResult>): McpResponse {
+    if (!result.success || !result.data) {
+      return this.renderError(result.error || 'Failed to update issue');
+    }
+    
     return {
       content: [{ 
         type: "text", 
-        text: `Issue ${issueId} updated successfully!` 
+        text: `Issue ${result.data.issueId} updated successfully!` 
       }]
     };
   }

@@ -1,7 +1,7 @@
 import { IssueModel } from '../models/issue';
-import { IssueView } from '../views/issueView';
 import { McpResponse, ResourceResponse } from '../views/common';
 import { extractParam, createResourceErrorResponse, withErrorHandling } from '../utils/controller-utils';
+import { ControllerResult, IssueDetailResult, IssueListResult, IssueUpdateResult, Request } from '../types/controllerResults';
 
 interface UpdateIssueOptions {
   summary?: string;
@@ -25,29 +25,45 @@ interface FindIssuesByCriteriaOptions {
 
 export class IssueController {
   static getIssue = withErrorHandling(
-    async (issueId: string): Promise<McpResponse> => {
+    async (issueId: string): Promise<ControllerResult<IssueDetailResult>> => {
       const issue = await IssueModel.getById(issueId);
       const activities = await IssueModel.getIssueActivities(issueId);
       
       if (!issue) {
-        return IssueView.renderError(`No issue found with ID: ${issueId}`);
+        return {
+          success: false,
+          error: `No issue found with ID: ${issueId}`
+        };
       }
       
-      return IssueView.renderDetail(issue, activities);
+      return {
+        success: true,
+        data: {
+          issue,
+          activities
+        }
+      };
     },
     'Error fetching issue details'
   );
   
   static updateIssue = withErrorHandling(
-    async (issueId: string, updateData: UpdateIssueOptions): Promise<McpResponse> => {
+    async (issueId: string, updateData: UpdateIssueOptions): Promise<ControllerResult<IssueUpdateResult>> => {
       await IssueModel.updateIssue(issueId, updateData);
-      return IssueView.renderUpdateSuccess(issueId);
+      
+      return {
+        success: true,
+        data: {
+          issueId,
+          updated: true
+        }
+      };
     },
     'Error updating issue'
   );
   
   static searchIssues = withErrorHandling(
-    async (query: string, options?: SearchOptions): Promise<McpResponse> => {
+    async (query: string, options?: SearchOptions): Promise<ControllerResult<IssueListResult>> => {
       // Search for issues with the provided query and options
       const issues = await IssueModel.searchIssues(query || '', options);
       
@@ -60,13 +76,21 @@ export class IssueController {
       // Create title for the list
       const title = `Found ${issues.length} issues matching query: "${query}"\nShowing ${limitedIssues.length} results.`;
       
-      return IssueView.renderList(limitedIssues, title);
+      return {
+        success: true,
+        data: {
+          issues: limitedIssues,
+          total: issues.length,
+          query,
+          title
+        }
+      };
     },
     'Error searching issues'
   );
   
   static findIssuesByCriteria = withErrorHandling(
-    async (options: FindIssuesByCriteriaOptions): Promise<McpResponse> => {
+    async (options: FindIssuesByCriteriaOptions): Promise<ControllerResult<IssueListResult>> => {
       // Call the dedicated method for finding issues by criteria
       const issues = await IssueModel.findIssuesByCriteria(options);
       
@@ -96,12 +120,20 @@ export class IssueController {
       const queryDisplay = queryParts.length > 0 ? queryParts.join(' ') : 'All issues';
       const title = `Found ${issues.length} issues matching criteria.\nUsed query: "${queryDisplay}"\nShowing ${limitedIssues.length} results.`;
       
-      return IssueView.renderList(limitedIssues, title);
+      return {
+        success: true,
+        data: {
+          issues: limitedIssues,
+          total: issues.length,
+          query: queryDisplay,
+          title
+        }
+      };
     },
     'Error searching issues'
   );
   
-  static async handleResourceRequest(uri: URL, req: any): Promise<ResourceResponse> {
+  static async handleResourceRequest(uri: URL, req: Request): Promise<ResourceResponse> {
     // Extract issueId parameter
     const issueId = extractParam(req.params, 'issueId');
     
@@ -119,7 +151,12 @@ export class IssueController {
           };
         }
         
-        return IssueView.handleResourceRequest(uri, issue);
+        return {
+          contents: [{
+            uri: uri.href,
+            text: JSON.stringify(issue, null, 2)
+          }]
+        };
       } else {
         return {
           contents: [{

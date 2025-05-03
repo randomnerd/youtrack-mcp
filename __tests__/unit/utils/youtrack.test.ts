@@ -28,8 +28,9 @@ describe('YouTrack API Client', () => {
     it('should throw an error for unmocked endpoints instead of making real API calls', async () => {
       // Define a custom method to access a clearly non-existent endpoint
       const callUnmockedEndpoint = async () => {
-        // Cast to any to access private method
-        return (youtrackClient as any).request('/non-existent-endpoint/test-123', {});
+        // Use proper type access instead of casting to any
+        return (youtrackClient as unknown as { request: (endpoint: string, options: object) => Promise<any> })
+          .request('/non-existent-endpoint/test-123', {});
       };
       
       // Any unmocked endpoint should throw an error with our specific message
@@ -131,8 +132,9 @@ describe('YouTrack API Client', () => {
       // Create client with lower timeout for faster tests
       const client = new YouTrack(baseUrl, token, false, 100, 3);
       
-      // Cast to any to access private method
-      const result = await (client as any).request('/test-retry');
+      // Use proper type access
+      const result = await (client as unknown as { request: (endpoint: string) => Promise<{ success: boolean }> })
+        .request('/test-retry');
       
       expect(result).toEqual({ success: true });
       expect(callCount).toBe(2); // Verify it was called twice
@@ -150,7 +152,8 @@ describe('YouTrack API Client', () => {
       });
       
       const client = new YouTrack(baseUrl, token, false, 100, 3);
-      const result = await (client as any).request('/test-rate-limit');
+      const result = await (client as unknown as { request: (endpoint: string) => Promise<{ success: boolean }> })
+        .request('/test-rate-limit');
       
       expect(result).toEqual({ success: true });
       expect(callCount).toBe(2);
@@ -166,7 +169,8 @@ describe('YouTrack API Client', () => {
       
       const client = new YouTrack(baseUrl, token, false, 100, 3);
       
-      await expect((client as any).request('/test-client-error')).rejects.toThrow('YouTrack API Error (400)');
+      await expect((client as unknown as { request: (endpoint: string) => Promise<any> })
+        .request('/test-client-error')).rejects.toThrow('YouTrack API Error (400)');
       expect(callCount).toBe(1); // Verify it was only called once
     });
     
@@ -181,7 +185,8 @@ describe('YouTrack API Client', () => {
       // Set max retries to 2
       const client = new YouTrack(baseUrl, token, false, 100, 2);
       
-      await expect((client as any).request('/test-max-retries')).rejects.toThrow('YouTrack API Error (500)');
+      await expect((client as unknown as { request: (endpoint: string) => Promise<any> })
+        .request('/test-max-retries')).rejects.toThrow('YouTrack API Error (500)');
       expect(callCount).toBe(3); // Initial + 2 retries = 3 calls
     });
   });
@@ -598,7 +603,7 @@ describe('YouTrack API Client', () => {
   describe('Private utility methods', () => {
     describe('isRetryableError', () => {
       it('should identify 5XX errors as retryable', () => {
-        const client = youtrackClient as any;
+        const client = youtrackClient as unknown as { isRetryableError: (error: any) => boolean };
         expect(client.isRetryableError({ response: { status: 500 } })).toBe(true);
         expect(client.isRetryableError({ response: { status: 502 } })).toBe(true);
         expect(client.isRetryableError({ response: { status: 503 } })).toBe(true);
@@ -606,18 +611,18 @@ describe('YouTrack API Client', () => {
       });
 
       it('should identify rate limit errors as retryable', () => {
-        const client = youtrackClient as any;
+        const client = youtrackClient as unknown as { isRetryableError: (error: any) => boolean };
         expect(client.isRetryableError({ response: { status: 429 } })).toBe(true);
       });
 
       it('should identify network errors as retryable', () => {
-        const client = youtrackClient as any;
+        const client = youtrackClient as unknown as { isRetryableError: (error: any) => boolean };
         expect(client.isRetryableError({ message: 'Network Error' })).toBe(true);
         expect(client.isRetryableError({ message: 'timeout of 1000ms exceeded' })).toBe(true);
       });
 
       it('should identify client errors as non-retryable', () => {
-        const client = youtrackClient as any;
+        const client = youtrackClient as unknown as { isRetryableError: (error: any) => boolean };
         expect(client.isRetryableError({ response: { status: 400 } })).toBe(false);
         expect(client.isRetryableError({ response: { status: 401 } })).toBe(false);
         expect(client.isRetryableError({ response: { status: 403 } })).toBe(false);
@@ -627,7 +632,7 @@ describe('YouTrack API Client', () => {
 
     describe('calculateRetryDelay', () => {
       it('should use exponential backoff algorithm', () => {
-        const client = youtrackClient as any;
+        const client = youtrackClient as unknown as { calculateRetryDelay: (attempt: number) => number };
         const delay1 = client.calculateRetryDelay(1);
         const delay2 = client.calculateRetryDelay(2);
         const delay3 = client.calculateRetryDelay(3);
@@ -637,7 +642,7 @@ describe('YouTrack API Client', () => {
       });
 
       it('should have reasonable bounds', () => {
-        const client = youtrackClient as any;
+        const client = youtrackClient as unknown as { calculateRetryDelay: (attempt: number) => number };
         const delay1 = client.calculateRetryDelay(1);
         const delay5 = client.calculateRetryDelay(5);
 
@@ -706,7 +711,8 @@ describe('YouTrack API Client', () => {
         summary: 'Test Issue'
       };
       
-      const result = await (youtrackClient as any).addActivitiesToIssues(issue);
+      const result = await (youtrackClient as unknown as { addActivitiesToIssues: (issue: any) => Promise<any[]> })
+        .addActivitiesToIssues(issue);
       
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe(issueId);
@@ -734,7 +740,8 @@ describe('YouTrack API Client', () => {
       // Add an additional mock for the second issue
       mockAxios.onGet(`${baseUrl}/issues/TEST-456/activities`).reply(200, []);
       
-      const result = await (youtrackClient as any).addActivitiesToIssues(issues);
+      const result = await (youtrackClient as unknown as { addActivitiesToIssues: (issues: any[]) => Promise<any[]> })
+        .addActivitiesToIssues(issues);
       
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe(issueId);
@@ -810,24 +817,23 @@ describe('YouTrack API Client', () => {
       
       expect(mockAxios.history.get[0].params).toMatchObject(expectedParams);
       
-      // Access properties using type assertions
-      const cursorPage = result as any;
-      expect(cursorPage.hasNext).toBe(true);
-      expect(cursorPage.hasPrev).toBe(false);
-      expect(cursorPage.nextCursor).toBe('next-cursor-123');
+      // Use proper typings instead of casting to any
+      expect(result.hasNext).toBe(true);
+      expect(result.hasPrev).toBe(false);
+      expect(result.nextCursor).toBe('next-cursor-123');
     });
   });
 
   describe('Constructor and URL handling', () => {
     it('should handle base URL with trailing slash', () => {
       const client = new YouTrack(`${baseUrl}/`, token);
-      expect((client as any).baseUrl).toBe(baseUrl);
+      expect((client as unknown as { baseUrl: string }).baseUrl).toBe(baseUrl);
     });
 
     it('should append /api to base URL if not present', () => {
       const baseWithoutApi = 'http://youtrack-test.example.com';
       const client = new YouTrack(baseWithoutApi, token);
-      expect((client as any).baseUrl).toBe(`${baseWithoutApi}/api`);
+      expect((client as unknown as { baseUrl: string }).baseUrl).toBe(`${baseWithoutApi}/api`);
     });
 
     it('should set debug, timeout and maxRetries correctly', () => {
@@ -836,14 +842,14 @@ describe('YouTrack API Client', () => {
       const maxRetries = 5;
       const client = new YouTrack(baseUrl, token, debug, timeout, maxRetries);
       
-      expect((client as any).debug).toBe(debug);
-      expect((client as any).timeout).toBe(timeout);
-      expect((client as any).maxRetries).toBe(maxRetries);
+      expect((client as unknown as { debug: boolean }).debug).toBe(debug);
+      expect((client as unknown as { timeout: number }).timeout).toBe(timeout);
+      expect((client as unknown as { maxRetries: number }).maxRetries).toBe(maxRetries);
     });
 
     it('should set default headers correctly', () => {
       const client = new YouTrack(baseUrl, token);
-      const headers = (client as any).defaultHeaders;
+      const headers = (client as unknown as { defaultHeaders: Record<string, string> }).defaultHeaders;
       
       expect(headers.Authorization).toBe(`Bearer ${token}`);
       expect(headers.Accept).toContain('application/json');

@@ -17,6 +17,19 @@ import {
   mockUpdateIssue,
   mockProjectGetAll
 } from './typedMocks';
+import * as YouTrackTypes from '../../src/types/youtrack';
+import { 
+  ControllerResult, 
+  ProjectDetailResult, 
+  ProjectListResult,
+  IssueDetailResult,
+  IssueListResult,
+  IssueUpdateResult,
+  BoardDetailResult,
+  BoardListResult,
+  SprintDetailResult,
+  SprintListResult
+} from '../../src/types/controllerResults';
 
 // Helper function to create a supertest instance from an MCP server
 // This handles the TypeScript type issues by casting
@@ -132,7 +145,6 @@ export function createMockServer(): McpServer {
     app,
     router: app,
     tool: (name: string, description: string, schema: any, handler: Function) => {
-      console.log(`Registering tool: ${name}`);
       return server;
     }
   };
@@ -215,4 +227,156 @@ const MockSprintController = {
 // Function to create typed mocks for use in tests
 export function createMockFn(): jest.Mock {
   return jest.fn();
+}
+
+export const server = {
+  tool: jest.fn()
+};
+
+/**
+ * Create a valid project list controller result
+ */
+export function createProjectListResult(projects: YouTrackTypes.Project[]): ControllerResult<ProjectListResult> {
+  return {
+    success: true,
+    data: {
+      projects,
+      total: projects.length
+    }
+  };
+}
+
+/**
+ * Create a valid project detail controller result
+ */
+export function createProjectDetailResult(project: YouTrackTypes.Project): ControllerResult<ProjectDetailResult> {
+  return {
+    success: true,
+    data: {
+      project
+    }
+  };
+}
+
+/**
+ * Create a valid issue list controller result
+ */
+export function createIssueListResult(
+  issues: YouTrackTypes.Issue[], 
+  title?: string
+): ControllerResult<IssueListResult> {
+  return {
+    success: true,
+    data: {
+      issues,
+      total: issues.length,
+      title
+    }
+  };
+}
+
+/**
+ * Create a valid issue detail controller result
+ */
+export function createIssueDetailResult(
+  issue: YouTrackTypes.IssueWithActivities, 
+  activities?: YouTrackTypes.Activity[]
+): ControllerResult<IssueDetailResult> {
+  return {
+    success: true,
+    data: {
+      issue,
+      activities
+    }
+  };
+}
+
+/**
+ * Create a valid issue update controller result
+ */
+export function createIssueUpdateResult(issueId: string): ControllerResult<IssueUpdateResult> {
+  return {
+    success: true,
+    data: {
+      issueId,
+      updated: true
+    }
+  };
+}
+
+/**
+ * Create a valid board list controller result
+ */
+export function createBoardListResult(boards: YouTrackTypes.Board[]): ControllerResult<BoardListResult> {
+  return {
+    success: true,
+    data: {
+      boards,
+      total: boards.length
+    }
+  };
+}
+
+/**
+ * Create a valid board detail controller result
+ */
+export function createBoardDetailResult(
+  board: YouTrackTypes.Board,
+  columns?: YouTrackTypes.AgileColumn[],
+  issues?: YouTrackTypes.Issue[]
+): ControllerResult<BoardDetailResult> {
+  return {
+    success: true,
+    data: {
+      board,
+      columns,
+      issues
+    }
+  };
+}
+
+/**
+ * Create a valid sprint list controller result
+ */
+export function createSprintListResult(sprints: YouTrackTypes.Sprint[]): ControllerResult<SprintListResult> {
+  return {
+    success: true,
+    data: {
+      sprints,
+      total: sprints.length
+    }
+  };
+}
+
+/**
+ * Create a valid sprint detail controller result
+ */
+export function createSprintDetailResult(
+  sprint: YouTrackTypes.Sprint,
+  boardId: string
+): ControllerResult<SprintDetailResult> {
+  return {
+    success: true,
+    data: {
+      sprint,
+      boardId
+    }
+  };
+}
+
+/**
+ * Create an error controller result
+ */
+export function createErrorResult<T>(errorMessage: string): ControllerResult<T> {
+  return {
+    success: false,
+    error: errorMessage
+  };
+}
+
+/**
+ * Helper for handling server.tool() calls in tests
+ */
+export function tool(name: string, description: string, parameters: Record<string, unknown>, handler: Function) {
+  return server.tool(name, description, parameters, handler);
 } 

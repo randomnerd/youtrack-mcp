@@ -52,9 +52,13 @@ describe('Sprint Routes', () => {
   
   it('should call SprintController.getSprint when get_sprint route is called', async () => {
     // Mock implementation
-    (SprintController.getSprint as jest.Mock).mockResolvedValue(
-      { id: 'sprint-1', name: 'Test Sprint' }
-    );
+    (SprintController.getSprint as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        sprint: { id: 'sprint-1', name: 'Test Sprint' },
+        boardId: 'board-1'
+      }
+    });
     
     // Register routes
     registerSprintRoutes(server);
@@ -67,7 +71,14 @@ describe('Sprint Routes', () => {
     
     // Check if controller method was called with correct parameters
     expect(SprintController.getSprint).toHaveBeenCalledWith('board-1', 'sprint-1');
-    expect(result).toEqual({ id: 'sprint-1', name: 'Test Sprint' });
+    expect(result).toEqual({ 
+      content: expect.arrayContaining([
+        expect.objectContaining({
+          type: 'text',
+          text: expect.stringContaining('Test Sprint')
+        })
+      ])
+    });
   });
 
   it('should handle errors when get_sprint route fails', async () => {
@@ -88,10 +99,16 @@ describe('Sprint Routes', () => {
   
   it('should call SprintController.findSprints when find_sprints route is called', async () => {
     // Mock implementation
-    (SprintController.findSprints as jest.Mock).mockResolvedValue([
-      { id: 'sprint-1', name: 'Test Sprint 1' },
-      { id: 'sprint-2', name: 'Test Sprint 2' }
-    ]);
+    (SprintController.findSprints as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        sprints: [
+          { id: 'sprint-1', name: 'Test Sprint 1' },
+          { id: 'sprint-2', name: 'Test Sprint 2' }
+        ],
+        total: 2
+      }
+    });
     
     // Register routes
     registerSprintRoutes(server);
@@ -117,16 +134,26 @@ describe('Sprint Routes', () => {
       
       // Check if controller method was called with correct parameters
       expect(SprintController.findSprints).toHaveBeenCalledWith(options);
-      expect(result).toEqual([
-        { id: 'sprint-1', name: 'Test Sprint 1' },
-        { id: 'sprint-2', name: 'Test Sprint 2' }
-      ]);
+      expect(result).toEqual({
+        content: expect.arrayContaining([
+          expect.objectContaining({
+            type: 'text',
+            text: expect.stringContaining('Test Sprint 1')
+          })
+        ])
+      });
     }
   });
 
   it('should test status enum and default value in find_sprints route', async () => {
     // Mock implementation
-    (SprintController.findSprints as jest.Mock).mockResolvedValue([]);
+    (SprintController.findSprints as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        sprints: [],
+        total: 0
+      }
+    });
     
     // Register routes
     registerSprintRoutes(server);
@@ -159,7 +186,13 @@ describe('Sprint Routes', () => {
 
   it('should test limit transformation in find_sprints route', async () => {
     // Mock implementation
-    (SprintController.findSprints as jest.Mock).mockResolvedValue([]);
+    (SprintController.findSprints as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        sprints: [],
+        total: 0
+      }
+    });
     
     // Register routes
     registerSprintRoutes(server);

@@ -7,6 +7,42 @@ import { formatIssueForAI } from '../../../src/utils/issue-formatter';
 // This approach uses the fact that in Jest, we can access non-exported functions for testing
 const issueFormatterModule = require('../../../src/utils/issue-formatter');
 
+// Define test interfaces to avoid using 'any'
+interface AgileSprintValue {
+  $type: 'AgileSprintValue';
+  id: string;
+  name: string;
+  goal?: string;
+}
+
+interface CustomFieldWithSprintValue {
+  $type: 'CustomFieldValue';
+  id: string;
+  name: string;
+  value: AgileSprintValue;
+}
+
+interface EnumFieldValue {
+  $type: 'EnumFieldValue';
+  id: string;
+  name: string;
+}
+
+interface CustomFieldWithEnumValue {
+  $type: 'CustomFieldValue';
+  id: string;
+  name: string;
+  value: EnumFieldValue;
+}
+
+interface TestIssueWithSprintField {
+  id: string;
+  idReadable: string;
+  $type: 'Issue';
+  summary: string;
+  customFields?: (CustomFieldWithSprintValue | CustomFieldWithEnumValue)[];
+}
+
 describe('Issue Formatter - Private Function Tests', () => {
   describe('stripMarkdown function', () => {
     it('should strip basic markdown formatting', () => {
@@ -190,8 +226,7 @@ describe('Issue Formatter - Private Function Tests', () => {
 
   describe('extractSprintInformation function', () => {
     it('should extract sprint information from issue custom fields', () => {
-      // Use any to bypass type checking for testing private functions
-      const issue = {
+      const issue: TestIssueWithSprintField = {
         id: 'issue1',
         idReadable: 'TEST-1',
         $type: 'Issue',
@@ -209,7 +244,7 @@ describe('Issue Formatter - Private Function Tests', () => {
             }
           }
         ]
-      } as any;
+      };
 
       const result = issueFormatterModule.extractSprintInformation(issue);
       
@@ -219,8 +254,7 @@ describe('Issue Formatter - Private Function Tests', () => {
     });
 
     it('should handle when sprint is in a different field', () => {
-      // Use any to bypass type checking for testing private functions
-      const issue = {
+      const issue: TestIssueWithSprintField = {
         id: 'issue1',
         idReadable: 'TEST-1',
         $type: 'Issue',
@@ -238,7 +272,7 @@ describe('Issue Formatter - Private Function Tests', () => {
             }
           }
         ]
-      } as any;
+      };
 
       const result = issueFormatterModule.extractSprintInformation(issue);
       
@@ -248,8 +282,7 @@ describe('Issue Formatter - Private Function Tests', () => {
     });
 
     it('should return null when no sprint information is found', () => {
-      // Use any to bypass type checking for testing private functions
-      const issue = {
+      const issue: TestIssueWithSprintField = {
         id: 'issue1',
         idReadable: 'TEST-1',
         $type: 'Issue',
@@ -266,20 +299,19 @@ describe('Issue Formatter - Private Function Tests', () => {
             }
           }
         ]
-      } as any;
+      };
 
       const result = issueFormatterModule.extractSprintInformation(issue);
       expect(result).toBeNull();
     });
 
     it('should handle issues without custom fields', () => {
-      // Use any to bypass type checking for testing private functions
-      const issue = {
+      const issue: TestIssueWithSprintField = {
         id: 'issue1',
         idReadable: 'TEST-1',
         $type: 'Issue',
         summary: 'Test Issue'
-      } as any;
+      };
 
       const result = issueFormatterModule.extractSprintInformation(issue);
       expect(result).toBeNull();

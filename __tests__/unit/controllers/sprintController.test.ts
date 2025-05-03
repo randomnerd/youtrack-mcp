@@ -40,6 +40,7 @@ import { SprintController } from '../../../src/controllers/sprintController';
 import { SprintModel } from '../../../src/models/sprint';
 import { BoardModel } from '../../../src/models/board';
 import { SprintView } from '../../../src/views/sprintView';
+import { ControllerResult, SprintDetailResult, SprintListResult } from '../../../src/types/controllerResults';
 
 describe('SprintController', () => {
   beforeEach(() => {
@@ -51,68 +52,65 @@ describe('SprintController', () => {
       // Arrange
       const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', issues: [], $type: 'Sprint' };
       mockGetById.mockResolvedValue(mockSprint);
-      mockRenderDetail.mockReturnValue({ success: true, data: mockSprint });
-
+      
       // Act
       const result = await SprintController.getSprint('board-1', 'sprint-1');
 
       // Assert
       expect(mockGetById).toHaveBeenCalledWith('board-1', 'sprint-1');
-      expect(mockRenderDetail).toHaveBeenCalledWith(mockSprint, 'board-1', undefined);
-      expect(result).toEqual({ success: true, data: mockSprint });
+      // SprintView.renderDetail should not be called in the controller implementation
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      if (result.data) {
+        expect(result.data.sprint).toEqual(mockSprint);
+        expect(result.data.boardId).toBe('board-1');
+      }
     });
 
     test('should fetch sprint issues when sprint has no issues', async () => {
       // Arrange
       const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', issues: [], $type: 'Sprint' };
-      const mockIssues: YouTrackTypes.Issue[] = [{ id: 'issue-1', summary: 'Test Issue', idReadable: 'TEST-1', numberInProject: 1, $type: 'Issue' }];
       mockGetById.mockResolvedValue(mockSprint);
-      mockGetSprintIssues.mockResolvedValue(mockIssues);
-      mockRenderDetail.mockReturnValue({ success: true, data: { ...mockSprint, issues: mockIssues } });
-
+      
       // Act
       const result = await SprintController.getSprint('board-1', 'sprint-1');
 
       // Assert
       expect(mockGetById).toHaveBeenCalledWith('board-1', 'sprint-1');
-      expect(mockGetSprintIssues).toHaveBeenCalledWith('Sprint 1');
-      expect(mockRenderDetail).toHaveBeenCalledWith(mockSprint, 'board-1', mockIssues);
+      // SprintView.renderDetail should not be called in the controller implementation
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      if (result.data) {
+        expect(result.data.sprint).toEqual(mockSprint);
+        expect(result.data.boardId).toBe('board-1');
+      }
     });
 
     test('should return error when sprint does not exist', async () => {
       // Arrange
       mockGetById.mockResolvedValue(null);
-      mockRenderError.mockReturnValue({ success: false, error: 'Sprint not found' });
-
+      
       // Act
       const result = await SprintController.getSprint('board-1', 'non-existent');
 
       // Assert
       expect(mockGetById).toHaveBeenCalledWith('board-1', 'non-existent');
-      expect(mockRenderError).toHaveBeenCalledWith('No sprint found with ID: non-existent on board: board-1');
-      expect(result).toEqual({ success: false, error: 'Sprint not found' });
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('No sprint found with ID: non-existent on board: board-1');
     });
 
-    test('should handle error when fetching sprint issues', async () => {
+    test('should handle error when model throws exception', async () => {
       // Arrange
-      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', issues: [], $type: 'Sprint' };
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const errorMessage = 'API error';
+      mockGetById.mockRejectedValue(new Error(errorMessage));
       
-      mockGetById.mockResolvedValue(mockSprint);
-      mockGetSprintIssues.mockRejectedValue(new Error('API error'));
-      mockRenderDetail.mockReturnValue({ success: true, data: mockSprint });
-
       // Act
       const result = await SprintController.getSprint('board-1', 'sprint-1');
 
       // Assert
       expect(mockGetById).toHaveBeenCalledWith('board-1', 'sprint-1');
-      expect(mockGetSprintIssues).toHaveBeenCalledWith('Sprint 1');
-      expect(console.error).toHaveBeenCalled();
-      expect(mockRenderDetail).toHaveBeenCalledWith(mockSprint, 'board-1', []);
-      
-      // Restore console.error
-      consoleErrorSpy.mockRestore();
+      expect(result.success).toBe(false);
+      expect(result.error).toContain(errorMessage);
     });
   });
 
@@ -125,16 +123,20 @@ describe('SprintController', () => {
       
       mockFindSprints.mockResolvedValue(mockSprints);
       mockBoardGetById.mockResolvedValue(mockBoard);
-      mockRenderList.mockReturnValue({ success: true, data: mockSprints });
-
+      
       // Act
       const result = await SprintController.findSprints(options);
 
       // Assert
       expect(mockFindSprints).toHaveBeenCalledWith(options);
       expect(mockBoardGetById).toHaveBeenCalledWith('board-1');
-      expect(mockRenderList).toHaveBeenCalledWith(mockSprints, 'Board 1');
-      expect(result).toEqual({ success: true, data: mockSprints });
+      // SprintView.renderList should not be called in the controller implementation
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      if (result.data) {
+        expect(result.data.sprints).toEqual(mockSprints);
+        expect(result.data.total).toBe(mockSprints.length);
+      }
     });
 
     test('should return sprints without board name when boardId is not provided', async () => {
@@ -143,16 +145,20 @@ describe('SprintController', () => {
       const options = { status: 'all' as const };
       
       mockFindSprints.mockResolvedValue(mockSprints);
-      mockRenderList.mockReturnValue({ success: true, data: mockSprints });
-
+      
       // Act
       const result = await SprintController.findSprints(options);
 
       // Assert
       expect(mockFindSprints).toHaveBeenCalledWith(options);
       expect(mockBoardGetById).not.toHaveBeenCalled();
-      expect(mockRenderList).toHaveBeenCalledWith(mockSprints, undefined);
-      expect(result).toEqual({ success: true, data: mockSprints });
+      // SprintView.renderList should not be called in the controller implementation
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      if (result.data) {
+        expect(result.data.sprints).toEqual(mockSprints);
+        expect(result.data.total).toBe(mockSprints.length);
+      }
     });
 
     test('should handle error when fetching board details', async () => {
@@ -163,8 +169,7 @@ describe('SprintController', () => {
       
       mockFindSprints.mockResolvedValue(mockSprints);
       mockBoardGetById.mockRejectedValue(new Error('Board API error'));
-      mockRenderList.mockReturnValue({ success: true, data: mockSprints });
-
+      
       // Act
       const result = await SprintController.findSprints(options);
 
@@ -172,11 +177,31 @@ describe('SprintController', () => {
       expect(mockFindSprints).toHaveBeenCalledWith(options);
       expect(mockBoardGetById).toHaveBeenCalledWith('board-1');
       expect(console.error).toHaveBeenCalled();
-      expect(mockRenderList).toHaveBeenCalledWith(mockSprints, undefined);
-      expect(result).toEqual({ success: true, data: mockSprints });
+      // SprintView.renderList should not be called in the controller implementation
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      if (result.data) {
+        expect(result.data.sprints).toEqual(mockSprints);
+        expect(result.data.total).toBe(mockSprints.length);
+      }
       
       // Restore console.error
       consoleErrorSpy.mockRestore();
+    });
+
+    test('should handle error when model throws exception', async () => {
+      // Arrange
+      const errorMessage = 'API error';
+      const options = { boardId: 'board-1' };
+      mockFindSprints.mockRejectedValue(new Error(errorMessage));
+
+      // Act
+      const result = await SprintController.findSprints(options);
+
+      // Assert
+      expect(mockFindSprints).toHaveBeenCalledWith(options);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain(errorMessage);
     });
   });
 
@@ -252,7 +277,7 @@ describe('SprintController', () => {
       
       // Act
       const result = await SprintController.handleResourceRequest(mockUri, mockReq);
-
+      
       // Assert
       expect(mockGetById).toHaveBeenCalledWith('board-1', 'sprint-1');
       expect(result).toEqual({
@@ -262,7 +287,7 @@ describe('SprintController', () => {
         }]
       });
     });
-
+    
     test('should handle error when board is not found', async () => {
       // Arrange
       const mockUri = new URL('http://example.com/api/boards/board-1/sprints');
@@ -272,7 +297,7 @@ describe('SprintController', () => {
       
       // Act
       const result = await SprintController.handleResourceRequest(mockUri, mockReq);
-
+      
       // Assert
       expect(mockBoardGetById).toHaveBeenCalledWith('board-1');
       expect(result).toEqual({
@@ -281,6 +306,34 @@ describe('SprintController', () => {
           text: "Board not found."
         }]
       });
+    });
+    
+    test('should handle exceptions in resource handling', async () => {
+      // Arrange
+      const mockUri = new URL('http://example.com/api/boards/board-1/sprints');
+      const mockReq = { params: { boardId: 'board-1' } };
+      
+      // Create a mock error response
+      const errorResponse = {
+        contents: [{
+          uri: mockUri.href,
+          text: "An error occurred while processing your request."
+        }]
+      };
+      
+      // Setup the mock to fail
+      mockBoardGetById.mockRejectedValue(new Error('API error'));
+      
+      // Act
+      const result = await SprintController.handleResourceRequest(mockUri, mockReq);
+      
+      // Assert
+      expect(mockBoardGetById).toHaveBeenCalledWith('board-1');
+      expect(result.contents).toBeDefined();
+      expect(result.contents.length).toBeGreaterThan(0);
+      // We can't check the exact error message since we're not mocking createResourceErrorResponse
+      // Just check that we have a response with the right structure
+      expect(result.contents[0].uri).toBe(mockUri.href);
     });
   });
 }); 

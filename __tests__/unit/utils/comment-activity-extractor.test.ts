@@ -190,6 +190,6 @@ describe('extractCommentsFromActivities', () => {
   });
 
   it('should handle undefined activities', () => {
-    expect(extractCommentsFromActivities(undefined as any)).toEqual([]);
+    expect(extractCommentsFromActivities(undefined as unknown as YouTrackTypes.ActivityItem[])).toEqual([]);
   });
 }); 

@@ -1,6 +1,9 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { SprintController } from '../controllers/sprintController';
+import { McpResponse } from '../views/common';
+import { SprintView } from '../views/sprintView';
+import { ControllerResult } from '../types/controllerResults';
 
 export function registerSprintRoutes(server: McpServer) {
   // Get sprint details
@@ -11,8 +14,10 @@ export function registerSprintRoutes(server: McpServer) {
       boardId: z.string().describe('ID of the agile board'),
       sprintId: z.string().describe('ID of the sprint'),
     },
-    async ({ boardId, sprintId }) => {
-      return await SprintController.getSprint(boardId, sprintId);
+    async ({ boardId, sprintId }): Promise<McpResponse> => {
+      const result = await SprintController.getSprint(boardId, sprintId);
+
+      return SprintView.renderDetail(result);
     }
   );
 
@@ -26,8 +31,10 @@ export function registerSprintRoutes(server: McpServer) {
       status: z.enum(['active', 'archived', 'all']).optional().default('all').describe('Status of sprints to find'),
       limit: z.number().optional().transform(val => Math.min(Math.max(val || 10, 1), 50)).describe('Maximum number of sprints to return (1-50)')
     },
-    async (options) => {
-      return await SprintController.findSprints(options);
+    async (options): Promise<McpResponse> => {
+      const result = await SprintController.findSprints(options);
+
+      return SprintView.renderList(result, options.boardId);
     }
   );
 } 

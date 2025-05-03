@@ -16,45 +16,48 @@ describe('Board Controller', () => {
     jest.resetAllMocks();
   });
 
-  describe('listBoards', () => {
+  describe('getBoards', () => {
     it('should return all boards', async () => {
       // Setup the mock implementation
       (BoardModel.getAll as jest.Mock).mockResolvedValue(boardFixtures.boards);
       
       // Call the controller function
-      const result = await BoardController.listBoards();
+      const result = await BoardController.getBoards();
       
       // Verify the results
       expect(BoardModel.getAll).toHaveBeenCalledTimes(1);
-      expect(result).toHaveProperty('content');
-      expect(Array.isArray(result.content)).toBe(true);
-      expect(result.content.length).toBeGreaterThan(0);
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data).toHaveProperty('boards');
+      expect(Array.isArray(result.data?.boards)).toBe(true);
+      expect(result.data?.boards.length).toBeGreaterThan(0);
     });
 
     it('should handle empty boards list', async () => {
       // Setup empty boards list
       (BoardModel.getAll as jest.Mock).mockResolvedValue([]);
       
-      const result = await BoardController.listBoards();
+      const result = await BoardController.getBoards();
       
       expect(BoardModel.getAll).toHaveBeenCalledTimes(1);
-      expect(result).toHaveProperty('content');
-      expect(Array.isArray(result.content)).toBe(true);
-      // Content should contain message about no boards found
-      expect(JSON.stringify(result.content)).toContain('No agile boards found');
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data).toHaveProperty('boards');
+      expect(Array.isArray(result.data?.boards)).toBe(true);
+      expect(result.data?.boards.length).toBe(0);
+      expect(result.data?.total).toBe(0);
     });
 
     it('should handle errors', async () => {
       const errorMessage = 'Failed to fetch boards';
       (BoardModel.getAll as jest.Mock).mockRejectedValue(new Error(errorMessage));
       
-      const result = await BoardController.listBoards();
+      const result = await BoardController.getBoards();
       
       expect(BoardModel.getAll).toHaveBeenCalledTimes(1);
-      expect(result).toHaveProperty('content');
-      expect(result).toHaveProperty('isError', true);
-      // Error message should be in the content
-      expect(JSON.stringify(result.content)).toContain(errorMessage);
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain(errorMessage);
     });
   });
 
@@ -69,10 +72,10 @@ describe('Board Controller', () => {
       const result = await BoardController.getBoard(boardId);
       
       expect(BoardModel.getById).toHaveBeenCalledWith(boardId);
-      expect(result).toHaveProperty('content');
-      expect(Array.isArray(result.content)).toBe(true);
-      // Content should contain board name
-      expect(JSON.stringify(result.content)).toContain(board.name);
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data).toHaveProperty('board');
+      expect(result.data?.board.name).toBe(board.name);
     });
 
     it('should handle board not found', async () => {
@@ -83,10 +86,9 @@ describe('Board Controller', () => {
       const result = await BoardController.getBoard(boardId);
       
       expect(BoardModel.getById).toHaveBeenCalledWith(boardId);
-      expect(result).toHaveProperty('content');
-      expect(result).toHaveProperty('isError', true);
-      // Error message should be in the content
-      expect(JSON.stringify(result.content)).toContain('No board found');
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain('No board found');
     });
 
     it('should handle errors', async () => {
@@ -96,10 +98,9 @@ describe('Board Controller', () => {
       const result = await BoardController.getBoard(boardId);
       
       expect(BoardModel.getById).toHaveBeenCalledWith(boardId);
-      expect(result).toHaveProperty('content');
-      expect(result).toHaveProperty('isError', true);
-      // Error message should be in the content
-      expect(JSON.stringify(result.content)).toContain('Board fetch error');
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain('Board fetch error');
     });
   });
 }); 

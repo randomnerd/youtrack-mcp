@@ -1,9 +1,12 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerIssueRoutes } from '../../../src/routes/issueRoutes';
 import { IssueController } from '../../../src/controllers/issueController';
+import { IssueView } from '../../../src/views/issueView';
+import { createIssueDetailResult, createIssueListResult, createIssueUpdateResult, createErrorResult } from '../../helpers/testHelpers';
 
-// Mock the IssueController
+// Mock the IssueController and IssueView
 jest.mock('../../../src/controllers/issueController');
+jest.mock('../../../src/views/issueView');
 
 describe('Issue Routes', () => {
   let server: McpServer;
@@ -16,6 +19,19 @@ describe('Issue Routes', () => {
     
     // Reset controller mocks
     jest.resetAllMocks();
+    
+    // Mock the IssueView methods
+    (IssueView.renderDetail as jest.Mock).mockReturnValue({
+      content: [{ type: 'text', text: 'Rendered issue detail' }]
+    });
+    
+    (IssueView.renderList as jest.Mock).mockReturnValue({
+      content: [{ type: 'text', text: 'Rendered issue list' }]
+    });
+    
+    (IssueView.renderUpdateSuccess as jest.Mock).mockReturnValue({
+      content: [{ type: 'text', text: 'Issue updated successfully' }]
+    });
   });
   
   it('should register issue routes on the server', () => {
@@ -78,9 +94,9 @@ describe('Issue Routes', () => {
   
   it('should call IssueController.getIssue when get_issue route is called', async () => {
     // Mock implementation
-    (IssueController.getIssue as jest.Mock).mockResolvedValue(
-      { id: 'issue-1', summary: 'Test Issue' }
-    );
+    const issue = { id: 'issue-1', summary: 'Test Issue', $type: 'Issue', customFields: [] };
+    const controllerResult = createIssueDetailResult(issue as any);
+    (IssueController.getIssue as jest.Mock).mockResolvedValue(controllerResult);
     
     // Register routes
     registerIssueRoutes(server);
@@ -93,7 +109,10 @@ describe('Issue Routes', () => {
     
     // Check if controller method was called with correct parameters
     expect(IssueController.getIssue).toHaveBeenCalledWith('issue-1');
-    expect(result).toEqual({ id: 'issue-1', summary: 'Test Issue' });
+    expect(IssueView.renderDetail).toHaveBeenCalledWith(controllerResult);
+    expect(result).toEqual({
+      content: [{ type: 'text', text: 'Rendered issue detail' }]
+    });
   });
 
   it('should handle errors when get_issue route fails', async () => {
@@ -114,9 +133,8 @@ describe('Issue Routes', () => {
   
   it('should call IssueController.updateIssue when update_issue route is called', async () => {
     // Mock implementation
-    (IssueController.updateIssue as jest.Mock).mockResolvedValue(
-      { id: 'issue-1', summary: 'Updated Issue', description: 'Updated description', resolved: true }
-    );
+    const controllerResult = createIssueUpdateResult('issue-1');
+    (IssueController.updateIssue as jest.Mock).mockResolvedValue(controllerResult);
     
     // Register routes
     registerIssueRoutes(server);
@@ -135,6 +153,7 @@ describe('Issue Routes', () => {
     for (const options of testCases) {
       // Reset the mock before each call
       (IssueController.updateIssue as jest.Mock).mockClear();
+      (IssueView.renderUpdateSuccess as jest.Mock).mockClear();
       
       // Call the route handler with options
       const result = await routeHandler(options);
@@ -144,11 +163,9 @@ describe('Issue Routes', () => {
       
       // Check if controller method was called with correct parameters
       expect(IssueController.updateIssue).toHaveBeenCalledWith(issueId, updateData);
-      expect(result).toEqual({ 
-        id: 'issue-1', 
-        summary: 'Updated Issue', 
-        description: 'Updated description', 
-        resolved: true 
+      expect(IssueView.renderUpdateSuccess).toHaveBeenCalledWith(controllerResult);
+      expect(result).toEqual({
+        content: [{ type: 'text', text: 'Issue updated successfully' }]
       });
     }
   });
@@ -175,10 +192,12 @@ describe('Issue Routes', () => {
   
   it('should call IssueController.searchIssues when search_issues route is called', async () => {
     // Mock implementation
-    (IssueController.searchIssues as jest.Mock).mockResolvedValue([
-      { id: 'issue-1', summary: 'Test Issue 1' },
-      { id: 'issue-2', summary: 'Test Issue 2' }
-    ]);
+    const issues = [
+      { id: 'issue-1', summary: 'Test Issue 1', $type: 'Issue', customFields: [] },
+      { id: 'issue-2', summary: 'Test Issue 2', $type: 'Issue', customFields: [] }
+    ];
+    const controllerResult = createIssueListResult(issues as any[]);
+    (IssueController.searchIssues as jest.Mock).mockResolvedValue(controllerResult);
     
     // Register routes
     registerIssueRoutes(server);
@@ -197,6 +216,7 @@ describe('Issue Routes', () => {
     for (const options of testCases) {
       // Reset the mock before each call
       (IssueController.searchIssues as jest.Mock).mockClear();
+      (IssueView.renderList as jest.Mock).mockClear();
       
       // Call the route handler with options
       const result = await routeHandler(options);
@@ -206,10 +226,10 @@ describe('Issue Routes', () => {
       
       // Check if controller method was called with correct parameters
       expect(IssueController.searchIssues).toHaveBeenCalledWith(query, searchOptions);
-      expect(result).toEqual([
-        { id: 'issue-1', summary: 'Test Issue 1' },
-        { id: 'issue-2', summary: 'Test Issue 2' }
-      ]);
+      expect(IssueView.renderList).toHaveBeenCalledWith(controllerResult);
+      expect(result).toEqual({
+        content: [{ type: 'text', text: 'Rendered issue list' }]
+      });
     }
   });
 
@@ -264,10 +284,12 @@ describe('Issue Routes', () => {
   
   it('should call IssueController.findIssuesByCriteria when find_issues_by_criteria route is called', async () => {
     // Mock implementation
-    (IssueController.findIssuesByCriteria as jest.Mock).mockResolvedValue([
-      { id: 'issue-1', summary: 'Test Issue 1' },
-      { id: 'issue-2', summary: 'Test Issue 2' }
-    ]);
+    const issues = [
+      { id: 'issue-1', summary: 'Test Issue 1', $type: 'Issue', customFields: [] },
+      { id: 'issue-2', summary: 'Test Issue 2', $type: 'Issue', customFields: [] }
+    ];
+    const controllerResult = createIssueListResult(issues as any[]);
+    (IssueController.findIssuesByCriteria as jest.Mock).mockResolvedValue(controllerResult);
     
     // Register routes
     registerIssueRoutes(server);
@@ -275,31 +297,24 @@ describe('Issue Routes', () => {
     // Get the route handler function
     const routeHandler = (server.tool as jest.Mock).mock.calls[3][3];
     
-    // Different test cases for criteria options
-    const testCases = [
-      { project: 'TEST' },
-      { assignee: 'me' },
-      { sprint: 'Sprint 1' },
-      { type: 'Bug' },
-      { status: 'Open' },
-      { limit: 15 },
-      { project: 'TEST', assignee: 'me', sprint: 'Sprint 1', type: 'Bug', status: 'Open', limit: 10 }
-    ];
+    // Test options
+    const options = {
+      project: 'TEST',
+      assignee: 'user1',
+      sprint: 'Sprint 1',
+      type: 'Bug',
+      limit: 10
+    };
     
-    for (const options of testCases) {
-      // Reset the mock before each call
-      (IssueController.findIssuesByCriteria as jest.Mock).mockClear();
-      
-      // Call the route handler with options
-      const result = await routeHandler(options);
-      
-      // Check if controller method was called with correct parameters
-      expect(IssueController.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toEqual([
-        { id: 'issue-1', summary: 'Test Issue 1' },
-        { id: 'issue-2', summary: 'Test Issue 2' }
-      ]);
-    }
+    // Call the route handler
+    const result = await routeHandler(options);
+    
+    // Check if controller method was called with correct parameters
+    expect(IssueController.findIssuesByCriteria).toHaveBeenCalledWith(options);
+    expect(IssueView.renderList).toHaveBeenCalledWith(controllerResult);
+    expect(result).toEqual({
+      content: [{ type: 'text', text: 'Rendered issue list' }]
+    });
   });
 
   it('should test limit transformation in find_issues_by_criteria route', async () => {

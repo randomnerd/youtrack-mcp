@@ -2,10 +2,15 @@ import * as YouTrackTypes from '../types/youtrack';
 import { CommonView, McpResponse, ResourceResponse } from './common';
 import { formatIssueForAI, formatIssuesForAI } from '../utils/issue-formatter';
 import { formatSprintListItem, formatSprintPeriod, formatIssueStatus, createSeparator } from '../utils/view-utils';
+import { Request, type ControllerResult, type SprintDetailResult, type SprintListResult } from '../types/controllerResults';
 
 export class SprintView {
-  static renderDetail(sprint: YouTrackTypes.Sprint, boardId: string, issues: (YouTrackTypes.Issue | YouTrackTypes.IssueRef)[] = []): McpResponse {
-    // Sprint summary for the overview
+  static renderDetail(result: ControllerResult<SprintDetailResult>): McpResponse {
+    if (!result.success || !result.data) {
+      return this.renderError(result.error || 'Failed to fetch sprint details');
+    }
+
+    const { sprint, boardId } = result.data;
     const sprintSummary = {
       type: 'text' as const,
       text: `Summary: Sprint "${sprint.name}" (ID: ${sprint.id})`
@@ -18,12 +23,12 @@ export class SprintView {
 Name: ${sprint.name} (ID: ${sprint.id})
 Board ID: ${boardId}
 Period: ${formatSprintPeriod(sprint)}
-Issue Count: ${issues.length || 0}
+Issue Count: ${sprint.issues?.length || 0}
 `
     };
 
     // If no issues found, return only sprint details
-    if (!issues || issues.length === 0) {
+    if (!sprint.issues || sprint.issues.length === 0) {
       return {
         content: [
           sprintSummary,
@@ -38,13 +43,13 @@ Issue Count: ${issues.length || 0}
 
     // Format the issues using the new formatter
     // Filter for full Issue objects (not just refs)
-    const fullIssues = issues.filter((issue): issue is YouTrackTypes.Issue => 
+    const fullIssues = sprint.issues.filter((issue): issue is YouTrackTypes.Issue => 
       'summary' in issue && 'idReadable' in issue && 'numberInProject' in issue
     );
     
     let issuesContent;
     
-    if (fullIssues.length === issues.length) {
+    if (fullIssues.length === sprint.issues.length) {
       // If all issues are full issues, use the batch formatter
       issuesContent = {
         type: 'text' as const,
@@ -54,7 +59,7 @@ Issue Count: ${issues.length || 0}
       // If we only have issue references or incomplete issues, format them simply
       issuesContent = {
         type: 'text' as const,
-        text: issues.map(issue => 
+        text: sprint.issues.map(issue => 
           `Issue ID: ${issue.id}${('summary' in issue) ? ` - ${issue.summary}` : ''}`
         ).join('\n\n')
       };
@@ -70,12 +75,16 @@ Issue Count: ${issues.length || 0}
     };
   }
 
-  static renderList(sprints: YouTrackTypes.Sprint[], boardName?: string): McpResponse {
-    const sprintsText = sprints.map(sprint => formatSprintListItem(sprint)).join('\n\n');
+  static renderList(result: ControllerResult<SprintListResult>, boardName?: string): McpResponse {
+    if (!result.success || !result.data) {
+      return this.renderError(result.error || 'Failed to fetch sprints');
+    }
+
+    const sprintsText = result.data.sprints.map(sprint => formatSprintListItem(sprint)).join('\n\n');
     
     const title = boardName 
       ? `Sprints for board "${boardName}"` 
-      : `Found ${sprints.length} sprints`;
+      : `Found ${result.data.total} sprints`;
     
     return {
       content: [{ 
@@ -88,7 +97,7 @@ Issue Count: ${issues.length || 0}
   static renderEmpty = CommonView.renderEmpty;
   static renderError = CommonView.renderError;
 
-  static handleResourceRequest(uri: URL, params: any, sprint?: YouTrackTypes.Sprint | YouTrackTypes.Sprint[], board?: YouTrackTypes.Board): ResourceResponse {
+  static handleResourceRequest(uri: URL, params: Record<string, string | undefined>, sprint?: YouTrackTypes.Sprint | YouTrackTypes.Sprint[], board?: YouTrackTypes.Board): ResourceResponse {
     const boardId = params?.boardId || 'unknown';
     
     if (!sprint) {

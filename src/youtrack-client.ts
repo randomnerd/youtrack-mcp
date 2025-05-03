@@ -43,7 +43,7 @@ if (configErrors.length > 0) {
   // Create a proxy that throws an error when any method is called
   // This prevents errors at import time but provides clear errors when methods are called
   const mockHandler = {
-    get: (_target: any, prop: string) => {
+    get: (_target: object, prop: string | symbol) => {
       if (typeof prop === 'string' && prop !== 'then') {
         return () => {
           throw new Error(`Cannot call YouTrack API: ${errorMessage}`);
@@ -53,7 +53,10 @@ if (configErrors.length > 0) {
     }
   };
   
-  youtrackClient = new Proxy({} as YouTrack, mockHandler);
+  // Create a mock instance with the same constructor signature
+  const mockClient = new YouTrack('', '', false, 0, 0);
+  // Override with proxy
+  youtrackClient = new Proxy(mockClient, mockHandler) as YouTrack;
 } else {
   // Initialize YouTrack client with validated configuration
   youtrackClient = new YouTrack(baseUrl!, token!, process.env.DEBUG === 'true', timeout, maxRetries);

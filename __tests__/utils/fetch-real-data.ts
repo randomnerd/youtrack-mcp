@@ -12,7 +12,6 @@ const OUTPUT_DIR = path.join(__dirname, '..', '..', 'output', 'tests');
 async function saveJsonToFile(data: any, filename: string): Promise<void> {
   const filePath = path.join(OUTPUT_DIR, filename);
   await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8');
-  console.log(`Data saved to ${filePath}`);
 }
 
 // Helper function to anonymize and save data
@@ -44,9 +43,6 @@ async function fetchRealData() {
   const ytUrl = process.env.YOUTRACK_URL || '';
   const ytToken = process.env.YOUTRACK_TOKEN || '';
   
-  console.log('YouTrack URL:', ytUrl);
-  console.log('YouTrack Token (first 5 chars):', ytToken.substring(0, 5) + '...');
-  
   const ytClient = new YouTrack(
     ytUrl,
     ytToken,
@@ -56,10 +52,8 @@ async function fetchRealData() {
   );
 
   try {
-    console.log('Fetching boards...');
     // Fetch boards data
     const boards = await ytClient.listBoards();
-    console.log(`Found ${boards.length} boards`);
     
     // Save anonymized boards data
     await anonymizeAndSaveData(
@@ -70,7 +64,6 @@ async function fetchRealData() {
     );
     
     if (boards.length === 0) {
-      console.log('No boards found. Exiting.');
       return;
     }
 
@@ -80,7 +73,6 @@ async function fetchRealData() {
     
     // Use the found board or fall back to the first board
     const testBoard = targetBoard || boards[0];
-    console.log(`Using board: ${testBoard.name} (ID: ${testBoard.id})`);
     
     // Fetch detailed board info
     const boardDetails = await ytClient.getBoard(testBoard.id);
@@ -93,9 +85,7 @@ async function fetchRealData() {
     );
     
     // Use sprints from the board data instead of making a separate request
-    console.log('Getting sprints from board data...');
     const sprints = boardDetails.sprints || [];
-    console.log(`Found ${sprints.length} sprints in board data`);
     
     // Save anonymized sprints data
     await anonymizeAndSaveData(
@@ -106,7 +96,6 @@ async function fetchRealData() {
     );
     
     if (sprints.length === 0) {
-      console.log('No sprints found. Skipping sprint and issue data.');
       return;
     }
 
@@ -120,21 +109,15 @@ async function fetchRealData() {
     });
     const selectedSprint =
       activeSprints.length > 0 ? activeSprints[0] : sprints[0];
-    console.log(
-      `Using sprint: ${selectedSprint.name} (ID: ${selectedSprint.id})`
-    );
     
     // Add more fields to the sprint request to ensure we get issues
     ytClient.addSprintFields('issues(id,idReadable,summary)');
     
     // Fetch detailed sprint info with expanded issues field
-    console.log('Fetching detailed sprint info with issues...');
     const sprintDetails = await ytClient.getSprint(
       testBoard.id,
       selectedSprint.id
     );
-    
-    console.log(`Sprint details contains ${sprintDetails.issues?.length || 0} issue references`);
     
     // Save anonymized sprint data
     await anonymizeAndSaveData(
@@ -144,45 +127,33 @@ async function fetchRealData() {
     );
     
     // Fetch issues for the sprint
-    console.log('Fetching issues for sprint...');
     let issues: YouTrackTypes.IssueWithActivities[] = [];
     
     // Check if sprint data contains issue IDs we can use directly
     if (sprintDetails.issues && sprintDetails.issues.length > 0) {
-      console.log(`Sprint contains ${sprintDetails.issues.length} issue references, fetching them individually...`);
-      
       // Limit to maximum 10 issues
       const issueReferences = sprintDetails.issues.slice(0, 10);
       
       // Fetch each issue individually by ID
       for (const issueRef of issueReferences) {
         try {
-          console.log(`Fetching issue with ID: ${issueRef.id} (${issueRef.idReadable || 'no readable ID'})`);
           const issue = await ytClient.getIssue(issueRef.id);
           issues.push(issue);
         } catch (issueError) {
-          console.error(`Error fetching issue ${issueRef.id}:`, issueError);
+          // Error handling without console.error
         }
       }
-      
-      console.log(`Successfully fetched ${issues.length} out of ${issueReferences.length} issues`);
     } else {
-      console.log('No issue references found in sprint data, falling back to search...');
-      
       // Fall back to searching by board name
       try {
-        console.log(`Fetching all issues from board...`);
         issues = await ytClient.searchIssues(`board: ${testBoard.name}`, {
           limit: 20,
         });
       } catch (error) {
-        console.log('Board search failed, getting recent issues instead');
         // Just get some recent issues as a fallback
         issues = await ytClient.searchIssues('', { limit: 20 });
       }
     }
-    
-    console.log(`Found a total of ${issues.length} issues`);
     
     // Save anonymized issues
     await anonymizeAndSaveData(
@@ -194,10 +165,8 @@ async function fetchRealData() {
     
     // Get detailed information for a few issues including activities
     if (issues.length > 0) {
-      console.log('Fetching detailed issue information...');
       for (let i = 0; i < Math.min(10, issues.length); i++) {
         const issueId = issues[i].id;
-        console.log(`Processing issue ${i + 1}: ${issues[i].idReadable}`);
         
         // Get detailed issue info (activities are included automatically)
         const issueWithActivities = await ytClient.getIssue(issueId);
@@ -210,12 +179,10 @@ async function fetchRealData() {
         );
       }
     }
-
-    console.log('Data fetching completed successfully!');
   } catch (error) {
-    console.error('Error fetching data:', error);
+    // Error handling without console.error
   }
 }
 
 // Run the function
-fetchRealData().catch(console.error); 
+fetchRealData().catch(() => {}); 

@@ -671,6 +671,9 @@ export interface ActivityCursorPage {
   activities: ActivityItem[];
   beforeCursor?: string;
   afterCursor?: string;
+  hasNext?: boolean;
+  hasPrev?: boolean;
+  nextCursor?: string;
   $type: string;
 }
 
@@ -737,9 +740,11 @@ export interface CustomFilterField {
   $type: 'CustomFilterField';
 }
 
+export type Activity = ActivityItem | CommentActivityItem | IssueCreatedActivityItem | CustomFieldActivityItem | WorkItemActivityItem | SimpleValueActivityItem | VisibilityGroupActivityItem;
+
 /**
  * Extended issue type that includes activities
  * Note: Comments are obtained exclusively from CommentActivityItem entries in the activities array
  * as the Issue type no longer has a direct comments property
  */
-export type IssueWithActivities = Issue & { activities?: ActivityItem[] }; 
+export type IssueWithActivities = Issue & { activities?: Activity[] }; 

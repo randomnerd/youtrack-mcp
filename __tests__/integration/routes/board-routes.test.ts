@@ -18,7 +18,7 @@ jest.mock('../../../src/controllers/boardController', () => {
   const actual = jest.requireActual('../../../src/controllers/boardController') as typeof import('../../../src/controllers/boardController');
   return {
     BoardController: {
-      listBoards: jest.fn(),
+      getBoards: jest.fn(),
       getBoard: jest.fn(),
       handleResourceRequest: actual.BoardController.handleResourceRequest
     }
@@ -41,13 +41,15 @@ describe('Board Routes', () => {
     });
     
     // Setup controller mock return values
-    const mockListBoards = BoardController.listBoards as any;
-    mockListBoards.mockImplementation(async () => {
+    const mockGetBoards = BoardController.getBoards as any;
+    mockGetBoards.mockImplementation(async () => {
       const boards = await BoardModel.getAll();
       return {
-        content: [
-          { type: 'text', text: `Found ${boards.length} agile boards` }
-        ]
+        success: true,
+        data: {
+          boards,
+          total: boards.length
+        }
       };
     });
     
@@ -55,14 +57,13 @@ describe('Board Routes', () => {
     mockGetBoard.mockImplementation(async (boardId: string) => {
       const board = await BoardModel.getById(boardId);
       return board ? {
-        content: [
-          { type: 'text', text: `Board found: ${board.name}` }
-        ]
+        success: true,
+        data: {
+          board
+        }
       } : {
-        content: [
-          { type: 'text', text: `No board found with ID: ${boardId}` }
-        ],
-        isError: true
+        success: false,
+        error: `No board found with ID: ${boardId}`
       };
     });
   });
@@ -71,12 +72,14 @@ describe('Board Routes', () => {
     jest.clearAllMocks();
   });
 
-  test('listBoards should return all boards', async () => {
-    const response = await BoardController.listBoards();
+  test('getBoards should return all boards', async () => {
+    const response = await BoardController.getBoards();
     
     expect(BoardModel.getAll).toHaveBeenCalled();
-    expect(response).toHaveProperty('content');
-    expect(response.content[0].text).toContain(`Found ${boardFixtures.listBoards.length}`);
+    expect(response).toHaveProperty('success', true);
+    expect(response).toHaveProperty('data');
+    expect(response.data).toHaveProperty('boards');
+    expect(response.data?.total).toBe(boardFixtures.listBoards.length);
   });
   
   test('getBoard should return a specific board', async () => {
@@ -85,8 +88,9 @@ describe('Board Routes', () => {
     const response = await BoardController.getBoard(boardId);
     
     expect(BoardModel.getById).toHaveBeenCalledWith(boardId);
-    expect(response).toHaveProperty('content');
-    expect(response.content[0].text).toContain('Board found');
+    expect(response).toHaveProperty('success', true);
+    expect(response).toHaveProperty('data');
+    expect(response.data?.board.id).toBe(boardId);
   });
   
   test('getBoard should handle not found board', async () => {
@@ -94,8 +98,9 @@ describe('Board Routes', () => {
     const response = await BoardController.getBoard(boardId);
     
     expect(BoardModel.getById).toHaveBeenCalledWith(boardId);
-    expect(response).toHaveProperty('isError', true);
-    expect(response.content[0].text).toContain('No board found');
+    expect(response).toHaveProperty('success', false);
+    expect(response).toHaveProperty('error');
+    expect(response.error).toContain('No board found');
   });
   
   test('handleResourceRequest should return board data as resource', async () => {

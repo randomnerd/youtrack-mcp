@@ -1,32 +1,46 @@
 import { BoardModel } from '../models/board';
 import { BoardView } from '../views/boardView';
 import { McpResponse, ResourceResponse } from '../views/common';
+import { URL } from 'url';
+import { ControllerResult, BoardDetailResult, BoardListResult, Request } from '../types/controllerResults';
 import { extractParam, createResourceErrorResponse, withErrorHandling } from '../utils/controller-utils';
 
 export class BoardController {
-  static listBoards = withErrorHandling(
-    async (): Promise<McpResponse> => {
+  static getBoards = withErrorHandling(
+    async (): Promise<ControllerResult<BoardListResult>> => {
       const boards = await BoardModel.getAll();
-      if (!boards || boards.length === 0) {
-        return BoardView.renderEmpty("No agile boards found.");
-      }
-      return BoardView.renderList(boards);
+      return {
+        success: true,
+        data: {
+          boards,
+          total: boards.length
+        }
+      };
     },
-    'Error fetching agile boards'
-  );
-
-  static getBoard = withErrorHandling(
-    async (boardId: string): Promise<McpResponse> => {
-      const board = await BoardModel.getById(boardId);
-      if (!board) {
-        return BoardView.renderError(`No board found with ID: ${boardId}`);
-      }
-      return BoardView.renderDetail(board);
-    },
-    'Error fetching board details'
+    'Error fetching boards'
   );
   
-  static async handleResourceRequest(uri: URL, req: any): Promise<ResourceResponse> {
+  static getBoard = withErrorHandling(
+    async (boardId: string): Promise<ControllerResult<BoardDetailResult>> => {
+      const board = await BoardModel.getById(boardId);
+      if (!board) {
+        return {
+          success: false,
+          error: `No board found with ID: ${boardId}`
+        };
+      }
+      
+      return {
+        success: true,
+        data: {
+          board
+        }
+      };
+    },
+    'Error fetching board'
+  );
+    
+  static async handleResourceRequest(uri: URL, req: Request): Promise<ResourceResponse> {
     // Extract boardId parameter
     const boardId = extractParam(req.params, 'boardId');
     

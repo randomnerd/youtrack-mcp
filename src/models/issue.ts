@@ -22,23 +22,23 @@ interface UpdateIssueOptions {
 }
 
 export class IssueModel {
-  static async getById(issueId: string): Promise<YouTrackTypes.Issue | null> {
+  static async getById(issueId: string): Promise<YouTrackTypes.IssueWithActivities | null> {
     return youtrackClient.getIssue(issueId);
   }
   
-  static async getIssueActivities(issueId: string): Promise<any[]> {
-    return youtrackClient.getIssueActivities(issueId);
+  static async getIssueActivities(issueId: string): Promise<YouTrackTypes.Activity[]> {
+    return await youtrackClient.getIssueActivities(issueId);
   }
   
-  static async searchIssues(query: string, options?: SearchOptions): Promise<YouTrackTypes.Issue[]> {
+  static async searchIssues(query: string, options?: SearchOptions): Promise<YouTrackTypes.IssueWithActivities[]> {
     return youtrackClient.searchIssues(query, options);
   }
   
-  static async findIssuesByCriteria(options: FindIssuesByCriteriaOptions): Promise<YouTrackTypes.Issue[]> {
+  static async findIssuesByCriteria(options: FindIssuesByCriteriaOptions): Promise<YouTrackTypes.IssueWithActivities[]> {
     return youtrackClient.findIssuesByCriteria(options);
   }
   
-  static async updateIssue(issueId: string, updateData: UpdateIssueOptions): Promise<any> {
+  static async updateIssue(issueId: string, updateData: UpdateIssueOptions): Promise<YouTrackTypes.IssueWithActivities> {
     return youtrackClient.updateIssue(issueId, updateData);
   }
 } 

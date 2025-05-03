@@ -485,9 +485,24 @@ function formatComments(
 function formatLinks(links: YouTrackTypes.IssueLink[]): string {
   try {
     const lines: string[] = [];
-    lines.push(`## LINKED ISSUES (${links.length})`);
     
-    if (!links || links.length === 0) {
+    // Calculate the actual count of linked issues
+    let totalLinkedIssues = 0;
+    if (links && links.length > 0) {
+      for (const link of links) {
+        if (link.issues && link.issues.length > 0) {
+          totalLinkedIssues += link.issues.length;
+        } else if (link.trimmedIssues && link.trimmedIssues.length > 0) {
+          totalLinkedIssues += link.issuesSize || link.trimmedIssues.length;
+        } else if ((link as any).issue) {
+          totalLinkedIssues += 1;
+        }
+      }
+    }
+    
+    lines.push(`## LINKED ISSUES (${totalLinkedIssues})`);
+    
+    if (!links || links.length === 0 || totalLinkedIssues === 0) {
       lines.push('No linked issues found');
       return lines.join('\n');
     }

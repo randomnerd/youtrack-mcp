@@ -51,7 +51,6 @@ describe('YouTrack Real API Data Fetch', () => {
       JSON.stringify(data, null, 2),
       'utf8'
     );
-    console.log(`Data saved to ${filePath}`);
   }
   
   // Helper function to anonymize and save data
@@ -81,7 +80,6 @@ describe('YouTrack Real API Data Fetch', () => {
     // Find a board to work with (use first board if available)
     const testBoard = boards[0];
     expect(testBoard).toBeDefined();
-    console.log(`Using board: ${testBoard.name} (ID: ${testBoard.id})`);
     
     // Fetch detailed board info
     const boardDetails = await ytClient.getBoard(testBoard.id);
@@ -108,7 +106,6 @@ describe('YouTrack Real API Data Fetch', () => {
     const activeSprints = sprints.filter(sprint => !sprint.archived);
     const selectedSprint = activeSprints.length > 0 ? activeSprints[0] : sprints[0];
     expect(selectedSprint).toBeDefined();
-    console.log(`Using sprint: ${selectedSprint.name} (ID: ${selectedSprint.id})`);
     
     // Fetch detailed sprint info
     const sprintDetails = await ytClient.getSprint(testBoard.id, selectedSprint.id);

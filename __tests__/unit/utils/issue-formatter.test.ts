@@ -41,7 +41,6 @@ describe('Issue Formatter Tests', () => {
   function saveFormattedText(text: string, filename: string): void {
     const filePath = path.join(TEST_OUTPUT_DIR, filename);
     fs.writeFileSync(filePath, text, 'utf8');
-    console.log(`Formatted text saved to ${filePath}`);
   }
   
   // Helper function to ensure we have a sample issue with activities for testing

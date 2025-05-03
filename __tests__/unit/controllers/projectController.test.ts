@@ -2,6 +2,8 @@ import { projectFixtures } from '../../fixtures';
 import { ProjectController } from '../../../src/controllers/projectController';
 import { ProjectModel } from '../../../src/models/project';
 import { URL } from 'url';
+import { createProjectListResult, createProjectDetailResult, createErrorResult } from '../../helpers/testHelpers';
+import { ControllerResult, ProjectDetailResult, ProjectListResult } from '../../../src/types/controllerResults';
 
 // Mock the ProjectModel
 jest.mock('../../../src/models/project', () => ({
@@ -27,9 +29,11 @@ describe('Project Controller', () => {
       
       // Verify the results
       expect(ProjectModel.getAll).toHaveBeenCalledTimes(1);
-      expect(result).toHaveProperty('content');
-      expect(Array.isArray(result.content)).toBe(true);
-      expect(result.content.length).toBeGreaterThan(0);
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data).toHaveProperty('projects');
+      expect(Array.isArray(result.data?.projects)).toBe(true);
+      expect(result.data?.projects.length).toBeGreaterThan(0);
     });
 
     it('should handle empty projects list', async () => {
@@ -39,10 +43,11 @@ describe('Project Controller', () => {
       const result = await ProjectController.listProjects();
       
       expect(ProjectModel.getAll).toHaveBeenCalledTimes(1);
-      expect(result).toHaveProperty('content');
-      expect(Array.isArray(result.content)).toBe(true);
-      // Content should contain message about no projects found
-      expect(JSON.stringify(result.content)).toContain('No projects found');
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data).toHaveProperty('projects');
+      expect(Array.isArray(result.data?.projects)).toBe(true);
+      expect(result.data?.projects.length).toBe(0);
     });
 
     it('should handle errors', async () => {
@@ -52,10 +57,9 @@ describe('Project Controller', () => {
       const result = await ProjectController.listProjects();
       
       expect(ProjectModel.getAll).toHaveBeenCalledTimes(1);
-      expect(result).toHaveProperty('content');
-      expect(result).toHaveProperty('isError', true);
-      // Error message should be in the content
-      expect(JSON.stringify(result.content)).toContain(errorMessage);
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain(errorMessage);
     });
   });
 
@@ -67,8 +71,10 @@ describe('Project Controller', () => {
       const result = await ProjectController.getProject(project.id);
       
       expect(ProjectModel.getById).toHaveBeenCalledWith(project.id);
-      expect(result).toHaveProperty('content');
-      expect(JSON.stringify(result.content)).toContain(project.name);
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data).toHaveProperty('project');
+      expect(result.data?.project).toEqual(project);
     });
 
     it('should handle missing project', async () => {
@@ -78,9 +84,9 @@ describe('Project Controller', () => {
       const result = await ProjectController.getProject(projectId);
       
       expect(ProjectModel.getById).toHaveBeenCalledWith(projectId);
-      expect(result).toHaveProperty('content');
-      // Should have message about not finding the project
-      expect(JSON.stringify(result.content)).toContain(`No project found with ID: ${projectId}`);
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain(`No project found with ID: ${projectId}`);
     });
 
     it('should handle errors when fetching a project', async () => {
@@ -91,8 +97,9 @@ describe('Project Controller', () => {
       const result = await ProjectController.getProject(projectId);
       
       expect(ProjectModel.getById).toHaveBeenCalledWith(projectId);
-      expect(result).toHaveProperty('isError', true);
-      expect(JSON.stringify(result.content)).toContain(errorMessage);
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain(errorMessage);
     });
   });
 
@@ -105,8 +112,10 @@ describe('Project Controller', () => {
       const result = await ProjectController.findProjectsByName(projectName);
       
       expect(ProjectModel.findByName).toHaveBeenCalledWith(projectName);
-      expect(result).toHaveProperty('content');
-      expect(JSON.stringify(result.content)).toContain(matchingProjects[0].name);
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data).toHaveProperty('projects');
+      expect(result.data?.projects).toEqual(matchingProjects);
     });
 
     it('should handle no matching projects', async () => {
@@ -116,8 +125,10 @@ describe('Project Controller', () => {
       const result = await ProjectController.findProjectsByName(projectName);
       
       expect(ProjectModel.findByName).toHaveBeenCalledWith(projectName);
-      expect(result).toHaveProperty('content');
-      expect(JSON.stringify(result.content)).toContain(`No projects found matching: ${projectName}`);
+      expect(result).toHaveProperty('success', true);
+      expect(result).toHaveProperty('data');
+      expect(result.data).toHaveProperty('projects');
+      expect(result.data?.projects.length).toBe(0);
     });
 
     it('should handle errors when searching projects', async () => {
@@ -128,8 +139,9 @@ describe('Project Controller', () => {
       const result = await ProjectController.findProjectsByName(projectName);
       
       expect(ProjectModel.findByName).toHaveBeenCalledWith(projectName);
-      expect(result).toHaveProperty('isError', true);
-      expect(JSON.stringify(result.content)).toContain(errorMessage);
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain(errorMessage);
     });
   });
 
@@ -141,12 +153,12 @@ describe('Project Controller', () => {
       
       (ProjectModel.getById as jest.Mock).mockResolvedValue(project);
       
-      const result = await ProjectController.handleResourceRequest(uri, req);
+      const result = await ProjectController.handleResourceRequest(uri, req as any);
       
       expect(ProjectModel.getById).toHaveBeenCalledWith(project.id);
       expect(result).toHaveProperty('contents');
       expect(result.contents[0]).toHaveProperty('uri', uri.href);
-      expect((result.contents[0] as any).text).toContain(project.name);
+      expect((result.contents[0] as {uri: string, text: string}).text).toContain(project.name);
     });
 
     it('should list all projects when no projectId is provided', async () => {
@@ -155,13 +167,12 @@ describe('Project Controller', () => {
       
       (ProjectModel.getAll as jest.Mock).mockResolvedValue(projectFixtures.projects);
       
-      const result = await ProjectController.handleResourceRequest(uri, req);
+      const result = await ProjectController.handleResourceRequest(uri, req as any);
       
       expect(ProjectModel.getAll).toHaveBeenCalled();
       expect(result).toHaveProperty('contents');
       expect(result.contents[0]).toHaveProperty('uri', uri.href);
-      // Should contain project names
-      expect((result.contents[0] as any).text).toContain(projectFixtures.projects[0].name);
+      expect((result.contents[0] as {uri: string, text: string}).text).toContain(projectFixtures.projects[0].name);
     });
 
     it('should handle error during resource request', async () => {
@@ -171,11 +182,11 @@ describe('Project Controller', () => {
       
       (ProjectModel.getAll as jest.Mock).mockRejectedValue(new Error(errorMessage));
       
-      const result = await ProjectController.handleResourceRequest(uri, req);
+      const result = await ProjectController.handleResourceRequest(uri, req as any);
       
       expect(result).toHaveProperty('contents');
       expect(result.contents[0]).toHaveProperty('uri', uri.href);
-      expect((result.contents[0] as any).text).toContain(errorMessage);
+      expect((result.contents[0] as {uri: string, text: string}).text).toContain(errorMessage);
     });
   });
 }); 
