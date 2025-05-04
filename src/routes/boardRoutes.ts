@@ -1,10 +1,10 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { BoardController } from '../controllers/boardController';
 import { McpResponse } from '../views/common';
 import { BoardView } from '../views/boardView';
-import { ControllerResult, BoardListResult, BoardDetailResult } from '../types/controllerResults';
 import { PAGINATION_LIMITS, DEFAULT_PAGINATION } from '../utils/constants';
+import { Request } from '../types/controllerResults';
 
 export function registerBoardRoutes(server: McpServer) {
   // List all available agile boards
@@ -42,4 +42,13 @@ export function registerBoardRoutes(server: McpServer) {
       return BoardView.renderDetail(result);
     }
   );
+
+  server.resource(
+    "boards",
+    new ResourceTemplate("youtrack://boards/{boardId?}/sprints/{sprintId?}/issues/{issueId?}", { list: undefined }),
+    async (uri, req) => BoardController.handleResourceRequest(uri, {
+      ...req,
+      params: req.variables || {},
+    } as Request)
+  );  
 } 

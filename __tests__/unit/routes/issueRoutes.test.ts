@@ -46,6 +46,7 @@ describe('Issue Routes', () => {
     // Create a mock MCP server
     server = {
       tool: jest.fn(),
+      resource: jest.fn()
     } as unknown as McpServer;
     
     // Reset controller mocks

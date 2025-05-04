@@ -146,6 +146,9 @@ export function createMockServer(): McpServer {
     router: app,
     tool: (name: string, description: string, schema: any, handler: Function) => {
       return server;
+    },
+    resource: (name: string, template: any, handler: Function) => {
+      return server;
     }
   };
   

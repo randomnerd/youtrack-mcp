@@ -31,34 +31,24 @@ export class SprintController {
 
   static findSprints = withErrorHandling(
     async (options: {
-      boardId?: string;
+      boardId: string;
       sprintName?: string;
       status?: 'active' | 'archived' | 'all';
       limit?: number;
       skip?: number;
     }): Promise<ControllerResult<SprintListResult>> => {
-      const sprints = await SprintModel.findSprints(options);
-      
-      // If a board ID was provided, try to get the board name for context
-      let boardName;
-      if (options.boardId) {
-        try {
-          const board = await BoardModel.getById(options.boardId);
-          boardName = board?.name;
-        } catch (err) {
-          console.error("Error fetching board details:", err);
-        }
-      }
+      const board = await BoardModel.getById(options.boardId);
       
       return {
         success: true,
         data: {
-          sprints,
-          total: sprints.length,
+          ...board,
+          sprints: board?.sprints || [],
+          total: board?.sprints?.length || 0,
           pagination: {
             limit: options.limit,
             skip: options.skip || 0,
-            totalItems: sprints.length
+            totalItems: board?.sprints?.length || 0
           }
         }
       };

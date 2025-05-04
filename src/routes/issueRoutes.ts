@@ -1,10 +1,11 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { IssueController } from '../controllers/issueController';
 import { IssueView } from '../views/issueView';
 import { McpResponse } from '../views/common';
-import { ControllerResult, IssueDetailResult, IssueUpdateResult, IssueListResult } from '../types/controllerResults';
+import { ControllerResult, IssueUpdateResult, IssueListResult } from '../types/controllerResults';
 import { PAGINATION_LIMITS, DEFAULT_PAGINATION } from '../utils/constants';
+import { Request } from '../types/controllerResults';
 
 export function registerIssueRoutes(server: McpServer) {
   // Get issue details
@@ -92,5 +93,14 @@ export function registerIssueRoutes(server: McpServer) {
       // Pass result to view for rendering
       return IssueView.renderList(result as ControllerResult<IssueListResult>);
     }
+  );
+
+  server.resource(
+    "issues",
+    new ResourceTemplate("youtrack://issues/{issueId?}", { list: undefined }),
+    async (uri, req) => IssueController.handleResourceRequest(uri, {
+      ...req,
+      params: req.variables || {},
+    } as Request)
   );
 } 

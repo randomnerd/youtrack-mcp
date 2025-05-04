@@ -1,10 +1,10 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { ProjectController } from '../controllers/projectController';
 import { ProjectView } from '../views/projectView';
 import { McpResponse } from '../views/common';
-import { ControllerResult, ProjectListResult } from '../types/controllerResults';
 import { PAGINATION_LIMITS, DEFAULT_PAGINATION } from '../utils/constants';
+import { Request } from '../types/controllerResults';
 
 export function registerProjectRoutes(server: McpServer) {
   // List projects
@@ -48,5 +48,14 @@ export function registerProjectRoutes(server: McpServer) {
       // Pass result to view for rendering
       return ProjectView.renderList(result);
     }
+  );
+
+  server.resource(
+    "projects",
+    new ResourceTemplate("youtrack://projects/{projectId?}", { list: undefined }),
+    async (uri, req) => ProjectController.handleResourceRequest(uri, {
+      ...req,
+      params: req.variables || {},
+    } as Request)
   );
 } 

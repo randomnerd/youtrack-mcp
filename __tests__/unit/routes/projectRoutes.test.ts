@@ -11,7 +11,8 @@ jest.mock('../../../src/views/projectView');
 describe('Project Routes', () => {
   // Create a mock server
   const server = {
-    tool: jest.fn()
+    tool: jest.fn(),
+    resource: jest.fn()
   } as unknown as McpServer;
   
   beforeEach(() => {

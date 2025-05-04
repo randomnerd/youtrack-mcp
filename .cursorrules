@@ -1,0 +1,46 @@
+# YouTrack MCP Project Rules
+
+## Naming Conventions
+- MCP tools are named with the pattern `youtrack_<operation>_<entity>`
+- Controllers follow the pattern `<Entity>Controller`
+- Routes are defined in files named `<entity>Routes.ts`
+- Models follow the pattern `<Entity>Model`
+
+## Code Organization
+- Route files register tools with the MCP server
+- Controllers contain business logic
+- Models interact with the YouTrack API
+- Views handle response formatting
+
+## Documentation Patterns
+- JSDoc comments for functions and classes
+- README.md contains user-facing documentation
+- Memory bank contains project context for AI assistance
+
+## Testing Strategy
+- Unit tests in `__tests__/unit/`
+- Integration tests in `__tests__/integration/`
+- Test fixtures in `__tests__/fixtures/`
+
+## File Structure
+- Source code in `src/`
+- Build output in `build/`
+- Tests in `__tests__/`
+- Configuration in root directory
+
+## Tool Implementation Pattern
+1. Define route and schema in a route file
+2. Implement business logic in a controller
+3. Access YouTrack API through a model
+4. Format response using view utilities
+
+## Error Handling
+- Controllers should handle and format errors
+- Models should validate input before API calls
+- YouTrack API errors should be mapped to appropriate HTTP status codes
+
+## Formatting Rules
+- Use 2-space indentation
+- Use single quotes for strings
+- Add semicolons at end of statements
+- Use explicit types for function parameters and returns 

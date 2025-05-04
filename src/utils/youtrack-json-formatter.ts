@@ -321,7 +321,7 @@ function toMarkdown(data: any): string {
     if (data.sprints && data.sprints.length) {
       md += '\n\n## Sprints\n';
       md += data.sprints.map((s: any) => {
-        let sprintLine = `- ${s.name} (${s.id}) (${s.isActive ? 'Active' : s.isCompleted ? 'Completed' : 'Inactive'}) ${s.start} - ${s.finish}`;
+        let sprintLine = `### Sprint: ${s.name} (${s.id}) (${s.isActive ? 'Active' : s.isCompleted ? 'Completed' : 'Inactive'}) ${s.start} - ${s.finish}`;
         if (s.issues && s.issues.length) {
           sprintLine += '\n' + s.issues.map((iss: any) => `  - ${iss.idReadable} (${iss.id}) ${iss.created}`).join('\n');
         }

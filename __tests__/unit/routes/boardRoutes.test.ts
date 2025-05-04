@@ -27,6 +27,7 @@ describe('Board Routes', () => {
     // Mock the McpServer instance and its 'tool' method
     server = {
       tool: jest.fn(),
+      resource: jest.fn(),
     };
 
     // Mock view methods to return simple structures
