@@ -13,7 +13,7 @@ export function registerProjectRoutes(server: McpServer) {
     'List all available projects',
     {
       limit: z.number().optional().transform(val => 
-        Math.min(Math.max(val || DEFAULT_PAGINATION.LIMIT, 1), PAGINATION_LIMITS.PROJECTS)
+        val === undefined || val <= 0 ? DEFAULT_PAGINATION.LIMIT : Math.min(Math.max(val, 1), PAGINATION_LIMITS.PROJECTS)
       ).describe(`Maximum number of projects to return (1-${PAGINATION_LIMITS.PROJECTS})`),
       skip: z.number().optional().transform(val => 
         Math.max(val || DEFAULT_PAGINATION.SKIP, 0)
@@ -35,7 +35,7 @@ export function registerProjectRoutes(server: McpServer) {
     {
       name: z.string().describe('Project name to search for'),
       limit: z.number().optional().transform(val => 
-        Math.min(Math.max(val || DEFAULT_PAGINATION.LIMIT, 1), PAGINATION_LIMITS.PROJECTS)
+        val === undefined || val <= 0 ? DEFAULT_PAGINATION.LIMIT : Math.min(Math.max(val, 1), PAGINATION_LIMITS.PROJECTS)
       ).describe(`Maximum number of projects to return (1-${PAGINATION_LIMITS.PROJECTS})`),
       skip: z.number().optional().transform(val => 
         Math.max(val || DEFAULT_PAGINATION.SKIP, 0)

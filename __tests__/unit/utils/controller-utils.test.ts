@@ -7,17 +7,20 @@ import {
   withResourceErrorHandling,
   formatDate
 } from '../../../src/utils/controller-utils';
+import { URL } from 'url';
+import { McpResponse, ResourceResponse as ViewResourceResponse } from '../../../src/views/common';
 
 // Define interfaces for response structures to avoid using 'any'
 interface ErrorResponseContent {
   text: string;
 }
 
-interface ResourceErrorResponse {
-  contents: {
+// Type for resource error response
+interface ResourceErrorResponse extends ViewResourceResponse {
+  contents: Array<{
     uri: string;
     text: string;
-  }[];
+  }>;
 }
 
 interface ResourceResponse {
@@ -145,50 +148,69 @@ describe('Controller Utilities', () => {
 
   describe('withResourceErrorHandling', () => {
     it('should return function result when no error occurs', async () => {
-      const mockFn = jest.fn().mockResolvedValue({ success: true });
+      const uri = new URL('https://example.com/resource');
+      const expectedResponse = { contents: [{ uri: uri.href, text: 'Success' }] };
+      const mockFn = jest.fn().mockResolvedValue(expectedResponse);
       const wrappedFn = withResourceErrorHandling(mockFn);
       
-      const result = await wrappedFn('arg1', 'arg2');
+      const result = await wrappedFn(uri, 'arg2');
       
-      expect(mockFn).toHaveBeenCalledWith('arg1', 'arg2');
-      expect(result).toEqual({ success: true });
+      expect(mockFn).toHaveBeenCalledWith(uri, 'arg2');
+      expect(result).toEqual(expectedResponse);
     });
 
-    it('should return resource error response when error occurs', async () => {
+    it('should return error response when error occurs', async () => {
       const uri = new URL('https://example.com/resource');
-      const error = new Error('Resource function error');
+      const error = new Error('Resource error');
       const mockFn = jest.fn().mockRejectedValue(error);
       const wrappedFn = withResourceErrorHandling(mockFn);
       
-      const result = await wrappedFn(uri, 'arg2') as ResourceErrorResponse;
+      const result = await wrappedFn(uri) as ResourceErrorResponse;
       
-      expect(mockFn).toHaveBeenCalledWith(uri, 'arg2');
-      expect(result).toHaveProperty('contents');
-      expect(result.contents[0]).toHaveProperty('uri', uri.href);
-      expect(JSON.stringify(result)).toContain('Resource function error');
+      expect(mockFn).toHaveBeenCalledWith(uri);
+      expect(result.contents[0].uri).toBe(uri.href);
+      expect(result.contents[0].text).toContain('Error: Resource error');
     });
   });
 
   describe('formatDate', () => {
-    it('should format a valid date', () => {
-      const date = new Date('2023-05-15');
-      const formatted = formatDate(date);
+    beforeEach(() => {
+      // Mock toLocaleDateString to return a consistent format for testing
+      const originalToLocaleDateString = Date.prototype.toLocaleDateString;
+      Date.prototype.toLocaleDateString = function() {
+        return this.toISOString().split('T')[0];
+      };
       
-      // The format depends on locale, but we can check it's not N/A
-      expect(formatted).not.toBe('N/A');
-      expect(formatted).toContain('2023');
+      return () => {
+        Date.prototype.toLocaleDateString = originalToLocaleDateString;
+      };
     });
-
-    it('should return N/A for null date', () => {
+    
+    it('should format valid date strings', () => {
+      const date = '2023-07-15T12:30:45Z';
+      expect(formatDate(date)).toBe('2023-07-15');
+    });
+    
+    it('should format Date objects', () => {
+      const date = new Date('2023-07-15T12:30:45Z');
+      expect(formatDate(date)).toBe('2023-07-15');
+    });
+    
+    it('should format timestamps', () => {
+      const timestamp = new Date('2023-07-15T12:30:45Z').getTime();
+      expect(formatDate(timestamp)).toBe('2023-07-15');
+    });
+    
+    it('should return N/A for null values', () => {
       expect(formatDate(null)).toBe('N/A');
     });
-
-    it('should return N/A for undefined date', () => {
+    
+    it('should return N/A for undefined values', () => {
       expect(formatDate(undefined)).toBe('N/A');
     });
-
-    it('should handle invalid date and return Invalid Date', () => {
-      expect(formatDate('not-a-date')).toBe('Invalid Date');
+    
+    it('should return N/A for invalid date strings', () => {
+      expect(formatDate('not-a-date')).toBe('N/A');
     });
   });
 }); 

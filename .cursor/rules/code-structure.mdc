@@ -1,0 +1,52 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# YouTrack MCP Code Structure
+
+The code follows a layered architecture with clear separation of concerns:
+
+## Directory Structure
+
+- `src/` - Source code directory
+  - `controllers/` - Business logic for handling requests
+  - `models/` - Data models for interacting with YouTrack API
+  - `routes/` - Route definitions for MCP tools
+  - `types/` - TypeScript type definitions
+  - `utils/` - Utility functions and helpers
+  - `views/` - Response formatters
+  - `index.ts` - Application entry point
+  - `server.ts` - MCP server setup
+  - `youtrack-client.ts` - YouTrack API client
+
+## Key Files
+
+### Routes
+
+- [boardRoutes.ts](mdc:src/routes/boardRoutes.ts) - Board-related tools
+- [sprintRoutes.ts](mdc:src/routes/sprintRoutes.ts) - Sprint-related tools
+- [issueRoutes.ts](mdc:src/routes/issueRoutes.ts) - Issue-related tools
+- [projectRoutes.ts](mdc:src/routes/projectRoutes.ts) - Project-related tools
+
+### Controllers
+
+- [boardController.ts](mdc:src/controllers/boardController.ts) - Board business logic
+- [sprintController.ts](mdc:src/controllers/sprintController.ts) - Sprint business logic
+- [issueController.ts](mdc:src/controllers/issueController.ts) - Issue business logic
+- [projectController.ts](mdc:src/controllers/projectController.ts) - Project business logic
+
+### Models
+
+- [board.ts](mdc:src/models/board.ts) - Board API interactions
+- [sprint.ts](mdc:src/models/sprint.ts) - Sprint API interactions
+- [issue.ts](mdc:src/models/issue.ts) - Issue API interactions
+- [project.ts](mdc:src/models/project.ts) - Project API interactions
+
+## Layer Responsibilities
+
+1. **Routes** - Define MCP tools and their schemas, handle request parsing
+2. **Controllers** - Handle business logic, call models, format responses
+3. **Models** - Interface with the YouTrack API, perform data operations
+4. **Views** - Format YouTrack data for response to clients
+5. **Utils** - Provide shared functionality across the application

@@ -52,11 +52,11 @@ export function registerIssueRoutes(server: McpServer) {
     'Search for issues using YouTrack query syntax',
     {
       query: z.string().describe('YouTrack search query string (e.g., \'assignee: me #Unresolved\')'),
-      limit: z.number().optional().transform(val => 
-        Math.min(Math.max(val || DEFAULT_PAGINATION.LIMIT, 1), PAGINATION_LIMITS.ISSUES)
+      limit: z.number().optional().default(DEFAULT_PAGINATION.LIMIT).transform(val => 
+        Math.min(Math.max(val, 1), PAGINATION_LIMITS.ISSUES)
       ).describe(`Maximum number of issues to return (1-${PAGINATION_LIMITS.ISSUES})`),
-      skip: z.number().optional().transform(val => 
-        Math.max(val || DEFAULT_PAGINATION.SKIP, 0)
+      skip: z.number().optional().default(DEFAULT_PAGINATION.SKIP).transform(val => 
+        Math.max(val, 0)
       ).describe('Number of issues to skip (for pagination)'),
       sortBy: z.string().optional().describe('Field to sort results by (e.g., \'created\', \'updated\', \'priority\')')
     },
@@ -79,11 +79,11 @@ export function registerIssueRoutes(server: McpServer) {
       sprint: z.string().optional().describe('Sprint name'),
       type: z.string().optional().describe('Issue type (e.g., Bug, Task, Feature)'), 
       status: z.string().optional().describe('Issue status (e.g., Open, In Progress, Resolved)'),
-      limit: z.number().optional().transform(val => 
-        Math.min(Math.max(val || DEFAULT_PAGINATION.LIMIT, 1), PAGINATION_LIMITS.ISSUES)
+      limit: z.number().optional().default(DEFAULT_PAGINATION.LIMIT).transform(val => 
+        Math.min(Math.max(val, 1), PAGINATION_LIMITS.ISSUES)
       ).describe(`Maximum number of issues to return (1-${PAGINATION_LIMITS.ISSUES})`),
-      skip: z.number().optional().transform(val => 
-        Math.max(val || DEFAULT_PAGINATION.SKIP, 0)
+      skip: z.number().optional().default(DEFAULT_PAGINATION.SKIP).transform(val => 
+        Math.max(val, 0)
       ).describe('Number of issues to skip (for pagination)')
     },
     async (options): Promise<McpResponse> => {

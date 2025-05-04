@@ -50,7 +50,7 @@ describe('SprintController', () => {
   describe('getSprint', () => {
     test('should return sprint details when sprint exists', async () => {
       // Arrange
-      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', issues: [], $type: 'Sprint' };
+      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', issues: [], status: 'active', $type: 'Sprint' };
       mockGetById.mockResolvedValue(mockSprint);
       
       // Act
@@ -69,7 +69,7 @@ describe('SprintController', () => {
 
     test('should fetch sprint issues when sprint has no issues', async () => {
       // Arrange
-      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', issues: [], $type: 'Sprint' };
+      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', issues: [], status: 'active', $type: 'Sprint' };
       mockGetById.mockResolvedValue(mockSprint);
       
       // Act
@@ -117,7 +117,7 @@ describe('SprintController', () => {
   describe('findSprints', () => {
     test('should return sprints with board name when boardId is provided', async () => {
       // Arrange
-      const mockSprints: YouTrackTypes.Sprint[] = [{ id: 'sprint-1', name: 'Sprint 1', $type: 'Sprint' }];
+      const mockSprints: YouTrackTypes.Sprint[] = [{ id: 'sprint-1', name: 'Sprint 1', status: 'active', $type: 'Sprint' }];
       const mockBoard: YouTrackTypes.Board = { id: 'board-1', name: 'Board 1', $type: 'Agile', sprints: mockSprints };
       const options = { boardId: 'board-1', status: 'active' as const };
       
@@ -140,7 +140,7 @@ describe('SprintController', () => {
 
     test('should return sprints without board name when boardId is not provided', async () => {
       // Arrange
-      const mockSprints: YouTrackTypes.Sprint[] = [{ id: 'sprint-1', name: 'Sprint 1', $type: 'Sprint' }];
+      const mockSprints: YouTrackTypes.Sprint[] = [{ id: 'sprint-1', name: 'Sprint 1', status: 'active', $type: 'Sprint' }];
       const mockBoard: YouTrackTypes.Board = { id: 'default-board', name: 'Default Board', $type: 'Agile', sprints: mockSprints };
       const options = { boardId: 'default-board', status: 'all' as const };
       
@@ -163,7 +163,7 @@ describe('SprintController', () => {
 
     test('should handle error when fetching board details', async () => {
       // Arrange
-      const mockSprints: YouTrackTypes.Sprint[] = [{ id: 'sprint-1', name: 'Sprint 1', $type: 'Sprint' }];
+      const mockSprints: YouTrackTypes.Sprint[] = [{ id: 'sprint-1', name: 'Sprint 1', status: 'active', $type: 'Sprint' }];
       const options = { boardId: 'board-1' };
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       
@@ -196,8 +196,8 @@ describe('SprintController', () => {
       const result = await SprintController.findSprints(options);
 
       // Assert
-      // No need to check mockFindSprints as the implementation uses BoardModel.getById
-      expect(mockBoardGetById).toHaveBeenCalledWith('board-1');
+      // Updated to check mockFindSprints instead of mockBoardGetById to match new implementation
+      expect(mockFindSprints).toHaveBeenCalledWith(options);
       expect(result.success).toBe(false);
       expect(result.error).toContain(errorMessage);
     });
@@ -225,7 +225,7 @@ describe('SprintController', () => {
       // Arrange
       const mockUri = new URL('http://example.com/api/boards/board-1/sprints/sprint-1');
       const mockReq = { params: { boardId: 'board-1', sprintId: 'sprint-1' } };
-      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', $type: 'Sprint' };
+      const mockSprint: YouTrackTypes.Sprint = { id: 'sprint-1', name: 'Sprint 1', status: 'active', $type: 'Sprint' };
       const mockBoard: YouTrackTypes.Board = { id: 'board-1', name: 'Board 1', $type: 'Agile' };
       const mockResponse = { contents: [{ uri: mockUri.href, text: 'Sprint details' }] };
       

@@ -1,0 +1,293 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BoardView Snapshot Tests handleResourceRequest should match snapshot for board list resource 1`] = `
+{
+  "contents": [
+    {
+      "text": "[
+  {
+    "id": "board-1",
+    "name": "Development Board",
+    "description": "Main development board for the project",
+    "$type": "Agile",
+    "owner": {
+      "id": "user-1",
+      "name": "Jane Doe",
+      "$type": "User"
+    },
+    "projects": [
+      {
+        "id": "project-1",
+        "name": "Frontend",
+        "$type": "Project"
+      },
+      {
+        "id": "project-2",
+        "name": "Backend",
+        "$type": "Project"
+      }
+    ],
+    "sprints": [
+      {
+        "id": "sprint-1",
+        "name": "Sprint 1",
+        "goal": "Implement core features",
+        "start": 1746318950222,
+        "finish": 1746319450222,
+        "$type": "Sprint"
+      },
+      {
+        "id": "sprint-2",
+        "name": "Sprint 2",
+        "goal": "Polish UI components",
+        "start": 1746319950222,
+        "finish": 1746320950222,
+        "$type": "Sprint"
+      }
+    ]
+  },
+  {
+    "id": "board-2",
+    "name": "Bug Tracking Board",
+    "description": "Board for tracking bug fixes",
+    "$type": "Agile",
+    "owner": {
+      "id": "user-2",
+      "name": "John Smith",
+      "$type": "User"
+    },
+    "projects": [
+      {
+        "id": "project-1",
+        "name": "Frontend",
+        "$type": "Project"
+      }
+    ],
+    "sprints": []
+  }
+]",
+      "uri": "http://example.com/boards",
+    },
+  ],
+}
+`;
+
+exports[`BoardView Snapshot Tests handleResourceRequest should match snapshot for missing board data 1`] = `
+{
+  "contents": [
+    {
+      "text": "No board data available",
+      "uri": "http://example.com/boards",
+    },
+  ],
+}
+`;
+
+exports[`BoardView Snapshot Tests handleResourceRequest should match snapshot for single board resource 1`] = `
+{
+  "contents": [
+    {
+      "text": "{
+  "id": "board-1",
+  "name": "Development Board",
+  "description": "Main development board for the project",
+  "$type": "Agile",
+  "owner": {
+    "id": "user-1",
+    "name": "Jane Doe",
+    "$type": "User"
+  },
+  "projects": [
+    {
+      "id": "project-1",
+      "name": "Frontend",
+      "$type": "Project"
+    },
+    {
+      "id": "project-2",
+      "name": "Backend",
+      "$type": "Project"
+    }
+  ],
+  "sprints": [
+    {
+      "id": "sprint-1",
+      "name": "Sprint 1",
+      "goal": "Implement core features",
+      "start": 1746318950222,
+      "finish": 1746319450222,
+      "$type": "Sprint"
+    },
+    {
+      "id": "sprint-2",
+      "name": "Sprint 2",
+      "goal": "Polish UI components",
+      "start": 1746319950222,
+      "finish": 1746320950222,
+      "$type": "Sprint"
+    }
+  ]
+}",
+      "uri": "http://example.com/boards",
+    },
+  ],
+}
+`;
+
+exports[`BoardView Snapshot Tests renderDetail should match snapshot for board detail 1`] = `
+{
+  "content": [
+    {
+      "text": "{
+  "id": "board-1",
+  "name": "Development Board",
+  "description": "Main development board for the project",
+  "$type": "Agile",
+  "owner": {
+    "id": "user-1",
+    "name": "Jane Doe",
+    "$type": "User"
+  },
+  "projects": [
+    {
+      "id": "project-1",
+      "name": "Frontend",
+      "$type": "Project"
+    },
+    {
+      "id": "project-2",
+      "name": "Backend",
+      "$type": "Project"
+    }
+  ],
+  "sprints": [
+    {
+      "id": "sprint-1",
+      "name": "Sprint 1",
+      "goal": "Implement core features",
+      "start": 1746318950222,
+      "finish": 1746319450222,
+      "$type": "Sprint"
+    },
+    {
+      "id": "sprint-2",
+      "name": "Sprint 2",
+      "goal": "Polish UI components",
+      "start": 1746319950222,
+      "finish": 1746320950222,
+      "$type": "Sprint"
+    }
+  ]
+}",
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`BoardView Snapshot Tests renderDetail should match snapshot for error in board detail 1`] = `
+{
+  "content": [
+    {
+      "text": "Error: Board not found",
+      "type": "text",
+    },
+  ],
+  "isError": true,
+}
+`;
+
+exports[`BoardView Snapshot Tests renderList should match snapshot for board list 1`] = `
+{
+  "content": [
+    {
+      "text": "[
+  {
+    "id": "board-1",
+    "name": "Development Board",
+    "description": "Main development board for the project",
+    "$type": "Agile",
+    "owner": {
+      "id": "user-1",
+      "name": "Jane Doe",
+      "$type": "User"
+    },
+    "projects": [
+      {
+        "id": "project-1",
+        "name": "Frontend",
+        "$type": "Project"
+      },
+      {
+        "id": "project-2",
+        "name": "Backend",
+        "$type": "Project"
+      }
+    ],
+    "sprints": [
+      {
+        "id": "sprint-1",
+        "name": "Sprint 1",
+        "goal": "Implement core features",
+        "start": 1746318950222,
+        "finish": 1746319450222,
+        "$type": "Sprint"
+      },
+      {
+        "id": "sprint-2",
+        "name": "Sprint 2",
+        "goal": "Polish UI components",
+        "start": 1746319950222,
+        "finish": 1746320950222,
+        "$type": "Sprint"
+      }
+    ]
+  },
+  {
+    "id": "board-2",
+    "name": "Bug Tracking Board",
+    "description": "Board for tracking bug fixes",
+    "$type": "Agile",
+    "owner": {
+      "id": "user-2",
+      "name": "John Smith",
+      "$type": "User"
+    },
+    "projects": [
+      {
+        "id": "project-1",
+        "name": "Frontend",
+        "$type": "Project"
+      }
+    ],
+    "sprints": []
+  }
+]",
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`BoardView Snapshot Tests renderList should match snapshot for empty board list 1`] = `
+{
+  "content": [
+    {
+      "text": "[]",
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`BoardView Snapshot Tests renderList should match snapshot for error response 1`] = `
+{
+  "content": [
+    {
+      "text": "Error: Failed to fetch boards due to authentication error",
+      "type": "text",
+    },
+  ],
+  "isError": true,
+}
+`;

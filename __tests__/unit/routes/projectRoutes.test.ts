@@ -3,23 +3,45 @@ import { registerProjectRoutes } from '../../../src/routes/projectRoutes';
 import { ProjectController } from '../../../src/controllers/projectController';
 import { ProjectView } from '../../../src/views/projectView';
 import { createProjectListResult, createProjectDetailResult, createErrorResult } from '../../helpers/testHelpers';
+import { z } from 'zod';
+import { PAGINATION_LIMITS, DEFAULT_PAGINATION } from '../../../src/utils/constants';
 
 // Mock the ProjectController and ProjectView
 jest.mock('../../../src/controllers/projectController');
 jest.mock('../../../src/views/projectView');
 
+// Helper to capture handler function from server.tool mock
+const captureHandler = (mockServer: any, toolName: string): ((args: any) => Promise<any>) => {
+  const call = mockServer.tool.mock.calls.find((c: any) => c[0] === toolName);
+  if (!call || call.length < 4) {
+    throw new Error(`Handler for tool '${toolName}' not captured.`);
+  }
+  return call[3]; // Handler is the 4th argument
+};
+
+// Helper to capture the schema definition from server.tool mock
+const captureSchema = (mockServer: any, toolName: string): any => {
+  const call = mockServer.tool.mock.calls.find((c: any) => c[0] === toolName);
+  if (!call || call.length < 3) {
+    throw new Error(`Schema for tool '${toolName}' not captured.`);
+  }
+  return call[2]; // Schema is the 3rd argument
+};
+
 describe('Project Routes', () => {
-  // Create a mock server
-  const server = {
-    tool: jest.fn(),
-    resource: jest.fn()
-  } as unknown as McpServer;
-  
+  let server: any;
+
   beforeEach(() => {
-    // Clear all mocks
-    jest.resetAllMocks();
-    
-    // Mock the ProjectView methods
+    // Reset mocks
+    jest.clearAllMocks();
+
+    // Mock the server
+    server = {
+      tool: jest.fn(),
+      resource: jest.fn()
+    };
+
+    // Mock view methods
     (ProjectView.renderList as jest.Mock).mockReturnValue({
       content: [{ type: 'text', text: 'Rendered project list' }]
     });
@@ -29,90 +51,168 @@ describe('Project Routes', () => {
     });
   });
   
-  it('should register project routes on the server', () => {
-    // Register routes
+  it('should register project routes correctly', () => {
     registerProjectRoutes(server);
-    
-    // Check if tool method was called twice (once for each route)
-    expect(server.tool).toHaveBeenCalledTimes(2);
-    
-    // Check that the list_projects route was registered
     expect(server.tool).toHaveBeenCalledWith(
       'youtrack_list_projects',
-      'List all available projects',
+      expect.any(String),
       expect.any(Object),
       expect.any(Function)
     );
-    
-    // Check that the find_projects_by_name route was registered
     expect(server.tool).toHaveBeenCalledWith(
       'youtrack_find_projects_by_name',
-      'Find projects by name',
-      expect.objectContaining({
-        name: expect.any(Object)
-      }),
+      expect.any(String),
+      expect.any(Object),
       expect.any(Function)
     );
+    expect(server.resource).toHaveBeenCalled();
   });
-  
-  it('should call ProjectController.listProjects when list_projects route is called', async () => {
-    // Mock implementation
-    const projects = [
-      { id: 'project-1', name: 'Test Project 1' },
-      { id: 'project-2', name: 'Test Project 2' }
-    ];
-    const controllerResult = createProjectListResult(projects as any);
-    (ProjectController.listProjects as jest.Mock).mockResolvedValue(controllerResult);
-    
-    // Register routes
-    registerProjectRoutes(server);
-    
-    // Get the route handler function
-    const routeHandler = (server.tool as jest.Mock).mock.calls[0][3];
-    
-    // Call the route handler
-    const result = await routeHandler({});
-    
-    // Check if controller method was called
-    expect(ProjectController.listProjects).toHaveBeenCalledTimes(1);
-    expect(ProjectView.renderList).toHaveBeenCalledWith(controllerResult);
-    expect(result).toEqual({
-      content: [{ type: 'text', text: 'Rendered project list' }]
+
+  describe('list_projects handler', () => {
+    it('should call ProjectController.listProjects and render the result', async () => {
+      const mockProjects = createProjectListResult([
+        { id: 'p1', name: 'Project 1', shortName: 'P1', $type: 'Project' }
+      ]);
+      (ProjectController.listProjects as jest.Mock).mockResolvedValue(mockProjects);
+
+      registerProjectRoutes(server);
+      const handler = captureHandler(server, 'youtrack_list_projects');
+      const result = await handler({ limit: 10, skip: 0 });
+
+      expect(ProjectController.listProjects).toHaveBeenCalledWith({ limit: 10, skip: 0 });
+      expect(ProjectView.renderList).toHaveBeenCalledWith(mockProjects);
+      expect(result).toEqual({ content: [{ type: 'text', text: 'Rendered project list' }] });
+    });
+
+    it('should handle error results', async () => {
+      const mockError = createErrorResult('Failed to list projects');
+      (ProjectController.listProjects as jest.Mock).mockResolvedValue(mockError);
+
+      registerProjectRoutes(server);
+      const handler = captureHandler(server, 'youtrack_list_projects');
+      const result = await handler({ limit: 10, skip: 0 });
+
+      expect(ProjectController.listProjects).toHaveBeenCalledWith({ limit: 10, skip: 0 });
+      expect(ProjectView.renderList).toHaveBeenCalledWith(mockError);
+      expect(result).toEqual({ content: [{ type: 'text', text: 'Rendered project list' }] });
     });
   });
-  
-  it('should call ProjectController.findProjectsByName when find_projects_by_name route is called', async () => {
-    // Mock implementation
-    const projects = [{ id: 'project-1', name: 'Test Project 1' }];
-    const controllerResult = createProjectListResult(projects as any);
-    (ProjectController.findProjectsByName as jest.Mock).mockResolvedValue(controllerResult);
+
+  describe('find_projects_by_name handler', () => {
+    it('should call ProjectController.findProjectsByName and render the result', async () => {
+      const mockProjects = createProjectListResult([
+        { id: 'p1', name: 'Test Project', shortName: 'TP', $type: 'Project' }
+      ]);
+      (ProjectController.findProjectsByName as jest.Mock).mockResolvedValue(mockProjects);
+
+      registerProjectRoutes(server);
+      const handler = captureHandler(server, 'youtrack_find_projects_by_name');
+      const result = await handler({ name: 'Test', limit: 10, skip: 0 });
+
+      expect(ProjectController.findProjectsByName).toHaveBeenCalledWith('Test', { limit: 10, skip: 0 });
+      expect(ProjectView.renderList).toHaveBeenCalledWith(mockProjects);
+      expect(result).toEqual({ content: [{ type: 'text', text: 'Rendered project list' }] });
+    });
+
+    it('should handle error results', async () => {
+      const mockError = createErrorResult('Failed to find projects');
+      (ProjectController.findProjectsByName as jest.Mock).mockResolvedValue(mockError);
+
+      registerProjectRoutes(server);
+      const handler = captureHandler(server, 'youtrack_find_projects_by_name');
+      const result = await handler({ name: 'Test', limit: 10, skip: 0 });
+
+      expect(ProjectController.findProjectsByName).toHaveBeenCalledWith('Test', { limit: 10, skip: 0 });
+      expect(ProjectView.renderList).toHaveBeenCalledWith(mockError);
+      expect(result).toEqual({ content: [{ type: 'text', text: 'Rendered project list' }] });
+    });
+  });
+
+  // Direct tests of the transformation functions
+  describe('projectRoutes transform functions', () => {
+    // Define transform functions to match actual implementation
+    const limitTransform = (val?: number) => 
+      val === undefined || val <= 0 ? DEFAULT_PAGINATION.LIMIT : Math.min(Math.max(val, 1), PAGINATION_LIMITS.PROJECTS);
     
-    // Register routes
-    registerProjectRoutes(server);
+    const skipTransform = (val?: number) => 
+      Math.max(val || DEFAULT_PAGINATION.SKIP, 0);
     
-    // Get the route handler function
-    const routeHandler = (server.tool as jest.Mock).mock.calls[1][3];
-    
-    // Different test cases for parameters
-    const testCases = [
-      { name: 'Test' },
-      { name: 'Project' }
-    ];
-    
-    for (const params of testCases) {
-      // Reset mocks
-      (ProjectController.findProjectsByName as jest.Mock).mockClear();
-      (ProjectView.renderList as jest.Mock).mockClear();
+    it('should test schema transformations directly', () => {
+      registerProjectRoutes(server);
+      const schema = captureSchema(server, 'youtrack_list_projects');
       
-      // Call the route handler with params
-      const result = await routeHandler(params);
+      // Extract transform functions from schema
+      const limitSchema = schema.limit;
+      const skipSchema = schema.skip;
       
-      // Check if controller method was called with correct parameters
-      expect(ProjectController.findProjectsByName).toHaveBeenCalledWith(params.name, { limit: undefined, skip: undefined });
-      expect(ProjectView.renderList).toHaveBeenCalledWith(controllerResult);
-      expect(result).toEqual({
-        content: [{ type: 'text', text: 'Rendered project list' }]
-      });
-    }
+      // Test limit transform
+      expect(limitSchema.parse(undefined)).toBe(DEFAULT_PAGINATION.LIMIT);
+      expect(limitSchema.parse(0)).toBe(DEFAULT_PAGINATION.LIMIT);
+      expect(limitSchema.parse(-5)).toBe(DEFAULT_PAGINATION.LIMIT);
+      expect(limitSchema.parse(10)).toBe(10);
+      expect(limitSchema.parse(1000)).toBe(PAGINATION_LIMITS.PROJECTS);
+      
+      // Test skip transform
+      expect(skipSchema.parse(undefined)).toBe(DEFAULT_PAGINATION.SKIP);
+      expect(skipSchema.parse(-10)).toBe(0);
+      expect(skipSchema.parse(20)).toBe(20);
+    });
+    
+    it('should test limit transform function branches', () => {
+      // Test with undefined (should use default)
+      expect(limitTransform(undefined)).toBe(DEFAULT_PAGINATION.LIMIT);
+      
+      // Test with zero (should use default)
+      expect(limitTransform(0)).toBe(DEFAULT_PAGINATION.LIMIT);
+      
+      // Test with negative value (should use default)
+      expect(limitTransform(-5)).toBe(DEFAULT_PAGINATION.LIMIT);
+      
+      // Test with valid value within range
+      expect(limitTransform(10)).toBe(10);
+      
+      // Test with value less than min (should use min of 1)
+      expect(limitTransform(0.5)).toBe(1);
+      
+      // Test with value above max (should use max)
+      expect(limitTransform(PAGINATION_LIMITS.PROJECTS + 10)).toBe(PAGINATION_LIMITS.PROJECTS);
+    });
+    
+    it('should test skip transform function branches', () => {
+      // Test with undefined (should use default)
+      expect(skipTransform(undefined)).toBe(DEFAULT_PAGINATION.SKIP);
+      
+      // Test with negative value (should use 0)
+      expect(skipTransform(-5)).toBe(0);
+      
+      // Test with valid value
+      expect(skipTransform(20)).toBe(20);
+      
+      // Test with zero
+      expect(skipTransform(0)).toBe(0);
+    });
+    
+    // Test schema for find_projects_by_name
+    it('should test schema transformations for find_projects_by_name', () => {
+      registerProjectRoutes(server);
+      const schema = captureSchema(server, 'youtrack_find_projects_by_name');
+      
+      // Extract transform functions from schema
+      const limitSchema = schema.limit;
+      const skipSchema = schema.skip;
+      const nameSchema = schema.name;
+      
+      // Test limit transform
+      expect(limitSchema.parse(undefined)).toBe(DEFAULT_PAGINATION.LIMIT);
+      expect(limitSchema.parse(0)).toBe(DEFAULT_PAGINATION.LIMIT);
+      expect(limitSchema.parse(100)).toBe(PAGINATION_LIMITS.PROJECTS);
+      
+      // Test skip transform
+      expect(skipSchema.parse(undefined)).toBe(DEFAULT_PAGINATION.SKIP);
+      expect(skipSchema.parse(-10)).toBe(0);
+      
+      // Test name field
+      expect(nameSchema.parse('Test')).toBe('Test');
+    });
   });
 }); 

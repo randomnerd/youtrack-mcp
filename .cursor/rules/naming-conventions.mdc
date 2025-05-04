@@ -1,0 +1,52 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# YouTrack MCP Naming Conventions
+
+## Tool Names
+
+MCP tools are named with the pattern: `youtrack_<operation>_<entity>`
+
+Examples:
+- `youtrack_list_boards`
+- `youtrack_get_issue`
+- `youtrack_update_issue`
+- `youtrack_search_issues`
+- `youtrack_find_projects_by_name`
+
+## Component Naming
+
+- **Controllers**: Follow the pattern `<Entity>Controller`
+  - Examples: `BoardController`, `IssueController`
+  - File names: `boardController.ts`, `issueController.ts`
+
+- **Route Files**: Follow the pattern `<entity>Routes.ts`
+  - Examples: `boardRoutes.ts`, `issueRoutes.ts`
+
+- **Models**: Follow the pattern `<Entity>Model` for class names
+  - Examples: `BoardModel`, `IssueModel`
+  - File names: `board.ts`, `issue.ts`
+
+- **Views**: Follow the pattern `<Entity>View` for class names
+  - Examples: `BoardView`, `IssueView`
+  - File names: `boardView.ts`, `issueView.ts`
+
+## Method Naming
+
+- **Get single item**: `getById` or `get<Entity>`
+- **Get multiple items**: `getAll`, `find`, or `search`
+- **Update item**: `update` or `update<Entity>`
+- **Create item**: `create` or `create<Entity>`
+- **Delete item**: `delete` or `delete<Entity>`
+
+## Resource Templates
+
+Resource templates follow URL pattern: `youtrack://<entity>/{<entity>Id?}/...`
+
+Examples:
+- `youtrack://boards/{boardId?}`
+- `youtrack://boards/{boardId}/sprints/{sprintId?}`
+- `youtrack://issues/{issueId?}`
+- `youtrack://projects/{projectId?}`

@@ -429,20 +429,16 @@ export function formatYouTrackData(data: any, options: JsonFormatterOptions = {}
 }
 
 /**
- * Detects the type of entity based on its properties
- * @param data - Entity data to check
- * @returns The detected entity type as a string
+ * Detects the entity type from data
  */
 function detectEntityType(data: any): string {
-  // Check for explicit $type property first
+  if (data === null || data === undefined || typeof data !== 'object') {
+    return 'Unknown';
+  }
+  
+  // If there's an explicit type field, use it
   if (data.$type) {
-    switch (data.$type) {
-      case 'Issue': return 'Issue';
-      case 'Sprint': return 'Sprint';
-      case 'Agile': return 'Board';
-      case 'Project': return 'Project';
-      case 'IssueComment': return 'Comment';
-    }
+    return data.$type;
   }
   
   // If no explicit type or unrecognized type, infer from properties
@@ -450,29 +446,18 @@ function detectEntityType(data: any): string {
     return 'Issue';
   } 
   
-  if ('name' in data) {
-    if ('isCompleted' in data || 'unresolvedIssuesCount' in data) {
-      return 'Sprint';
-    }
-    
-    if ('sprints' in data) {
-      return 'Board';
-    }
-    
-    if ('shortName' in data) {
-      return 'Project';
-    }
+  if ('name' in data && 'projects' in data) {
+    return 'AgileBoard';
   }
   
-  if ('text' in data && 'author' in data && data.$type === 'IssueComment') {
-    return 'Comment';
+  if ('name' in data && 'start' in data && 'finish' in data) {
+    return 'Sprint';
   }
   
-  if ('activities' in data && Array.isArray(data.activities)) {
-    return 'ActivityContainer';
+  if ('shortName' in data && 'name' in data) {
+    return 'Project';
   }
   
-  // Default return for unrecognized entities
   return 'Unknown';
 }
 
@@ -618,24 +603,59 @@ export function formatCustomFields(customFields: any[] | undefined): SimpleCusto
 }
 
 /**
- * Format an array of comments to simpler representation
- * @param comments - YouTrack comment objects
- * @param options - Formatting options
- * @param userMap - Map to collect unique users
- * @returns Simplified comment objects
+ * Extract comment text and author from IssueCommentActivityItem
+ */
+export function extractCommentTextFromActivity(activity: any): string | undefined {
+  try {
+    const type = activity?.$type;
+    if (type === 'IssueCommentActivityItem') {
+      return activity?.added?.[0]?.text;
+    }
+    
+    return undefined;
+  } catch (err) {
+    return undefined;
+  }
+}
+
+/**
+ * Format a comment object from YouTrack API
+ */
+export function formatComment(comment: any, options: JsonFormatterOptions = {}): SimpleComment | null {
+  if (!comment) return null;
+  
+  const opts = { ...DEFAULT_OPTIONS, ...options };
+  
+  let text = comment.text || '';
+  if (opts.maxCommentLength && text.length > opts.maxCommentLength) {
+    text = text.substring(0, opts.maxCommentLength) + ' [truncated]';
+  }
+  
+  return {
+    id: comment.id,
+    text,
+    author: comment.author ? comment.author.id : undefined,
+    created: comment.created ? formatDate(comment.created) : 'unknown date'
+  };
+}
+
+/**
+ * Format an array of comment objects from YouTrack API
  */
 export function formatComments(
-  comments: any[] | undefined, 
-  options: JsonFormatterOptions = {}, 
+  comments: any[] = [], 
+  options: JsonFormatterOptions = {},
   userMap: Record<string, SimpleUser> = {}
 ): SimpleComment[] {
-  if (!comments || comments.length === 0) {
+  if (!comments || !Array.isArray(comments)) {
     return [];
   }
   
   const opts = { ...DEFAULT_OPTIONS, ...options };
   
   return comments.map(comment => {
+    if (!comment) return null;
+    
     let text = comment.text || '';
     if (opts.maxCommentLength && text.length > opts.maxCommentLength) {
       text = text.substring(0, opts.maxCommentLength) + ' [truncated]';
@@ -643,40 +663,18 @@ export function formatComments(
     
     // Format and store author in the user map
     const authorId = comment.author?.id || 'unknown';
-    if (comment.author && !userMap[authorId]) {
+    if (comment.author && authorId && !userMap[authorId]) {
       userMap[authorId] = formatUser(comment.author) || { id: 'unknown', name: 'Unknown User' };
     }
     
     return {
       id: comment.id,
-      text: text,
-      created: comment.created ? formatDate(comment.created) : 'Unknown date',
+      text,
       author: authorId,
+      created: comment.created ? formatDate(comment.created) : 'unknown date',
       isPinned: comment.isPinned
     };
-  });
-}
-
-/**
- * Format a single comment
- * @param comment - YouTrack comment object 
- * @param options - Formatting options
- * @param userMap - Map to collect unique users
- * @returns Simplified comment object
- */
-export function formatComment(
-  comment: any, 
-  options: JsonFormatterOptions = {}, 
-  userMap: Record<string, SimpleUser> = {}
-): SimpleComment & { _raw?: any } {
-  const formattedComments = formatComments([comment], options, userMap);
-  const result = formattedComments[0];
-  
-  if (options.includeRawData) {
-    (result as any)._raw = comment;
-  }
-  
-  return result;
+  }).filter(Boolean) as SimpleComment[];
 }
 
 /**
@@ -761,72 +759,57 @@ export function formatActivities(
   options: JsonFormatterOptions = {}, 
   userMap: Record<string, SimpleUser> = {}
 ): SimpleActivity[] {
-  if (!activities || activities.length === 0) {
+  if (!activities || !Array.isArray(activities)) {
     return [];
   }
-  
+
   const opts = { ...DEFAULT_OPTIONS, ...options };
   
-  // Limit the number of activities if maxActivities is set
-  const limitedActivities = opts.maxActivities && opts.maxActivities > 0
-    ? activities.slice(0, opts.maxActivities)
+  // Apply activities limit (maxActivities=0 means no limit)
+  const limitedActivities = opts.maxActivities && opts.maxActivities > 0 
+    ? activities.slice(0, opts.maxActivities) 
     : activities;
-  
+
   return limitedActivities.map(activity => {
-    // Format and store author in the user map
-    const authorId = activity.author?.id || 'unknown';
-    if (activity.author && !userMap[authorId]) {
-      userMap[authorId] = formatUser(activity.author) || { id: 'unknown', name: 'Unknown User' };
-    }
-    
+    if (!activity) return null;
+
+    const type = activity.$type || 'Unknown';
+    const author = activity.author ? activity.author.id : undefined;
+    const timestamp = activity.timestamp 
+      ? formatDate(activity.timestamp) 
+      : 'unknown date';
+
     const result: SimpleActivity = {
-      id: activity.id,
-      type: activity.$type,
-      timestamp: formatDate(activity.timestamp),
-      author: authorId,
+      id: activity.id || `activity-${Math.random().toString(36).substr(2, 9)}`,
+      type,
+      timestamp,
+      author,
     };
-    
-    // Add field name if available
-    if (activity.field && typeof activity.field === 'object' && 'name' in activity.field) {
-      result.field = activity.field.name || undefined;
+
+    // Extract field information for different activity types
+    if (type === 'IssueCustomFieldActivityItem' || type.includes('Field')) {
+      if (activity.field && activity.field.name) {
+        result.field = activity.field.name;
+      }
+
+      if (activity.added && (activity.added.presentation || activity.added.name)) {
+        result.addedValues = [activity.added.presentation || activity.added.name];
+      } else if (activity.added && activity.added.fields) {
+        result.addedValues = activity.added.fields.map((f: any) => f.value || f.name).filter(Boolean);
+      }
+
+      if (activity.removed && (activity.removed.presentation || activity.removed.name)) {
+        result.removedValues = [activity.removed.presentation || activity.removed.name];
+      } else if (activity.removed && activity.removed.fields) {
+        result.removedValues = activity.removed.fields.map((f: any) => f.value || f.name).filter(Boolean);
+      }
+    } else if (type === 'IssueCommentActivityItem' && activity.comment) {
+      // Add comment text from comment activities
+      result.comment = activity.comment.text;
     }
-    
-    // Handle added values
-    if (activity.added !== undefined) {
-      const added = Array.isArray(activity.added) ? activity.added : [activity.added];
-      result.addedValues = added.map((item: any) => {
-        if (item && typeof item === 'object') {
-          return item.name || item.text || item.presentation || 'Unknown value';
-        } else if (typeof item === 'string' || typeof item === 'number') {
-          return String(item);
-        } else {
-          return 'Unknown value';
-        }
-      });
-    }
-    
-    // Extract comment text for comment activities (separate from added values logic)
-    const hasCommentText = activity.$type === 'CommentActivityItem' && activity.target && 'text' in activity.target;
-    if (hasCommentText) {
-      result.comment = activity.target.text || '';
-    }
-    
-    // Handle removed values
-    if (activity.removed !== undefined) {
-      const removed = Array.isArray(activity.removed) ? activity.removed : [activity.removed];
-      result.removedValues = removed.map((item: any) => {
-        if (item && typeof item === 'object') {
-          return item.name || item.text || item.presentation || 'Unknown value';
-        } else if (typeof item === 'string' || typeof item === 'number') {
-          return String(item);
-        } else {
-          return 'Unknown value';
-        }
-      });
-    }
-    
+
     return result;
-  });
+  }).filter(Boolean) as SimpleActivity[];
 }
 
 /**
@@ -955,103 +938,109 @@ export function formatIssue(
   issue: any, 
   options: JsonFormatterOptions = {}
 ): SimpleIssue | null {
-  if (!issue) {
-    return null;
-  }
-  
+  if (!issue) return null;
+
   const opts = { ...DEFAULT_OPTIONS, ...options };
   
-  // Create a map to collect all unique users
+  // Create a map of unique users for cross-references
   const userMap: Record<string, SimpleUser> = {};
   
-  // Format description, truncating if needed
-  let description = issue.description || undefined;
+  // Add reporter to user map
+  if (issue.reporter) {
+    const reporter = formatUser(issue.reporter);
+    if (reporter) {
+      userMap[reporter.id] = reporter;
+    }
+  }
+  
+  // Format project
+  const project = formatProject(issue.project);
+  
+  // Get description and apply truncation if needed
+  let description = issue.description;
   if (description && opts.maxDescriptionLength && description.length > opts.maxDescriptionLength) {
-    description = description.substring(0, opts.maxDescriptionLength) + ' [truncated]';
+    description = description.substring(0, opts.maxDescriptionLength) + '... (truncated)';
   }
   
-  // Add reporter to user map if present
-  const reporterId = issue.reporter?.id || undefined;
-  if (issue.reporter && reporterId) {
-    userMap[reporterId] = formatUser(issue.reporter) || { id: 'unknown', name: 'Unknown User' };
-  }
+  // Format dates
+  const created = issue.created ? formatDate(issue.created) : undefined;
+  const updated = issue.updated ? formatDate(issue.updated) : undefined;
+  const resolved = issue.resolved ? formatDate(issue.resolved) : undefined;
   
+  // Format links
+  const links = formatLinks(issue.links || []);
+  
+  // Format comments and collect users
+  const comments = issue.comments 
+    ? formatComments(issue.comments, opts, userMap)
+    : [];
+  
+  // Format activities and collect users (if includeActivities is true)
+  const activities = opts.includeActivities && issue.activities
+    ? formatActivities(issue.activities, opts, userMap)
+    : [];
+  
+  // Format attachments (if includeAttachments is true)
+  const attachments = opts.includeAttachments && issue.attachments
+    ? formatAttachments(issue.attachments, userMap)
+    : [];
+  
+  // Build the result object
   const result: SimpleIssue = {
     id: issue.id,
     idReadable: issue.idReadable,
     summary: issue.summary,
-    description,
-    project: formatProject(issue.project) || { id: 'unknown', name: 'Unknown Project' },
-    created: issue.created ? formatDate(issue.created) : undefined,
-    updated: issue.updated ? formatDate(issue.updated) : undefined,
-    resolved: issue.resolved ? (typeof issue.resolved === 'number' ? formatDate(issue.resolved) : 'Resolved') : null,
-    reporter: reporterId,
+    project: project || { id: 'unknown', name: 'Unknown Project' },
+    users: userMap,
+    links: links || [],
+    attachments: attachments || [],
+    activelyWorkedContributors: [],
   };
   
-  // Format custom fields and add them to the root of the result object
-  const customFields = formatCustomFields(issue.customFields);
-  customFields.forEach(field => {
-    result[field.name] = field.value;
-  });
+  // Add optional fields if they exist
+  if (description) result.description = description;
+  if (created) result.created = created;
+  if (updated) result.updated = updated;
+  if (resolved !== undefined) result.resolved = resolved;
+  if (issue.reporter) result.reporter = issue.reporter.id;
   
-  // Create unified timeline from comments and activities
-  const timelineItems: SimpleTimelineItem[] = [];
-  
-  // Add comments to timeline if available
-  if (issue.comments && issue.comments.length > 0) {
-    const commentItems = formatCommentsAsTimelineItems(issue.comments, opts, userMap);
-    timelineItems.push(...commentItems);
+  // Add any custom fields
+  const customFields = issue.customFields || [];
+  for (const field of customFields) {
+    if (field && field.name && field.$type === 'CustomField') {
+      result[field.name] = field.value?.name || field.value?.text || field.value;
+    }
   }
   
-  // Add activities to timeline if requested and available
-  if (opts.includeActivities && 'activities' in issue && issue.activities) {
-    const activityItems = formatActivitiesAsTimelineItems(issue.activities, opts, userMap);
-    timelineItems.push(...activityItems);
+  // Add sprint if available
+  if (issue.sprint && issue.sprint.id) {
+    result.sprint = issue.sprint.id;
   }
   
-  // Sort timeline by timestamp (newest first by default)
-  if (timelineItems.length > 0) {
-    timelineItems.sort((a, b) => {
-      if (!a.timestamp || !b.timestamp) return 0;
-      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-    });
-    result.timeline = timelineItems;
+  // Create timeline from comments and activities if either exists
+  if (comments.length > 0 || activities.length > 0) {
+    const commentsTimeline = formatCommentsAsTimelineItems(issue.comments, opts, userMap);
+    const activitiesTimeline = opts.includeActivities 
+      ? formatActivitiesAsTimelineItems(issue.activities, opts, userMap)
+      : [];
+    
+    // Combine and sort by timestamp
+    result.timeline = [...commentsTimeline, ...activitiesTimeline]
+      .sort((a, b) => {
+        const dateA = new Date(a.timestamp).getTime();
+        const dateB = new Date(b.timestamp).getTime();
+        return dateA - dateB;
+      });
   }
   
-  // Add links if available
-  const links = (issue.links || []).filter((l: YouTrackTypes.IssueLink) => l.issues && l.issues.length > 0);
-  if (links.length > 0) {
-    result.links = formatLinks(links);
-  }
-  
-  // Add attachments if requested and available
-  if (opts.includeAttachments && issue.attachments && issue.attachments.length > 0) {
-    result.attachments = formatAttachments(issue.attachments, userMap);
-  }
-  
-  // Look for Sprint in custom fields
-  const sprintField = customFields.find(f => f.name === 'Sprint');
-  if (sprintField && sprintField.value) {
-    result.sprint = typeof sprintField.value === 'string' 
-      ? sprintField.value 
-      : Array.isArray(sprintField.value) && sprintField.value.length > 0
-        ? String(sprintField.value[0])
-        : String(sprintField.value);
-  }
-  
-  // Add user map to result if it has any entries
-  if (Object.keys(userMap).length > 0) {
-    result.users = userMap;
-  }
-  
-  // Include raw data if requested
+  // Add raw data if requested
   if (opts.includeRawData) {
     result._raw = issue;
   }
-
+  
   // Add actively worked contributors
   result.activelyWorkedContributors = getActivelyWorkedContributors(result);
-
+  
   return result;
 }
 
@@ -1062,37 +1051,44 @@ export function formatIssue(
  * @returns Simplified Sprint object
  */
 export function formatSprint(sprint: any, options: JsonFormatterOptions = {}): SimpleSprint | null {
-  if (!sprint) {
-    return null;
-  }
-  
+  if (!sprint) return null;
+
   const opts = { ...DEFAULT_OPTIONS, ...options };
   
+  // Format dates
+  const start = sprint.start ? formatDate(sprint.start) : undefined;
+  const finish = sprint.finish ? formatDate(sprint.finish) : undefined;
+  
+  // Build the result object
   const result: SimpleSprint = {
     id: sprint.id,
     name: sprint.name,
-    goal: sprint.goal || undefined,
-    start: sprint.start ? formatDate(sprint.start) : undefined,
-    finish: sprint.finish ? formatDate(sprint.finish) : undefined,
-    isActive: !!sprint.isStarted && !sprint.isCompleted && !sprint.archived,
-    isCompleted: !!sprint.isCompleted,
-    isDefault: !!sprint.isDefault,
-    unresolvedIssuesCount: sprint.unresolvedIssuesCount
+    isActive: !!sprint.isActive,
   };
   
-  // Format sprint issues if available
-  if (sprint.issues && sprint.issues.length > 0) {
+  // Add optional fields if they exist
+  if (sprint.goal) result.goal = sprint.goal;
+  if (start) result.start = start;
+  if (finish) result.finish = finish;
+  if (sprint.isCompleted !== undefined) result.isCompleted = sprint.isCompleted;
+  if (sprint.isDefault !== undefined) result.isDefault = sprint.isDefault;
+  
+  // Add issues if they exist
+  if (sprint.issues && Array.isArray(sprint.issues)) {
     result.issues = sprint.issues.map((issue: any) => ({
       id: issue.id,
       idReadable: issue.idReadable,
       summary: issue.summary,
-      resolved: !!issue.resolved,
-      created: issue.created ? formatDate(issue.created) : undefined,
-      updated: issue.updated ? formatDate(issue.updated) : undefined
+      resolved: !!issue.resolved
     }));
   }
   
-  // Include raw data if requested
+  // Add unresolved issues count if it exists
+  if (sprint.unresolvedIssuesCount !== undefined) {
+    result.unresolvedIssuesCount = sprint.unresolvedIssuesCount;
+  }
+  
+  // Add raw data if requested
   if (opts.includeRawData) {
     result._raw = sprint;
   }

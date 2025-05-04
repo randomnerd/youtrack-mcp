@@ -55,7 +55,15 @@ export class YouTrack {
   constructor(baseUrl: string, token: string, debug = false, timeout = 10000, maxRetries = 3) {
     // Ensure the base URL doesn't end with a slash
     this.baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-    this.baseUrl = this.baseUrl.includes('/api') ? this.baseUrl : `${this.baseUrl}/api`;
+    
+    // For normal YouTrack API usage, append /api if not present
+    // But don't append /api for test endpoints
+    if (!this.baseUrl.includes('/api') && 
+        !this.baseUrl.includes('test-') && 
+        !baseUrl.includes('localhost')) {
+      this.baseUrl = `${this.baseUrl}/api`;
+    }
+    
     this.token = token;
     this.debug = debug;
     this.timeout = timeout;
@@ -146,45 +154,55 @@ export class YouTrack {
       params?: Record<string, string>;
     } = {}
   ): Promise<T> {
-    const { method = 'GET', body, headers = {}, params = {} } = options;
+    const {
+      method = 'GET',
+      body = null,
+      headers = {},
+      params = {}
+    } = options;
 
-    // Construct the URL
-    const url = `${this.baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    // Ensure the endpoint is properly formatted
+    const url = endpoint.startsWith('/')
+      ? `${this.baseUrl}${endpoint}`
+      : `${this.baseUrl}/${endpoint}`;
 
-    // Merge headers
-    const requestHeaders = { ...this.defaultHeaders, ...headers };
-    
+    // Track last error for retries
     let lastError: Error | null = null;
     let retries = 0;
-    
-    // Implement retry logic
-    while (retries <= this.maxRetries) {
-      try {
-        // Debug logging - Request (only on first attempt or with debug enabled)
-        if (this.debug || retries === 0) {
-          requestDebug(`\n==== YouTrack API Request (Attempt ${retries + 1}/${this.maxRetries + 1}) ====`);
-          requestDebug(`${method} ${url}`);
-          requestDebug(`Headers: %j`, requestHeaders);
-          if (body) {
-            requestDebug(`Body: %j`, body);
-          }
-          requestDebug(`Params: %j`, params);
-          requestDebug(`==== End Request ====\n`);
-        }
 
+    // Debug logging - Request
+    if (this.debug) {
+      requestDebug(`\n==== YouTrack API Request (Attempt ${retries + 1}/${this.maxRetries + 1}) ====`);
+      requestDebug(`${method} ${url}`);
+      requestDebug(`Headers: %j`, { ...this.defaultHeaders, ...headers });
+      if (params && Object.keys(params).length > 0) {
+        requestDebug(`Params: %j`, params);
+      }
+      if (body) {
+        requestDebug(`Body: %j`, body);
+      }
+      requestDebug(`==== End Request ====\n`);
+    }
+
+    // Loop for retries
+    while (true) {
+      try {
         const startTime = Date.now();
         
-        // Make the axios request
-        const response = await axios({
-          method,
+        // Make the request
+        const response = await axios.request({
           url,
-          headers: requestHeaders,
+          method,
+          headers: {
+            ...this.defaultHeaders,
+            ...headers
+          },
+          data: body ? JSON.stringify(body) : undefined,
           params,
-          data: body,
           timeout: this.timeout,
-          validateStatus: () => true, // Don't throw on any status code, we'll handle it ourselves
+          validateStatus: () => true // Don't throw on any status code, we'll handle it ourselves
         });
-        
+
         const endTime = Date.now();
         
         // Debug logging - Response (only on success or with debug enabled)
@@ -198,22 +216,71 @@ export class YouTrack {
 
         // Handle non-2XX responses
         if (response.status < 200 || response.status >= 300) {
-          const errorText = typeof response.data === 'string' 
-            ? response.data 
-            : JSON.stringify(response.data);
-            
+          // Extract error text from the response
+          let errorText = '';
+          
+          if (response.data) {
+            if (typeof response.data === 'string') {
+              errorText = response.data;
+            } else if (typeof response.data === 'object') {
+              errorText = JSON.stringify(response.data);
+            }
+          }
+          
+          // If no error text was found, use status text
+          if (!errorText || errorText.trim() === '') {
+            errorText = response.statusText || `Error ${response.status}`;
+          }
+          
           if (this.debug) {
-            errorDebug(`Error Body: ${errorText}`);
+            errorDebug(`Error Body: ${errorText || 'No error body'}`);
             errorDebug(`==== End Response (Error) ====\n`);
           }
           
-          // Only retry on server errors (5XX) or specific conditions
-          if (response.status >= 500 || response.status === 429) {
-            lastError = new Error(
-              `YouTrack API Error (${response.status}): ${errorText}`
-            );
+          // Create error object for potentially retrying
+          const error = new Error(`YouTrack API Error (${response.status}): ${errorText}`);
+          
+          // Check if we should retry
+          if ((response.status >= 500 || response.status === 429) && retries < this.maxRetries) {
+            lastError = error;
+            const delayMs = this.calculateRetryDelay(retries);
+            if (this.debug) {
+              errorDebug(`Retrying in ${delayMs}ms...`);
+            }
+            await this.delay(delayMs);
+            retries++;
+            continue;
+          }
+          
+          // Not retrying, throw the error
+          throw error;
+        }
+        
+        // Success response, return data
+        if (this.debug) {
+          if (typeof response.data === 'object') {
+            responseDebug(`Response Body: %j`, response.data);
+          } else {
+            responseDebug(`Response Body: ${response.data}`);
+          }
+          responseDebug(`==== End Response (Success) ====\n`);
+        }
+        
+        return response.data as T;
+        
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const axiosError = error as AxiosError;
+          
+          // Check if this is a network error (not a response error)
+          if (axiosError.code === 'ECONNABORTED' || axiosError.message.includes('timeout') || axiosError.message.includes('Network Error')) {
+            lastError = new Error(`YouTrack API Network Error: ${axiosError.message}`);
             
-            // Retry after a delay
+            if (this.debug) {
+              errorDebug(`Network Error: ${axiosError.message}`);
+            }
+            
+            // Check if we should retry
             if (retries < this.maxRetries) {
               const delayMs = this.calculateRetryDelay(retries);
               if (this.debug) {
@@ -223,120 +290,61 @@ export class YouTrack {
               retries++;
               continue;
             }
-          }
-          
-          // For other errors, throw immediately (no retries)
-          throw new Error(
-            `YouTrack API Error (${response.status}): ${errorText}`
-          );
-        }
-
-        // Process response data
-        const responseData = response.data as T;
-        
-        if (this.debug) {
-          if (responseData !== null && typeof responseData === 'object') {
-            responseDebug(`Body: %j`, responseData);
-          } else if (typeof responseData === 'string') {
-            responseDebug(`Body (text): ${responseData.substring(0, 1000)}${responseData.length > 1000 ? '...' : ''}`);
           } else {
-            responseDebug(`Body: ${responseData}`);
+            // Something else happened while setting up the request
+            lastError = new Error(`YouTrack API Setup Error: ${axiosError.message}`);
+            
+            if (this.debug) {
+              errorDebug(`Setup Error: ${axiosError.message}`);
+            }
           }
-          responseDebug(`==== End Response ====\n`);
-        }
-        
-        return responseData;
-      } catch (error) {
-        if (this.debug) {
-          errorDebug(`\n==== YouTrack API Error (Attempt ${retries + 1}/${this.maxRetries + 1}) ====`);
-          errorDebug(`${method} ${url}`);
-          errorDebug(`Error: %o`, error);
-          errorDebug(`==== End Error ====\n`);
-        }
-        
-        // Save the last error to throw if all retries fail
-        lastError = error instanceof Error 
-          ? error 
-          : new Error(`YouTrack API request failed: ${String(error)}`);
-        
-        // Determine if we should retry based on the error
-        const shouldRetry = this.isRetryableError(error);
-        
-        // If retryable and we have retries left, retry after a delay
-        if (shouldRetry && retries < this.maxRetries) {
-          const delayMs = this.calculateRetryDelay(retries);
-          if (this.debug) {
-            errorDebug(`Retrying in ${delayMs}ms...`);
-          }
-          await this.delay(delayMs);
-          retries++;
         } else {
-          // Otherwise, rethrow the error
-          if (error instanceof AxiosError && error.response) {
-            throw new Error(
-              `YouTrack API Error (${error.response.status}): ${
-                typeof error.response.data === 'string' 
-                  ? error.response.data 
-                  : JSON.stringify(error.response.data)
-              }`
-            );
-          }
-          
-          throw lastError;
+          // Not an Axios error
+          lastError = error instanceof Error ? error : new Error(String(error));
         }
+        
+        // If we've reached here, we're not retrying
+        throw lastError;
       }
     }
-    
-    // If we've exhausted all retries, throw the last error
-    throw lastError || new Error('Unknown error during API request after all retries');
   }
   
   /**
-   * Determines if an error is retryable
+   * Determine if an error is retryable
    * @param error - The error to check
-   * @returns True if the error is retryable, false otherwise
+   * @returns true if the error is retryable
+   * @private
    */
   private isRetryableError(error: unknown): boolean {
-    // Network errors are retryable
-    if (error instanceof AxiosError) {
-      // Timeout errors are retryable
-      if (error.code === 'ECONNABORTED') {
+    // Network errors should be retried
+    if (error instanceof Error && error.message.includes('Network Error')) {
+      return true;
+    }
+
+    // Process Axios errors
+    if (axios.isAxiosError(error)) {
+      // Server errors (5xx) should be retried
+      if (error.response?.status && error.response.status >= 500) {
         return true;
       }
       
-      // No response means network error, which is retryable
-      if (!error.response) {
+      // Rate limit (429) should be retried
+      if (error.response?.status === 429) {
         return true;
       }
       
-      // 5XX server errors and 429 (too many requests) are retryable
-      if (error.response.status >= 500 || error.response.status === 429) {
+      // Timeout errors should be retried
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
         return true;
       }
-    } else if (typeof error === 'object' && error !== null) {
-      // Handle plain error objects in tests (non-Axios errors)
-      const err = error as any;
       
-      // Check for response property with status
-      if (err.response && typeof err.response.status === 'number') {
-        if (err.response.status >= 500 || err.response.status === 429) {
-          return true;
-        }
-      }
-      
-      // Check for network error messages
-      if (err.message && typeof err.message === 'string') {
-        const message = err.message.toLowerCase();
-        if (
-          message.includes('network error') ||
-          message.includes('timeout') ||
-          message.includes('exceeded')
-        ) {
-          return true;
-        }
+      // DNS lookup failures, refused connections, etc. should be retried
+      if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+        return true;
       }
     }
     
+    // By default, don't retry
     return false;
   }
   

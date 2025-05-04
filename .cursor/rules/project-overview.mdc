@@ -1,0 +1,33 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# YouTrack MCP Project Overview
+
+This project implements a Model Context Protocol (MCP) server for interacting with YouTrack instances. It provides tools for managing YouTrack agile boards, sprints, issues, and projects through a standardized MCP interface.
+
+## Key Components
+
+- **Main Entry Point**: [index.ts](mdc:src/index.ts) - Application entry point
+- **MCP Server**: [server.ts](mdc:src/server.ts) - Sets up the MCP server
+- **YouTrack Client**: [youtrack-client.ts](mdc:src/youtrack-client.ts) - API client for YouTrack
+
+## Available Tools
+
+The MCP server provides these tools for YouTrack interaction:
+
+- `youtrack_list_boards` - List all available agile boards
+- `youtrack_get_board` - Get details of a specific board
+- `youtrack_get_sprint` - Get details of a specific sprint
+- `youtrack_find_sprints` - Find sprints by board, name, status, or time period
+- `youtrack_get_issue` - Get details of a specific issue
+- `youtrack_update_issue` - Update an existing issue
+- `youtrack_search_issues` - Search for issues using YouTrack query syntax
+- `youtrack_find_issues_by_criteria` - Find issues by criteria
+- `youtrack_list_projects` - List all available projects
+- `youtrack_find_projects_by_name` - Find projects by name
+
+## Configuration
+
+Environment variables for configuration are defined in [.env.example](mdc:.env.example).

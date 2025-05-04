@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`IssueView Snapshots should format a complete issue consistently 1`] = `
+{
+  "content": [
+    {
+      "text": "{"id":"sample-1","idReadable":"TEST-123","numberInProject":123,"summary":"Sample issue for testing","description":"This is a sample issue for testing","customFields":[],"$type":"Issue"}",
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`IssueView Snapshots should format a list of issues consistently 1`] = `
+{
+  "content": [
+    {
+      "text": "[{"id":"sample-1","idReadable":"TEST-123","numberInProject":123,"summary":"Sample issue for testing","description":"This is a sample issue for testing","customFields":[],"$type":"Issue"},{"id":"minimal-1","idReadable":"MIN-1","numberInProject":1,"summary":"Minimal issue","$type":"Issue"},{"id":"sample-2","idReadable":"TEST-124","numberInProject":124,"summary":"Another sample issue","$type":"Issue"}]",
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`IssueView Snapshots should format a minimal issue consistently 1`] = `
+{
+  "content": [
+    {
+      "text": "Formatted issue minimal-1",
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`IssueView Snapshots should format different issue custom fields consistently: complex-issue-with-custom-fields 1`] = `
+{
+  "content": [
+    {
+      "text": "{"id":"31-123","idReadable":"PROJ-123","numberInProject":123,"summary":"Fix the login button on mobile","description":"The login button doesn't appear correctly on mobile devices. It's either too small or not visible at all depending on the screen size.\\n\\nSteps to reproduce:\\n1. Open the app on a mobile device\\n2. Go to login page\\n3. Note that the login button is either too small or not visible","usesMarkdown":true,"created":1683726645000,"updated":1684146753000,"resolved":null,"reporter":{"id":"1-1","name":"John Smith","fullName":"John Smith","login":"jsmith","email":"john.smith@example.com","avatarUrl":"https://example.com/avatars/jsmith.png","$type":"User"},"updater":{"id":"1-2","name":"Jane Doe","fullName":"Jane Doe","login":"jdoe","email":"jane.doe@example.com","$type":"User"},"isDraft":false,"commentsCount":2,"customFields":[{"id":"10-1","name":"Type","projectCustomField":{"id":"10-1-1","field":{"id":"10-1-1-1","name":"Type","$type":"CustomField"},"$type":"EnumProjectCustomField"},"value":{"id":"10-1-1-1-1","name":"Bug","color":{"id":"10-1-1-1-1-1","background":"#ff0000","foreground":"#ffffff","$type":"FieldStyle"},"localizedName":"Bug","$type":"EnumBundleElement"},"$type":"SingleEnumIssueCustomField"},{"id":"10-2","name":"Priority","projectCustomField":{"id":"10-2-1","field":{"id":"10-2-1-1","name":"Priority","$type":"CustomField"},"$type":"EnumProjectCustomField"},"value":{"id":"10-2-1-1-1","name":"High","color":{"id":"10-2-1-1-1-1","background":"#ffaa00","foreground":"#000000","$type":"FieldStyle"},"localizedName":"High","$type":"EnumBundleElement"},"$type":"SingleEnumIssueCustomField"},{"id":"10-3","name":"Stage","projectCustomField":{"id":"10-3-1","field":{"id":"10-3-1-1","name":"Stage","$type":"CustomField"},"$type":"StateProjectCustomField"},"value":{"id":"10-3-1-1-1","name":"In Progress","isResolved":false,"color":{"id":"10-3-1-1-1-1","background":"#0000ff","foreground":"#ffffff","$type":"FieldStyle"},"$type":"StateBundleElement"},"$type":"StateIssueCustomField"},{"id":"10-4","name":"Assignee","projectCustomField":{"id":"10-4-1","field":{"id":"10-4-1-1","name":"Assignee","$type":"CustomField"},"$type":"UserProjectCustomField"},"value":{"id":"1-2","name":"Jane Doe","fullName":"Jane Doe","login":"jdoe","email":"jane.doe@example.com","$type":"User"},"$type":"SingleUserIssueCustomField"},{"id":"10-5","name":"Sprint","projectCustomField":{"id":"10-5-1","field":{"id":"10-5-1-1","name":"Sprint","$type":"CustomField"},"$type":"EnumProjectCustomField"},"value":{"id":"10-5-1-1-1","name":"Sprint 42","$type":"EnumBundleElement"},"$type":"SingleEnumIssueCustomField"},{"id":"10-6","name":"Affected versions","projectCustomField":{"id":"10-6-1","field":{"id":"10-6-1-1","name":"Affected versions","$type":"CustomField"},"$type":"EnumProjectCustomField"},"value":[{"id":"10-6-1-1-1","name":"v1.0.0","$type":"EnumBundleElement"},{"id":"10-6-1-1-2","name":"v1.1.0","$type":"EnumBundleElement"}],"$type":"MultiEnumIssueCustomField"},{"id":"10-7","name":"Story points","projectCustomField":{"id":"10-7-1","field":{"id":"10-7-1-1","name":"Story points","$type":"CustomField"},"$type":"SimpleProjectCustomField"},"value":5,"$type":"SimpleIssueCustomField"}],"links":[{"id":"20-1","direction":"OUTWARD","linkType":{"id":"20-1-1","name":"Relates to","sourceToTarget":"relates to","targetToSource":"relates to","directed":false,"localizedName":"Relates to","localizedSourceToTarget":"relates to","localizedTargetToSource":"relates to","$type":"IssueLinkType"},"issues":[{"id":"31-124","idReadable":"PROJ-124","summary":"Implement responsive design","resolved":false,"$type":"Issue"}],"issuesSize":1,"unresolvedIssuesSize":1,"$type":"IssueLink"},{"id":"20-2","direction":"OUTWARD","linkType":{"id":"20-1-2","name":"Depends on","sourceToTarget":"depends on","targetToSource":"is required for","directed":true,"localizedName":"Depends on","localizedSourceToTarget":"depends on","localizedTargetToSource":"is required for","$type":"IssueLinkType"},"issues":[{"id":"31-125","idReadable":"PROJ-125","summary":"Update CSS framework","resolved":true,"$type":"Issue"}],"issuesSize":1,"unresolvedIssuesSize":0,"$type":"IssueLink"}],"attachments":[{"id":"40-1","name":"mobile-screenshot.png","author":{"id":"1-1","name":"John Smith","fullName":"John Smith","$type":"User"},"created":1683726700000,"updated":1683726700000,"url":"https://example.com/youtrack/api/files/attachments/40-1","mimeType":"image/png","size":125000,"thumbnailURL":"https://example.com/youtrack/api/files/attachments/40-1/thumbnail","imageDimensions":{"width":1080,"height":1920},"$type":"IssueAttachment"}],"project":{"id":"0-1","name":"Project Name","shortName":"PROJ","$type":"Project"},"$type":"Issue","activities":[{"id":"50-1","$type":"IssueCreatedActivityItem","timestamp":1683726645000,"author":{"id":"1-1","name":"John Smith","fullName":"John Smith","login":"jsmith","$type":"User"},"target":{"id":"31-123","idReadable":"PROJ-123","$type":"Issue"}},{"id":"50-2","$type":"CommentActivityItem","timestamp":1683812645000,"author":{"id":"1-2","name":"Jane Doe","fullName":"Jane Doe","login":"jdoe","$type":"User"},"target":{"id":"60-1","text":"I'm working on this now.","$type":"IssueComment"}},{"id":"50-3","$type":"CustomFieldActivityItem","timestamp":1683813645000,"author":{"id":"1-2","name":"Jane Doe","fullName":"Jane Doe","login":"jdoe","$type":"User"},"target":{"id":"31-123","$type":"Issue"},"field":{"id":"10-3-1-1","name":"Stage","$type":"CustomField"},"added":{"id":"10-3-1-1-1","name":"In Progress","presentation":"In Progress","$type":"StateBundleElement"},"removed":{"id":"10-3-1-1-2","name":"Open","presentation":"Open","$type":"StateBundleElement"}},{"id":"50-4","$type":"CommentActivityItem","timestamp":1684146653000,"author":{"id":"1-2","name":"Jane Doe","fullName":"Jane Doe","login":"jdoe","$type":"User"},"target":{"id":"60-2","text":"Found the issue - the CSS media query for mobile devices is incorrectly defined. Will submit a PR soon.","$type":"IssueComment"}}]}",
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`IssueView Snapshots should handle error responses consistently: error-response 1`] = `
+{
+  "content": [
+    {
+      "text": "Error: Issue not found",
+      "type": "text",
+    },
+  ],
+  "isError": true,
+}
+`;

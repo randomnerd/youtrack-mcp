@@ -1,0 +1,59 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# YouTrack MCP Testing Strategy
+
+## Test Directory Structure
+
+- `__tests__/` - Root test directory
+  - `fixtures/` - Test data fixtures
+  - `helpers/` - Test helper functions
+  - `integration/` - Integration tests
+    - `routes/` - Route integration tests
+  - `mocks/` - API mocks
+  - `unit/` - Unit tests
+    - `controllers/` - Controller unit tests
+    - `models/` - Model unit tests
+    - `routes/` - Route unit tests
+    - `utils/` - Utility unit tests
+    - `views/` - View unit tests
+  - `utils/` - Test utilities
+
+## Test Types
+
+### Unit Tests
+- Test individual functions and classes in isolation
+- Mock all external dependencies
+- Focus on specific functionality
+- Located in `__tests__/unit/`
+
+### Integration Tests
+- Test interaction between components
+- May use real or mocked YouTrack API
+- Focus on ensuring components work together
+- Located in `__tests__/integration/`
+
+## Test Naming
+
+Tests should follow the naming pattern:
+- `<file-being-tested>.test.ts`
+
+Example:
+- `boardController.test.ts` for testing `boardController.ts`
+- `issueRoutes.test.ts` for testing `issueRoutes.ts`
+
+## Mocking Strategy
+
+- Use `axios-mock-adapter` for mocking YouTrack API responses
+- Create consistent mock data in `__tests__/fixtures/`
+- Mock responses should match real API structure
+- Set up mocks in `beforeEach` and reset in `afterEach`
+
+## Testing Commands
+
+- Run all tests: `npm test`
+- Run with watch mode: `npm run test:watch`
+- Run with coverage: `npm run test:coverage`
+- Run without type checking: `npm run test:no-types`

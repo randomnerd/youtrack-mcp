@@ -1,0 +1,60 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# YouTrack MCP Formatting Standards
+
+## Code Style
+
+- Use 2-space indentation
+- Use single quotes for strings
+- Add semicolons at end of statements
+- Use explicit types for function parameters and returns
+
+## TypeScript Best Practices
+
+- Use interfaces for object shapes
+- Use type aliases for union and intersection types
+- Export types from dedicated type files when possible
+- Use generics appropriately for reusable components
+
+## Documentation Patterns
+
+- Use JSDoc comments for functions and classes
+- Document parameters, return values, and exceptions
+- Include examples for complex functions
+- README.md should contain user-facing documentation
+- Memory bank contains project context for AI assistance
+
+## Import Order
+
+1. External libraries and frameworks
+2. Internal modules from other directories
+3. Internal modules from same directory
+4. Type imports
+
+Example:
+
+```typescript
+// External imports
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
+
+// Internal imports from other directories
+import { BoardController } from '../controllers/boardController';
+import { McpResponse } from '../views/common';
+
+// Internal imports from same directory
+import { LocalUtility } from './localUtility';
+
+// Type imports
+import { Board, Sprint } from '../types/youtrack';
+```
+
+## Parameter Validation
+
+- Use Zod for validating input parameters
+- Apply transformations when needed
+- Include descriptive validation messages
+- Apply consistent parameter constraints

@@ -37,18 +37,44 @@ export class SprintController {
       limit?: number;
       skip?: number;
     }): Promise<ControllerResult<SprintListResult>> => {
+      // Get all sprints for this board
+      const sprints = await SprintModel.findSprints(options);
+      
+      // Add status to each sprint if not present
+      const enhancedSprints = sprints.map(sprint => ({
+        ...sprint,
+        status: sprint.status || (sprint.archived ? 'archived' : (sprint.isCompleted ? 'completed' : 'active'))
+      }));
+      
+      // Filter by name if needed
+      let filteredSprints = enhancedSprints;
+      if (options.sprintName) {
+        filteredSprints = enhancedSprints.filter(sprint => 
+          sprint.name.toLowerCase().includes(options.sprintName?.toLowerCase() || '')
+        );
+      }
+      
+      // Filter by status if needed
+      if (options.status && options.status !== 'all') {
+        filteredSprints = filteredSprints.filter(sprint => 
+          sprint.status === options.status
+        );
+      }
+      
+      // Get board details
       const board = await BoardModel.getById(options.boardId);
       
       return {
         success: true,
         data: {
-          ...board,
-          sprints: board?.sprints || [],
-          total: board?.sprints?.length || 0,
+          boardId: options.boardId,
+          boardName: board?.name,
+          sprints: filteredSprints,
+          total: filteredSprints.length,
           pagination: {
             limit: options.limit,
             skip: options.skip || 0,
-            totalItems: board?.sprints?.length || 0
+            totalItems: filteredSprints.length
           }
         }
       };

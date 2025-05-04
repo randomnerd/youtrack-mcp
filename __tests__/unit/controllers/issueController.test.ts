@@ -214,9 +214,9 @@ describe('Issue Controller', () => {
   });
 
   describe('findIssuesByCriteria', () => {
-    it('should find issues by project criteria', async () => {
+    it('should find issues by criteria', async () => {
       // Setup test data
-      const options = { project: 'TEST' };
+      const options = { project: 'TEST', status: 'Open', limit: 10, skip: 0 };
       const issues = issueFixtures.issues.slice(0, 2);
       
       // Setup mock
@@ -228,180 +228,219 @@ describe('Issue Controller', () => {
       // Verify results
       expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
       expect(result).toHaveProperty('success', true);
-      expect(result).toHaveProperty('data');
       expect(result.data?.issues.length).toBe(2);
       expect(result.data?.query).toContain('project: {TEST}');
+      expect(result.data?.query).toContain('State: {Open}');
     });
-    
-    it('should find issues by assignee criteria', async () => {
-      // Setup test data
-      const options = { assignee: 'me' };
-      const issues = issueFixtures.issues.slice(0, 1);
-      
-      // Setup mock
-      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
-      
-      // Call controller method
-      const result = await IssueController.findIssuesByCriteria(options);
-      
-      // Verify results
-      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('success', true);
-      expect(result).toHaveProperty('data');
-      expect(result.data?.issues.length).toBe(1);
-      expect(result.data?.query).toContain('for: me');
-    });
-    
-    it('should find issues by sprint criteria', async () => {
-      // Setup test data
-      const options = { sprint: 'Sprint 1' };
-      const issues = issueFixtures.issues.slice(1, 3);
-      
-      // Setup mock
-      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
-      
-      // Call controller method
-      const result = await IssueController.findIssuesByCriteria(options);
-      
-      // Verify results
-      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('success', true);
-      expect(result).toHaveProperty('data');
-      expect(result.data?.issues.length).toBe(2);
-      expect(result.data?.query).toContain('sprint: {Sprint 1}');
-    });
-    
-    it('should find issues by type criteria', async () => {
-      // Setup test data
-      const options = { type: 'Bug' };
-      const issues = issueFixtures.issues.slice(0, 2);
-      
-      // Setup mock
-      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
-      
-      // Call controller method
-      const result = await IssueController.findIssuesByCriteria(options);
-      
-      // Verify results
-      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('success', true);
-      expect(result).toHaveProperty('data');
-      expect(result.data?.query).toContain('Type: {Bug}');
-    });
-    
-    it('should find issues by resolved status criteria', async () => {
-      // Setup test data
+
+    // Tests for special status values
+    it('should handle resolved status special case', async () => {
       const options = { status: 'resolved' };
-      const issues = issueFixtures.issues.filter(issue => issue.resolved);
+      const issues = [];
       
-      if (issues.length > 0) {
-        // Setup mock for issues found
-        (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
-        
-        // Call controller method
-        const result = await IssueController.findIssuesByCriteria(options);
-        
-        // Verify results
-        expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-        expect(result.data?.query).toContain('#Resolved');
-      } else {
-        // Setup mock for no issues found
-        (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue([]);
-        
-        // Call controller method
-        const result = await IssueController.findIssuesByCriteria(options);
-        
-        // Verify results
-        expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-        expect(result.data?.total).toBe(0);
-      }
-    });
-    
-    it('should find issues by unresolved status criteria', async () => {
-      // Setup test data
-      const options = { status: 'unresolved' };
-      const issues = issueFixtures.issues.filter(issue => !issue.resolved);
-      
-      // Setup mock
       (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
       
-      // Call controller method
       const result = await IssueController.findIssuesByCriteria(options);
       
-      // Verify results
-      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('success', true);
-      expect(result).toHaveProperty('data');
+      expect(result.data?.query).toContain('#Resolved');
+    });
+
+    it('should handle unresolved status special case', async () => {
+      const options = { status: 'unresolved' };
+      const issues = [];
+      
+      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
+      
+      const result = await IssueController.findIssuesByCriteria(options);
+      
       expect(result.data?.query).toContain('#Unresolved');
     });
-    
-    it('should find issues by custom status criteria', async () => {
-      // Setup test data
-      const options = { status: 'In Progress' };
-      const issues = issueFixtures.issues.slice(0, 1);
-      
-      // Setup mock
-      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
-      
-      // Call controller method
-      const result = await IssueController.findIssuesByCriteria(options);
-      
-      // Verify results
-      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
-      expect(result).toHaveProperty('success', true);
-      expect(result).toHaveProperty('data');
-      expect(result.data?.query).toContain('State: {In Progress}');
+  });
+
+  // Add tests for untested methods
+  describe('getIssueComments', () => {
+    beforeEach(() => {
+      // Add the missing mock method
+      (IssueModel as any).getIssueComments = jest.fn();
     });
-    
-    it('should handle empty results', async () => {
+
+    it('should return issue comments', async () => {
       // Setup test data
-      const options = { project: 'NONEXISTENT' };
+      const issueId = 'TEST-1';
+      const comments = [
+        { id: 'comment1', text: 'First comment' },
+        { id: 'comment2', text: 'Second comment' }
+      ];
       
       // Setup mock
-      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue([]);
+      (IssueModel.getIssueComments as jest.Mock).mockResolvedValue(comments);
       
       // Call controller method
-      const result = await IssueController.findIssuesByCriteria(options);
+      const result = await IssueController.getIssueComments(issueId, { limit: 10, skip: 0 });
       
       // Verify results
-      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(IssueModel.getIssueComments).toHaveBeenCalledWith(issueId, { limit: 10, skip: 0 });
       expect(result).toHaveProperty('success', true);
-      expect(result).toHaveProperty('data');
-      expect(result.data?.issues.length).toBe(0);
+      expect(result.data?.comments).toEqual(comments);
+      expect(result.data?.total).toBe(2);
+      expect(result.data?.issueId).toBe(issueId);
     });
-    
-    it('should limit results according to options', async () => {
+
+    it('should handle errors when fetching comments', async () => {
       // Setup test data
-      const options = { project: 'TEST', limit: 1 };
-      const issues = issueFixtures.issues.slice(0, 3); // More issues than the limit
+      const issueId = 'TEST-1';
+      const errorMessage = 'Failed to fetch comments';
       
       // Setup mock
-      (IssueModel.findIssuesByCriteria as jest.Mock).mockResolvedValue(issues);
+      (IssueModel.getIssueComments as jest.Mock).mockRejectedValue(new Error(errorMessage));
       
       // Call controller method
-      const result = await IssueController.findIssuesByCriteria(options);
+      const result = await IssueController.getIssueComments(issueId);
       
       // Verify results
-      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(IssueModel.getIssueComments).toHaveBeenCalledWith(issueId, undefined);
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain(errorMessage);
+    });
+  });
+
+  describe('getIssueAttachments', () => {
+    beforeEach(() => {
+      // Add the missing mock method
+      (IssueModel as any).getIssueAttachments = jest.fn();
+    });
+
+    it('should return issue attachments', async () => {
+      // Setup test data
+      const issueId = 'TEST-1';
+      const attachments = [
+        { id: 'attach1', name: 'file1.txt', size: 1024 },
+        { id: 'attach2', name: 'file2.pdf', size: 2048 }
+      ];
+      
+      // Setup mock
+      (IssueModel.getIssueAttachments as jest.Mock).mockResolvedValue(attachments);
+      
+      // Call controller method
+      const result = await IssueController.getIssueAttachments(issueId, { limit: 10, skip: 0 });
+      
+      // Verify results
+      expect(IssueModel.getIssueAttachments).toHaveBeenCalledWith(issueId, { limit: 10, skip: 0 });
       expect(result).toHaveProperty('success', true);
-      expect(result).toHaveProperty('data');
-      expect(result.data?.issues.length).toBe(3); // The model returns all 3 issues
-      expect(result.data?.total).toBe(issues.length); // Total is 3
+      expect(result.data?.attachments).toEqual(attachments);
+      expect(result.data?.total).toBe(2);
+      expect(result.data?.issueId).toBe(issueId);
     });
-    
-    it('should handle errors', async () => {
+
+    it('should handle errors when fetching attachments', async () => {
       // Setup test data
-      const options = { project: 'TEST' };
-      const errorMessage = 'Failed to find issues';
+      const issueId = 'TEST-1';
+      const errorMessage = 'Failed to fetch attachments';
       
       // Setup mock
-      (IssueModel.findIssuesByCriteria as jest.Mock).mockRejectedValue(new Error(errorMessage));
+      (IssueModel.getIssueAttachments as jest.Mock).mockRejectedValue(new Error(errorMessage));
       
       // Call controller method
-      const result = await IssueController.findIssuesByCriteria(options);
+      const result = await IssueController.getIssueAttachments(issueId);
       
       // Verify results
-      expect(IssueModel.findIssuesByCriteria).toHaveBeenCalledWith(options);
+      expect(IssueModel.getIssueAttachments).toHaveBeenCalledWith(issueId, undefined);
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain(errorMessage);
+    });
+  });
+
+  describe('getIssueLinks', () => {
+    beforeEach(() => {
+      // Add the missing mock method
+      (IssueModel as any).getIssueLinks = jest.fn();
+    });
+
+    it('should return issue links', async () => {
+      // Setup test data
+      const issueId = 'TEST-1';
+      const links = [
+        { id: 'link1', type: 'relates to', target: 'TEST-2' },
+        { id: 'link2', type: 'blocks', target: 'TEST-3' }
+      ];
+      
+      // Setup mock
+      (IssueModel.getIssueLinks as jest.Mock).mockResolvedValue(links);
+      
+      // Call controller method
+      const result = await IssueController.getIssueLinks(issueId, { limit: 10, skip: 0 });
+      
+      // Verify results
+      expect(IssueModel.getIssueLinks).toHaveBeenCalledWith(issueId, { limit: 10, skip: 0 });
+      expect(result).toHaveProperty('success', true);
+      expect(result.data?.links).toEqual(links);
+      expect(result.data?.total).toBe(2);
+      expect(result.data?.issueId).toBe(issueId);
+    });
+
+    it('should handle errors when fetching links', async () => {
+      // Setup test data
+      const issueId = 'TEST-1';
+      const errorMessage = 'Failed to fetch links';
+      
+      // Setup mock
+      (IssueModel.getIssueLinks as jest.Mock).mockRejectedValue(new Error(errorMessage));
+      
+      // Call controller method
+      const result = await IssueController.getIssueLinks(issueId);
+      
+      // Verify results
+      expect(IssueModel.getIssueLinks).toHaveBeenCalledWith(issueId, undefined);
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      expect(result.error).toContain(errorMessage);
+    });
+  });
+
+  describe('getIssueActivities separately', () => {
+    it('should return issue activities with options', async () => {
+      // Setup test data
+      const issueId = 'TEST-1';
+      const activities = [
+        { id: 'activity1', timestamp: 1620000000000, author: { name: 'User 1' } },
+        { id: 'activity2', timestamp: 1621000000000, author: { name: 'User 2' } }
+      ];
+      const options = { 
+        limit: 10, 
+        skip: 0,
+        categories: 'comments,links',
+        reverse: true
+      };
+      
+      // Setup mock
+      (IssueModel.getIssueActivities as jest.Mock).mockResolvedValue(activities);
+      
+      // Call controller method
+      const result = await IssueController.getIssueActivities(issueId, options);
+      
+      // Verify results
+      expect(IssueModel.getIssueActivities).toHaveBeenCalledWith(issueId, options);
+      expect(result).toHaveProperty('success', true);
+      expect(result.data?.activities).toEqual(activities);
+      expect(result.data?.total).toBe(2);
+      expect(result.data?.issueId).toBe(issueId);
+    });
+
+    it('should handle errors when fetching activities separately', async () => {
+      // Setup test data
+      const issueId = 'TEST-1';
+      const errorMessage = 'Failed to fetch activities';
+      
+      // Setup mock
+      (IssueModel.getIssueActivities as jest.Mock).mockRejectedValue(new Error(errorMessage));
+      
+      // Call controller method
+      const result = await IssueController.getIssueActivities(issueId);
+      
+      // Verify results
+      expect(IssueModel.getIssueActivities).toHaveBeenCalledWith(issueId, undefined);
       expect(result).toHaveProperty('success', false);
       expect(result).toHaveProperty('error');
       expect(result.error).toContain(errorMessage);

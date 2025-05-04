@@ -34,7 +34,7 @@ export function registerSprintRoutes(server: McpServer) {
       sprintName: z.string().optional().describe('Partial or full name of sprint to search for'),
       status: z.enum(['active', 'archived', 'all']).default('all').describe('Status of sprints to find'),
       limit: z.number().optional().transform(val => 
-        Math.min(Math.max(val || DEFAULT_PAGINATION.LIMIT, 1), PAGINATION_LIMITS.SPRINTS)
+        val === undefined || val <= 0 ? DEFAULT_PAGINATION.LIMIT : Math.min(Math.max(val, 1), PAGINATION_LIMITS.SPRINTS)
       ).describe(`Maximum number of sprints to return (1-${PAGINATION_LIMITS.SPRINTS})`),
       skip: z.number().optional().transform(val => 
         Math.max(val || DEFAULT_PAGINATION.SKIP, 0)

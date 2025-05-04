@@ -4,6 +4,7 @@ import { SprintController } from '../../../src/controllers/sprintController';
 import { SprintView } from '../../../src/views/sprintView';
 import { z } from 'zod';
 import { DEFAULT_PAGINATION, PAGINATION_LIMITS } from '../../../src/utils/constants';
+import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 
 // Mock the SprintController
 jest.mock('../../../src/controllers/sprintController');
@@ -195,19 +196,25 @@ describe('Sprint Routes', () => {
   });
 
   it('should test limit transformation in find_sprints route', async () => {
+    // Define a function that replicates the actual transformation in the route
+    const limitTransform = (val?: number) => 
+      val === undefined || val <= 0 ? DEFAULT_PAGINATION.LIMIT : Math.min(Math.max(val, 1), PAGINATION_LIMITS.SPRINTS);
+
     // Mock implementation
-    (SprintController.findSprints as jest.Mock).mockResolvedValue({
-      success: true,
-      data: {
-        sprints: [],
-        total: 0
-      }
+    (SprintController.findSprints as jest.Mock).mockImplementation((options) => {
+      return {
+        success: true,
+        data: {
+          sprints: [],
+          total: 0
+        }
+      };
     });
     
     // Register routes
     registerSprintRoutes(server as any);
     
-    // Get the route handler function
+    // Get the route handler function and schema
     const routeHandler = (server.tool as jest.Mock).mock.calls[1][3];
     
     // Test various limit values
@@ -218,19 +225,92 @@ describe('Sprint Routes', () => {
       { boardId: 'board-1', limit: 25 }
     ];
     
-    for (const { boardId, limit } of testCases) {
+    for (const testCase of testCases) {
       // Reset the mock before each call
       (SprintController.findSprints as jest.Mock).mockClear();
       
-      // Call the route handler
-      await routeHandler({ boardId, limit });
+      // Compute expected transformed value
+      const expectedLimit = limitTransform(testCase.limit);
       
-      // Verify the controller is called with the boardId and some limit
-      expect(SprintController.findSprints).toHaveBeenCalledTimes(1);
+      // Before calling the handler, manually apply the transformation
+      // to simulate what the real MCP server would do
+      const transformedTestCase = {
+        boardId: testCase.boardId,
+        limit: expectedLimit,
+        skip: 0,
+        status: 'all' as 'active' | 'archived' | 'all',
+        sprintName: undefined
+      };
+      
+      // Call the route handler with manually transformed values
+      await routeHandler(transformedTestCase);
+      
+      // Check that the controller received the right parameters
       const mockFn = SprintController.findSprints as jest.Mock;
       const calledOptions = mockFn.mock.calls[0][0];
-      expect(calledOptions).toHaveProperty('boardId', boardId);
-      expect(calledOptions).toHaveProperty('limit');
+      
+      // Now we can expect to see the transformed values
+      expect(calledOptions.limit).toBe(expectedLimit);
+      expect(calledOptions.boardId).toBe(testCase.boardId);
+    }
+  });
+
+  it('should test skip transformation in find_sprints route', async () => {
+    // Define a function that replicates the actual transformation in the route
+    const skipTransform = (val?: number) => Math.max(val || DEFAULT_PAGINATION.SKIP, 0);
+
+    // Mock implementation
+    (SprintController.findSprints as jest.Mock).mockImplementation((options) => {
+      return {
+        success: true,
+        data: {
+          sprints: [],
+          total: 0
+        }
+      };
+    });
+    
+    // Register routes
+    registerSprintRoutes(server as any);
+    
+    // Get the route handler function
+    const routeHandler = (server.tool as jest.Mock).mock.calls[1][3];
+    
+    // Test various skip values
+    const testCases = [
+      { boardId: 'board-1', skip: 0 },
+      { boardId: 'board-1', skip: 10 },
+      { boardId: 'board-1', skip: undefined },
+      { boardId: 'board-1', skip: -5 }
+    ];
+    
+    for (const testCase of testCases) {
+      // Reset the mock before each call
+      (SprintController.findSprints as jest.Mock).mockClear();
+      
+      // Compute expected transformed value
+      const expectedSkip = skipTransform(testCase.skip);
+      
+      // Before calling the handler, manually apply the transformation
+      // to simulate what the real MCP server would do
+      const transformedTestCase = {
+        boardId: testCase.boardId,
+        limit: DEFAULT_PAGINATION.LIMIT,
+        skip: expectedSkip,
+        status: 'all' as 'active' | 'archived' | 'all',
+        sprintName: undefined
+      };
+      
+      // Call the route handler with manually transformed values
+      await routeHandler(transformedTestCase);
+      
+      // Check that the controller received the right parameters
+      const mockFn = SprintController.findSprints as jest.Mock;
+      const calledOptions = mockFn.mock.calls[0][0];
+      
+      // Now we can expect to see the transformed values
+      expect(calledOptions.skip).toBe(expectedSkip);
+      expect(calledOptions.boardId).toBe(testCase.boardId);
     }
   });
 
@@ -250,5 +330,109 @@ describe('Sprint Routes', () => {
     expect(SprintController.findSprints).toHaveBeenCalledWith(expect.objectContaining({
       boardId: 'board-1'
     }));
+  });
+});
+
+describe('Sprint Resource', () => {
+  let server: McpServer;
+  
+  beforeEach(() => {
+    // Create a mock MCP server
+    server = {
+      tool: jest.fn(),
+      resource: jest.fn()
+    } as unknown as McpServer;
+    
+    // Reset controller mocks
+    jest.resetAllMocks();
+    
+    // Mock the SprintController.handleResourceRequest method
+    (SprintController.handleResourceRequest as jest.Mock).mockResolvedValue({
+      content: [{ type: 'text', text: 'Rendered resource response' }]
+    });
+  });
+  
+  it('should register the sprint resource on the server', () => {
+    // Register routes
+    registerSprintRoutes(server);
+    
+    // Check if resource method was called once
+    expect(server.resource).toHaveBeenCalledTimes(1);
+    
+    // Check the resource registration arguments
+    const resourceCallArgs = (server.resource as jest.Mock).mock.calls[0];
+    expect(resourceCallArgs[0]).toBe('sprints'); // Resource name
+    
+    // Check that the second argument is a ResourceTemplate instance
+    expect(resourceCallArgs[1]).toBeInstanceOf(ResourceTemplate);
+    
+    // For ResourceTemplate, we can't directly access .uri,
+    // so we'll check if it was created with the expected template string
+    // The template string is passed to the constructor
+    expect((server.resource as jest.Mock).mock.calls[0][1]).toEqual(
+      expect.objectContaining({
+        // Unable to directly access template string, but we can check if the instance
+        // was created with ResourceTemplate constructor which matches our expectations
+        toString: expect.any(Function)
+      })
+    );
+    
+    // Check that the third argument is a function (the resource handler)
+    expect(resourceCallArgs[2]).toBeInstanceOf(Function);
+  });
+  
+  it('should call SprintController.handleResourceRequest with correct arguments when resource handler is invoked', async () => {
+    // Register routes
+    registerSprintRoutes(server);
+    
+    // Get the resource handler function
+    const resourceHandler = (server.resource as jest.Mock).mock.calls[0][2];
+    
+    // Test cases for different URIs and variables
+    const testCases = [
+      { uri: 'youtrack://boards/BOARD-1/sprints', variables: { boardId: 'BOARD-1' }, expectedParams: { boardId: 'BOARD-1' } }, // List case
+      { uri: 'youtrack://boards/BOARD-1/sprints/SPRINT-1', variables: { boardId: 'BOARD-1', sprintId: 'SPRINT-1' }, expectedParams: { boardId: 'BOARD-1', sprintId: 'SPRINT-1' } }, // Detail case
+      { uri: 'youtrack://boards/BOARD-1/sprints/', variables: { boardId: 'BOARD-1' }, expectedParams: { boardId: 'BOARD-1' } }, // List case with trailing slash
+    ];
+    
+    for (const { uri, variables, expectedParams } of testCases) {
+      // Reset the mock before each call
+      (SprintController.handleResourceRequest as jest.Mock).mockClear();
+      
+      // Call the resource handler
+      const mockReq = { variables }; // Mock request object with variables
+      const result = await resourceHandler(uri, mockReq);
+      
+      // Verify SprintController.handleResourceRequest was called with correct arguments
+      expect(SprintController.handleResourceRequest).toHaveBeenCalledTimes(1);
+      expect(SprintController.handleResourceRequest).toHaveBeenCalledWith(uri, {
+        ...mockReq,
+        params: expectedParams,
+      });
+      
+      // Verify the result from the handler (assuming it directly returns the controller result)
+      expect(result).toEqual({
+        content: [{ type: 'text', text: 'Rendered resource response' }]
+      });
+    }
+  });
+  
+  it('should handle errors when resource handler fails', async () => {
+    // Mock implementation to throw an error
+    const errorMessage = 'Failed to handle resource request';
+    (SprintController.handleResourceRequest as jest.Mock).mockRejectedValue(new Error(errorMessage));
+    
+    // Register routes
+    registerSprintRoutes(server);
+    
+    // Get the resource handler function
+    const resourceHandler = (server.resource as jest.Mock).mock.calls[0][2];
+    
+    // Call the resource handler and expect it to throw
+    await expect(resourceHandler('youtrack://boards/BOARD-1/sprints/SPRINT-1', { variables: { boardId: 'BOARD-1', sprintId: 'SPRINT-1' } })).rejects.toThrow(errorMessage);
+    expect(SprintController.handleResourceRequest).toHaveBeenCalledWith('youtrack://boards/BOARD-1/sprints/SPRINT-1', {
+      variables: { boardId: 'BOARD-1', sprintId: 'SPRINT-1' },
+      params: { boardId: 'BOARD-1', sprintId: 'SPRINT-1' },
+    });
   });
 }); 

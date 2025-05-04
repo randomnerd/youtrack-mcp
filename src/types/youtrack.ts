@@ -378,6 +378,7 @@ export interface Sprint {
   isDefault?: boolean;
   isStarted?: boolean;
   unresolvedIssuesCount?: number;
+  status?: string;
   $type: 'Sprint';
 }
 

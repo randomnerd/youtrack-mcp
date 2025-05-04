@@ -13,7 +13,7 @@ export function registerBoardRoutes(server: McpServer) {
     'List all available agile boards',
     {
       limit: z.number().optional().transform(val => 
-        Math.min(Math.max(val || DEFAULT_PAGINATION.LIMIT, 1), PAGINATION_LIMITS.BOARDS)
+        val === undefined || val <= 0 ? DEFAULT_PAGINATION.LIMIT : Math.min(Math.max(val, 1), PAGINATION_LIMITS.BOARDS)
       ).describe(`Maximum number of boards to return (1-${PAGINATION_LIMITS.BOARDS})`),
       skip: z.number().optional().transform(val => 
         Math.max(val || DEFAULT_PAGINATION.SKIP, 0)

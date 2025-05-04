@@ -64,6 +64,8 @@ export interface SprintListResult {
   sprints: YouTrackTypes.Sprint[];
   total: number;
   pagination?: Pagination;
+  boardId?: string;
+  boardName?: string;
 }
 
 // Board Controller Result Types

@@ -1,0 +1,55 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# YouTrack MCP Implementation Patterns
+
+## Tool Implementation Pattern
+
+When implementing a new YouTrack integration tool, follow this pattern:
+
+1. **Define route and schema in a route file**
+   - Add tool definition to appropriate route file in `src/routes/`
+   - Define schema using Zod for parameter validation
+   - Example: [boardRoutes.ts](mdc:src/routes/boardRoutes.ts)
+
+2. **Implement business logic in a controller**
+   - Create controller method in appropriate controller file
+   - Wrap with error handling utility
+   - Return standardized result object
+   - Example: [boardController.ts](mdc:src/controllers/boardController.ts)
+
+3. **Access YouTrack API through a model**
+   - Implement API call in appropriate model file
+   - Handle data fetching and manipulation
+   - Return YouTrack API data
+   - Example: [board.ts](mdc:src/models/board.ts)
+
+4. **Format response using view utilities**
+   - Create or update view methods to format data
+   - Return standardized MCP response format
+   - Example: See relevant view files in `src/views/`
+
+## Error Handling Pattern
+
+- Use the `withErrorHandling` utility to wrap controller methods
+- Models should validate input before API calls
+- Controllers return standardized error responses
+- YouTrack API errors are mapped to appropriate HTTP status codes
+
+## Resource Handling Pattern
+
+For resource-oriented endpoints:
+1. Define resource template in route file
+2. Create resource handler in controller
+3. Extract parameters from URL
+4. Call appropriate model methods
+5. Format response using view methods
+
+## Pagination Pattern
+
+- Use standardized pagination for list endpoints
+- Include limit and skip parameters
+- Return total items count with results
+- Apply value constraints from constants
