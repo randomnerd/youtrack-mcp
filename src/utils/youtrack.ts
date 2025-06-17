@@ -27,9 +27,11 @@ export class YouTrack {
   public static readonly DEFAULT_ISSUE_FIELDS = `id,idReadable,Stage,summary,description,created,updated,resolved,numberInProject,$type,project($type,id,name,shortName),reporter(${YouTrack.DEFAULT_AUTHOR_FIELDS}),updater(${YouTrack.DEFAULT_AUTHOR_FIELDS}),customFields($type,id,name,projectCustomField(id,field(id,name)),value($type,id,name,isResolved,fullName,login,avatarUrl,color(id))),links($type,direction,id,linkType($type,id,name,localizedName,sourceToTarget,targetToSource),issues(id,idReadable,summary,resolved),trimmedIssues(id,idReadable,summary,resolved),issuesSize,unresolvedIssuesSize),comments(id,text,created,updated,author(${YouTrack.DEFAULT_AUTHOR_FIELDS}),attachments($type,id,name,size,thumbnailURL,url,mimeType,created,author(${YouTrack.DEFAULT_AUTHOR_FIELDS})))`;
   public static readonly DEFAULT_SPRINT_FIELDS = `id,name,goal,start,finish,archived,isDefault,unresolvedIssuesCount,issues(id,idReadable,created,updated,projectCustomField(id,field(id,name)))`;
   public static readonly DEFAULT_AGILE_FIELDS = `id,name,description,start,finish,isDefault,isCompleted,sprints(${YouTrack.DEFAULT_SPRINT_FIELDS})`;
+  public static readonly DEFAULT_ARTICLE_FIELDS = `id,idReadable,summary,content,created,updated,hasStar,reporter(${YouTrack.DEFAULT_AUTHOR_FIELDS}),project($type,id,name,shortName),tags(id,name),visibility($type,id)`;
   private issueFieldBuilder = new FieldBuilder(YouTrack.DEFAULT_ISSUE_FIELDS);
   private sprintFieldBuilder = new FieldBuilder(YouTrack.DEFAULT_SPRINT_FIELDS);
   private agileFieldBuilder = new FieldBuilder(YouTrack.DEFAULT_AGILE_FIELDS);
+  private articleFieldBuilder = new FieldBuilder(YouTrack.DEFAULT_ARTICLE_FIELDS);
   
   // Field getters
   public get issueFields(): string {
@@ -42,6 +44,10 @@ export class YouTrack {
   
   public get agileFields(): string {
     return this.agileFieldBuilder.build();
+  }
+  
+  public get articleFields(): string {
+    return this.articleFieldBuilder.build();
   }
 
   /**
@@ -136,6 +142,27 @@ export class YouTrack {
    */
   public setAgileFields(fields: string[]): YouTrack {
     this.agileFieldBuilder = new FieldBuilder().addFields(fields);
+    return this;
+  }
+
+  /**
+   * Add fields to the article field builder
+   * @param fields - Fields to add (can be dot-notation paths)
+   * @returns this instance for chaining
+   */
+  public addArticleFields(fields: string | string[]): YouTrack {
+    const fieldList = Array.isArray(fields) ? fields : [fields];
+    fieldList.forEach(field => this.articleFieldBuilder.add(field));
+    return this;
+  }
+
+  /**
+   * Reset the article field builder to a new set of fields
+   * @param fields - Fields to set (can be dot-notation paths)
+   * @returns this instance for chaining
+   */
+  public setArticleFields(fields: string[]): YouTrack {
+    this.articleFieldBuilder = new FieldBuilder().addFields(fields);
     return this;
   }
 
@@ -631,6 +658,133 @@ export class YouTrack {
     // Add activities to the issue
     const issuesWithActivities = await this.addActivitiesToIssues(issue);
     return issuesWithActivities[0];
+  }
+
+  // ======= ARTICLES =======
+
+  /**
+   * List all available articles
+   * @param options - Pagination options and project filter
+   * @returns Array of articles
+   */
+  async listArticles(
+    options: { 
+      limit?: number; 
+      skip?: number; 
+      project?: string;
+    } = {}
+  ): Promise<YouTrackTypes.Article[]> {
+    const { limit = 100, skip = 0, project } = options;
+    
+    const params: Record<string, string> = {
+      fields: this.articleFields,
+      $top: limit.toString(),
+      $skip: skip.toString(),
+    };
+
+    // Add project filter if specified
+    if (project) {
+      params.project = project;
+    }
+    
+    return this.request<YouTrackTypes.Article[]>('/articles', { params });
+  }
+
+  /**
+   * Get details of a specific article
+   * @param articleId - The ID of the article
+   * @returns The article data
+   */
+  async getArticle(articleId: string): Promise<YouTrackTypes.Article> {
+    return this.request<YouTrackTypes.Article>(`/articles/${articleId}`, {
+      params: {
+        fields: this.articleFields,
+      },
+    });
+  }
+
+  /**
+   * Get article attachments
+   * @param articleId - The ID of the article
+   * @param options - Pagination options
+   * @returns The article attachments
+   */
+  async getArticleAttachments(
+    articleId: string, 
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<YouTrackTypes.ArticleAttachment[]> {
+    const { limit = 100, skip = 0 } = options;
+    
+    return this.request<YouTrackTypes.ArticleAttachment[]>(`/articles/${articleId}/attachments`, {
+      params: {
+        fields: 'id,name,url,created,author(id,name),size,mimeType,thumbnailURL',
+        $top: limit.toString(),
+        $skip: skip.toString(),
+      },
+    });
+  }
+
+  /**
+   * Get article comments
+   * @param articleId - The ID of the article
+   * @param options - Pagination options
+   * @returns The article comments
+   */
+  async getArticleComments(
+    articleId: string,
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<YouTrackTypes.ArticleComment[]> {
+    const { limit = 100, skip = 0 } = options;
+    
+    return this.request<YouTrackTypes.ArticleComment[]>(`/articles/${articleId}/comments`, {
+      params: { 
+        fields: 'id,text,created,updated,author(id,name)',
+        $top: limit.toString(),
+        $skip: skip.toString(),
+      },
+    });
+  }
+
+  /**
+   * Get sub-articles of the current article
+   * @param articleId - The ID of the parent article
+   * @param options - Pagination options
+   * @returns Array of sub-articles
+   */
+  async getChildArticles(
+    articleId: string,
+    options: { limit?: number; skip?: number } = {}
+  ): Promise<YouTrackTypes.Article[]> {
+    const { limit = 100, skip = 0 } = options;
+    
+    return this.request<YouTrackTypes.Article[]>(`/articles/${articleId}/childArticles`, {
+      params: {
+        fields: 'id,idReadable,summary,created,updated,reporter(id,name)',
+        $top: limit.toString(),
+        $skip: skip.toString(),
+      },
+    });
+  }
+
+  /**
+   * Get the parent article of the current article
+   * @param articleId - The ID of the article
+   * @returns The parent article data
+   */
+  async getParentArticle(articleId: string): Promise<YouTrackTypes.Article | null> {
+    try {
+      return this.request<YouTrackTypes.Article>(`/articles/${articleId}/parentArticle`, {
+        params: {
+          fields: 'id,idReadable,summary,created,updated,reporter(id,name)',
+        },
+      });
+    } catch (error) {
+      // Return null if no parent article exists
+      if (error instanceof Error && error.message.includes('404')) {
+        return null;
+      }
+      throw error;
+    }
   }
 
   // ======= PROJECTS =======

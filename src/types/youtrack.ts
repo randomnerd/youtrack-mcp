@@ -750,4 +750,54 @@ export type Activity = ActivityItem | CommentActivityItem | IssueCreatedActivity
  * Extended issue type that includes activities
  * Comments are now directly attached to the issue through the comments property
  */
-export type IssueWithActivities = Issue & { activities?: Activity[] }; 
+export type IssueWithActivities = Issue & { activities?: Activity[] };
+
+// ======= ARTICLES =======
+
+export interface Article {
+  id: string;
+  idReadable: string;
+  summary: string;
+  content?: string;
+  created: number;
+  updated: number;
+  reporter?: User;
+  project?: Project;
+  hasStar?: boolean;
+  visibility?: Visibility;
+  parentArticle?: Article;
+  childArticles?: Article[];
+  tags?: ArticleTag[];
+  attachments?: ArticleAttachment[];
+  comments?: ArticleComment[];
+  $type: 'Article';
+}
+
+export interface ArticleTag {
+  id: string;
+  name: string;
+  $type: 'ArticleTag';
+}
+
+export interface ArticleAttachment {
+  id: string;
+  name: string;
+  url?: string;
+  mimeType?: string;
+  size?: number;
+  thumbnailURL?: string;
+  created?: number;
+  author?: User;
+  $type: 'ArticleAttachment';
+}
+
+export interface ArticleComment {
+  id: string;
+  text?: string | null;
+  created?: number;
+  updated?: number;
+  author?: User;
+  attachments?: ArticleAttachment[];
+  visibility?: Visibility;
+  $type: 'ArticleComment';
+} 

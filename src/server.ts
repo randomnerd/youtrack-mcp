@@ -5,6 +5,7 @@ import { registerBoardRoutes } from './routes/boardRoutes';
 import { registerSprintRoutes } from './routes/sprintRoutes';
 import { registerIssueRoutes } from './routes/issueRoutes';
 import { registerProjectRoutes } from './routes/projectRoutes';
+import { registerArticleRoutes } from './routes/articleRoutes';
 
 // Create an MCP server for YouTrack
 const server = new McpServer({
@@ -21,5 +22,6 @@ registerBoardRoutes(server);
 registerSprintRoutes(server);
 registerIssueRoutes(server);
 registerProjectRoutes(server);
+registerArticleRoutes(server);
 
 export { server }; 

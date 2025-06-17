@@ -79,4 +79,16 @@ export interface BoardListResult {
   boards: YouTrackTypes.Board[];
   total: number;
   pagination?: Pagination;
+}
+
+// Article Controller Result Types
+export interface ArticleDetailResult {
+  article: YouTrackTypes.Article;
+}
+
+export interface ArticleListResult {
+  articles: YouTrackTypes.Article[];
+  total: number;
+  pagination?: Pagination;
+  project?: string;
 } 
