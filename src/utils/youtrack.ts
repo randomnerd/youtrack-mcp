@@ -77,6 +77,7 @@ export class YouTrack {
     this.defaultHeaders = {
       Authorization: `Bearer ${token}`,
       Accept: 'application/json, text/plain, */*',
+      'Content-Type': 'application/json',
       'User-Agent': 'axios/1.9.0',
       'Accept-Encoding': 'gzip, compress, deflate, br',
     };
